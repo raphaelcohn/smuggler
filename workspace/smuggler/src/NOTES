@@ -1,0 +1,70 @@
+
+"Except for one more thing: the TIFF specification explicitly forbids tag data to include any offsets into the file or into any other TIFF data block, except for the documented special cases (TileOffsets, StripOffsets,...)"
+
+TIFF standards at https://www.awaresystems.be/imaging/tiff/faq.html
+
+What about SubIFDs?
+
+Non-standard TIFF field type.
+	Use a TIFF field type of 13 (IFD) instead of 4 (LONG) for IFD offsets. This was first proposed in 1995 by Adobe in their PageMaker 6.0 TIFF Technical Notes, but unfortunately it never found its way into the TIFF specification. Even so, Olympus Optical Co. has shown some intelligence and is using this field type in the maker notes of their recent digital cameras.
+
+Multiple Exif segments
+	Allow EXIF to span multiple JPEG segments. Multiple consecutive EXIF segments are simply concatenated into a single data block when reading. [Apparently Adobe has been doing this for years[11], and this ability was added to ExifTool in version 10.97.]
+
+OffsetSchema
+	(hex. 0xEA1D, dec. 59933) in an attempt to patch a deficiency in the EXIF maker note specification. This tag represents the offset difference between the original maker note location in the EXIF and the new location after editing, and is designed to allow the maker note tag values to be accessed after the location of the maker notes is changed by editing the EXIF
+
+The EXIF/TIFF format specifies that tags must be stored in numerical order, the maker note tag (hex. 0x927C) comes before the OffsetSchema tag (hex. 0xEA1D).
+
+Offset for Values must be an even number.
+
+Maker notes can reveal sensitive information.
+	- maker notes are mini-TIFF-like sections, that can include offsets and pointers to more IFDs. Offsets we can handle; Pointers we can not and need specialist support.
+	Maker notes have different headers.
+
+So... they only safe technique is to strip the maker notes. Or stick our data after it.
+
+MakerNote field can include embedded IFD pointers and data pointers, which thus requires a complete MakerNote parser to be able to preserve this data.
+Some MakerNote specifications use offsets relative to the start of the MakerNote field, which at least allows us to insert data before the MakerNote field.
+
+Microsoft's approach is a special SchemaOffset tag, allowing a re-write of the file as-if.
+
+Most vendors write the makernote in TIFF format, i.e., in the same format as the rest of the Exif information is encoded. This appears to be a sensible thing at first glance. Unfortunately, in general it means that any change of an Exif tag, which moves the makernote field, will corrupt it. It is an inherent problem of the TIFF format that a writer must know the format and all extensions used, in order to be able to write changes correctly; unknown tags are potentially corrupted when they are moved (rearranged). But since makernotes are usually proprietary, Exif writers often don't know these details. The reason to write to the Exif data could be as simple as to add copyright information, an Exif comment, etc. Some camera manufacturers seem to have recognized this problem and now use a modified TIFF format with offsets relative to somewhere at the beginning of the makernote field for the makernote IFD to address the issue.
+
+
+
+
+
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum Namespace
+{
+	Public,
+
+	Exif(ExifNamespace)
+}
+
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum ExifNamespace
+{
+	Specific(SpecificExifNamespace),
+
+	Gps,
+
+	Interoperability,
+}
+
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum SpecificExifNamespace
+{
+	Common,
+
+	MakerNote(MakerNoteSpecificExifNamespace)
+}
+
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum MakerNoteSpecificExifNamespace
+{
+	Olympus,
+
+	Other,
+}
