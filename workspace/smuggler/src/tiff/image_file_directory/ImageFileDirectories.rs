@@ -19,7 +19,7 @@ impl<'a, A: Allocator> Deref for ImageFileDirectories<'a, A>
 impl<'a, A: Allocator> ImageFileDirectories<'a, A>
 {
 	#[inline(always)]
-	pub(crate) fn parse_top_level<B: Bytes>(allocator: A, tiff_bytes: &'a B, header: Header, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
+	pub(crate) fn parse_top_level<B: Bytes>(allocator: A, tiff_bytes: &'a mut B, header: Header, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
 	{
 		use Version::*;
 		
@@ -51,7 +51,7 @@ impl<'a, A: Allocator> ImageFileDirectories<'a, A>
 			{
 				None => break,
 				
-				Some(next_image_file_directory_pointer)
+				Some(next_image_file_directory_pointer) =>
 				{
 					image_file_directory_pointer = next_image_file_directory_pointer;
 				}

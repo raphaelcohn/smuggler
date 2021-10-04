@@ -6,5 +6,5 @@ pub(in crate::tiff::image_file_directory) trait TagParser
 {
 	type Tag<'a, A: Allocator>: Tag<'a, A>;
 	
-	fn parse<'a, Unit: Version6OrBigTiffUnit, A: Allocator, B: Bytes>(&self, allocator: A, tiff_bytes: &'a B, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: u64) -> Result<Self::Tag<'a, A>, TagParseError>;
+	fn parse<'a, Unit: Version6OrBigTiffUnit, A: Allocator, B: Bytes>(&self, allocator: A, tiff_bytes: &'a mut B, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: u64) -> Result<Self::Tag<'a, A>, TagParseError>;
 }

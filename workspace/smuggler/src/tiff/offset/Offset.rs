@@ -10,13 +10,13 @@ impl Offset
 	#[inline(always)]
 	pub(crate) fn version_6<B: Bytes>(bytes: &B, index: u64, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		Self::<B, u32>(bytes, index, byte_order, B::unaligned_u32_value)
+		Self::<B, u32>(bytes, index, byte_order, B::unaligned_u32)
 	}
 	
 	#[inline(always)]
 	pub(crate) fn version_big_tiff<B: Bytes>(bytes: &B, index: u64, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		Self::<B, u64>(bytes, index, byte_order, B::unaligned_u64_value)
+		Self::<B, u64>(bytes, index, byte_order, B::unaligned_u64)
 	}
 	
 	#[inline(always)]
@@ -32,18 +32,22 @@ impl Offset
 	}
 	
 	#[inline(always)]
-	fn parse<Unit: Into<u64>>(bytes: &impl Bytes, raw_offset: Unit) -> Result<Self, OffsetParseError>
+	pub(crate) fn parse_offset_value(bytes: &impl Bytes, raw_offset: u64) -> Result<Self, OffsetParseError>
 	{
-		use OffsetParseError::*;
-		
-		let raw_offset = raw_offset.into();
 		let file_length = bytes.file_length();
 		if unlikely!(raw_offset > file_length)
 		{
-			return Err(TooLarge { offset, file_length })
+			return Err(OffsetParseError::TooLarge { offset, file_length })
 		}
 		
 		Ok(Self(raw_offset))
+	}
+	
+	#[inline(always)]
+	fn parse<Unit: Into<u64>>(bytes: &impl Bytes, raw_offset: Unit) -> Result<Self, OffsetParseError>
+	{
+		let raw_offset = raw_offset.into();
+		Self::parse_offset_value(bytes, raw_offset)
 	}
 	
 	#[inline(always)]

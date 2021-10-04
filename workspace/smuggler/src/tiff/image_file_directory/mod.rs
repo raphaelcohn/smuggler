@@ -30,6 +30,7 @@ use std::ops::Deref;
 use std::num::NonZeroU64;
 use swiss_army_knife::non_zero::new_non_zero_u64;
 use crate::tiff::image_file_directory::tags::parsers::PublicTagParser;
+use crate::tiff::image_file_directory::tags::public::PublicTagParser;
 
 
 /// Pointer.

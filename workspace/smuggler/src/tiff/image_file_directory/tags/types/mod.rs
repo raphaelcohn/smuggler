@@ -2,36 +2,56 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use std::hash::Hash;
-use std::hash::Hasher;
-use std::fmt;
+use likely::unlikely;
+use super::TagIdentifier;
+use super::parsers::TagParseError;
+use super::parsers::SpecificTagParseError;
+use super::parsers::Version6OrBigTiffUnit;
+use crate::collections::{ByteOrder, VecExt};
+use crate::collections::Bytes;
+use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointer;
+use crate::tiff::offset::Offset;
+use memchr::memchr;
+use std::alloc::Allocator;
+use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::fmt::Formatter;
-use std::cmp::Ordering;
-use crate::tiff::image_file_directory::tags::parsers::{TagParseError, Version6OrBigTiffUnit};
+use std::fmt;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::marker::PhantomData;
 use std::mem::transmute;
-use crate::tiff::image_file_directory::tags::TagIdentifier;
-use crate::collections::{Bytes, ByteOrder};
+use std::num::NonZeroU8;
+use strum::EnumCount;
+use strum::IntoEnumIterator;
+use std::str::FromStr;
+use std::convert::TryInto;
+use std::slice::from_raw_parts_mut;
+use swiss_army_knife::byte_swap;
+use swiss_army_knife::byte_swap::Unaligned16;
+use swiss_army_knife::byte_swap::Unaligned32;
+use swiss_army_knife::byte_swap::Unaligned64;
 
 
-include!("tag_type.rs");
-include!("tag_type_ord_and_hash.rs");
-
-
-include!("AsciiCharacter.rs");
-include!("Rational.rs");
-include!("SignedRational.rs");
+include!("AsciiStrings.rs");
+include!("BitField.rs");
+include!("BitFieldInteger.rs");
+include!("BytesSlice.rs");
+include!("CanBeUnaligned.rs");
+include!("EnumSignedInteger.rs");
+include!("EnumUnsignedInteger.rs");
+include!("IntegerNormalizedType.rs");
+include!("RationalFraction.rs");
+include!("RationalFractionAtor.rs");
+include!("SignedEnum.rs");
+include!("SignedInteger.rs");
+include!("SignedIntegerNormalizedType.rs");
+include!("SignedIntegerValue.rs");
 include!("TagType.rs");
-include!("TagTypeTrait.rs");
-include!("UnalignedF32.rs");
-include!("UnalignedF64.rs");
-include!("UnalignedI16.rs");
-include!("UnalignedI32.rs");
-include!("UnalignedI64.rs");
-include!("UnalignedU16.rs");
-include!("UnalignedU32.rs");
-include!("UnalignedU64.rs");
-include!("UnalignedUnsignedRational.rs");
-include!("UnalignedSignedRational.rs");
-include!("UnsignedIntegerTagType.rs");
-include!("UnsignedRational.rs");
+include!("Unaligned.rs");
+include!("Undefined.rs");
+include!("UnsignedEnum.rs");
+include!("UnsignedInteger.rs");
+include!("UnsignedIntegerNormalizedType.rs");
+include!("UnsignedIntegerValue.rs");
+include!("UnrecognizedTagValue.rs");

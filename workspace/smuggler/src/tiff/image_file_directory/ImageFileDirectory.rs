@@ -8,7 +8,7 @@ pub struct ImageFileDirectory<'a, A: Allocator, T: Tag>(Tags<'a, A, T>);
 impl<'a, A: Allocator + Copy, T: Tag> ImageFileDirectory<'a, A>
 {
 	#[inline(always)]
-	fn parse<TP: TagParser<Tag=T>, B: Bytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, allocator: A, tiff_bytes: &B, byte_order: ByteOrder, image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<(Self, Option<ImageFileDirectoryPointer>), ImageFileDirectoryParseError>
+	fn parse<TP: TagParser<Tag=T>, B: Bytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, allocator: A, tiff_bytes: &mut B, byte_order: ByteOrder, image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<(Self, Option<ImageFileDirectoryPointer>), ImageFileDirectoryParseError>
 	{
 		use ImageFileDirectoryParseError::*;
 		
@@ -79,7 +79,7 @@ impl<'a, A: Allocator + Copy, T: Tag> ImageFileDirectory<'a, A>
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entries<TP: TagParser<Tag=T>, B: Bytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, allocator: A, tiff_bytes: &'a B, byte_order: ByteOrder, directory_entries_index: u64, number_of_directory_entries: NonZeroU64, number_of_directory_entry_bytes: NonZeroU64) -> Result<Self, ImageFileDirectoryParseError>
+	fn parse_directory_entries<TP: TagParser<Tag=T>, B: Bytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, allocator: A, tiff_bytes: &'a mut B, byte_order: ByteOrder, directory_entries_index: u64, number_of_directory_entries: NonZeroU64, number_of_directory_entry_bytes: NonZeroU64) -> Result<Self, ImageFileDirectoryParseError>
 	{
 		let mut tags = Tags::new(number_of_directory_entries, allocator).map_err(ImageFileDirectoryParseError::CouldNotAllocateMemoryForDirectoryEntries)?;
 		let mut directory_entry_index = directory_entries_index;
@@ -100,7 +100,7 @@ impl<'a, A: Allocator + Copy, T: Tag> ImageFileDirectory<'a, A>
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entry_unchecked<TP: TagParser<Tag=T>, B: Bytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, allocator: A, tiff_bytes: &'a B, byte_order: ByteOrder, directory_entry_index: u64, previous_tag_identifier: &mut Option<u16>) -> Result<DirectoryEntry<'a, A>, TagParseError>
+	fn parse_directory_entry_unchecked<TP: TagParser<Tag=T>, B: Bytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, allocator: A, tiff_bytes: &'a mut B, byte_order: ByteOrder, directory_entry_index: u64, previous_tag_identifier: &mut Option<u16>) -> Result<DirectoryEntry<'a, A>, TagParseError>
 	{
 		let tag_identifier = Self::tag_identifier(tiff_bytes, byte_order, directory_entry_index, previous_tag_identifier)?;
 		let tag_type = Self::value_unchecked_u16(tiff_bytes, byte_order, directory_entry_index, Self::SizeOfTag);
@@ -128,7 +128,7 @@ impl<'a, A: Allocator + Copy, T: Tag> ImageFileDirectory<'a, A>
 	#[inline(always)]
 	fn value_unchecked_u16<B: Bytes>(tiff_bytes: &impl B, byte_order: ByteOrder, directory_entry_index: u64, offset: u64) -> u16
 	{
-		Self::value_unchecked::<u16, _>(tiff_bytes, byte_order, directory_entry_index, offset, B::unaligned_u16_value_unchecked)
+		Self::value_unchecked::<u16, _>(tiff_bytes, byte_order, directory_entry_index, offset, B::unaligned_u16_unchecked)
 	}
 	
 	#[inline(always)]

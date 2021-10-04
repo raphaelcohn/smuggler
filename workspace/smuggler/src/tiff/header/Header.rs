@@ -53,7 +53,7 @@ impl Header
 		/// `MM`.
 		const MotorolaByteOrder: u16 = 0x4D4D;
 		
-		match tiff_bytes.unaligned_u16_native_endian_byte_order_value(0).map_err(TooFewBytesForByteOrder)?
+		match tiff_bytes.unaligned_u16_native_endian_byte_order(0).map_err(TooFewBytesForByteOrder)?
 		{
 			IntelByteOrder => Ok(LittleEndian),
 			
@@ -69,7 +69,7 @@ impl Header
 		use VersionParseError::*;
 		use Version::*;
 		
-		match tiff_bytes.unaligned_u16_value(2, byte_order).map_err(TooFewBytesForVersion)?
+		match tiff_bytes.unaligned_u16(2, byte_order).map_err(TooFewBytesForVersion)?
 		{
 			42 => Ok(_6),
 			
@@ -107,7 +107,7 @@ impl Header
 		use BigTiffHeaderParseError::*;
 		
 		{
-			let offset_size_in_bytes = tiff_bytes.unaligned_u16_value(4, byte_order).map_err(TooFewBytesForOffsetSize)?;
+			let offset_size_in_bytes = tiff_bytes.unaligned_u16(4, byte_order).map_err(TooFewBytesForOffsetSize)?;
 			if unlikely!(offset_size_in_bytes != 0x0008)
 			{
 				return Err(OffsetSizeWasNot8 { offset_size_in_bytes })
@@ -115,7 +115,7 @@ impl Header
 		}
 		
 		{
-			let constant = tiff_bytes.unaligned_u16_value(6, byte_order).map_err(TooFewBytesForConstant)?;
+			let constant = tiff_bytes.unaligned_u16(6, byte_order).map_err(TooFewBytesForConstant)?;
 			if unlikely!(constant != 0x0000)
 			{
 				return Err(ConstantWasNot0 { constant })

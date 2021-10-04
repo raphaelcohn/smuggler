@@ -23,7 +23,12 @@ use std::fmt;
 use std::mem::size_of;
 use std::ptr;
 use std::slice::from_raw_parts;
+use std::slice::from_raw_parts_mut;
+use swiss_army_knife::byte_swap::Unaligned;
+use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::get_unchecked::AsUsizeIndex;
+use crate::tiff::image_file_directory::tags::types::RationalFraction;
+use crate::tiff::image_file_directory::tags::types::RationalFractionAtor;
 
 
 mod pointer_to_index_lengths;

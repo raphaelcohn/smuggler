@@ -18,7 +18,42 @@ impl Default for ByteOrder
 	#[inline(always)]
 	fn default() -> Self
 	{
-		ByteOrder::LittleEndian
+		use ByteOrder::*;
+		Self::target_endian(|| LittleEndian, || BigEndian)
+	}
+}
+
+macro_rules! to_native_endian
+{
+	($self: ident, $value: ident) =>
+	{
+		{
+			use ByteOrder::*;
+			
+			let value = $value;
+			
+			ByteOrder::target_endian
+			(
+				||
+				{
+					match $self
+					{
+						LittleEndian => value,
+						
+						BigEndian => value.swap_bytes(),
+					}
+				},
+				||
+				{
+					match $self
+					{
+						LittleEndian => value.swap_bytes(),
+						
+						BigEndian => value,
+					}
+				}
+			)
+		}
 	}
 }
 
@@ -30,28 +65,7 @@ macro_rules! read_value
 			use ByteOrder::*;
 			
 			let value = unsafe { $pointer_to_index.$read() };
-			if cfg!(target_endian = "little")
-			{
-				match $self
-				{
-					LittleEndian => value,
-					
-					BigEndian => value.swap_bytes(),
-				}
-			}
-			else if cfg!(target_endian = "big")
-			{
-				match $self
-				{
-					LittleEndian => value.swap_bytes(),
-					
-					BigEndian => value,
-				}
-			}
-			else
-			{
-				panic!("Unknown target_endian")
-			}
+			to_native_endian!($self, value)
 		}
 	}
 }
@@ -59,20 +73,91 @@ macro_rules! read_value
 impl ByteOrder
 {
 	#[inline(always)]
-	fn read_unaligned_u16(self, pointer_to_index: *const u16) -> u16
+	pub(crate) fn read_unaligned_u16(self, pointer_to_index: *const u16) -> u16
 	{
-		read_value!(self, pointer_to_index, read_unaligned)
+		read_value!(self, pointer_to_index)
 	}
 	
 	#[inline(always)]
-	fn read_unaligned_u32(self, pointer_to_index: *const u32) -> u32
+	pub(crate) fn read_unaligned_u32(self, pointer_to_index: *const u32) -> u32
 	{
-		read_value!(self, pointer_to_index, read_unaligned)
+		read_value!(self, pointer_to_index)
 	}
 	
 	#[inline(always)]
-	fn read_unaligned_u64(self, pointer_to_index: *const u64) -> u64
+	pub(crate) fn read_unaligned_u64(self, pointer_to_index: *const u64) -> u64
 	{
-		read_value!(self, pointer_to_index, read_unaligned)
+		read_value!(self, pointer_to_index)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn read_unaligned_i16(self, pointer_to_index: *const i16) -> i16
+	{
+		read_value!(self, pointer_to_index)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn read_unaligned_i32(self, pointer_to_index: *const i32) -> i32
+	{
+		read_value!(self, pointer_to_index)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn read_unaligned_i64(self, pointer_to_index: *const i64) -> i64
+	{
+		read_value!(self, pointer_to_index)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn read_unaligned_f32(self, pointer_to_index: *const f32) -> f32
+	{
+		let bits = self.read_unaligned_u32(pointer_to_index as *const u32);
+		f32::from_bits(bits)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn read_unaligned_f64(self, pointer_to_index: *const f64) -> f64
+	{
+		let bits = self.read_unaligned_u64(pointer_to_index as *const u64);
+		f64::from_bits(bits)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn read_unaligned_rational_fraction<RFA: RationalFractionAtor>(self, pointer_to_index: *const RationalFraction<RFA>) -> RationalFraction<RFA>
+	{
+		let pointer_to_index = pointer_to_index as *const RFA;
+		let numerator = RFA::read_unaligned(self, pointer_to_index);
+		let denominator = RFA::read_unaligned(self, unsafe { pointer_to_index.add(1) });
+		RationalFraction::new(numerator, denominator)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn byte_swap(self, slice: &mut [impl Unaligned])
+	{
+		use ByteOrder::*;
+		
+		match self
+		{
+			LittleEndian => slice.byte_swap_from_little_endian_to_native_endian(),
+			
+			BigEndian => slice.byte_swap_from_big_endian_to_native_endian(),
+		}
+	}
+	
+	#[inline(always)]
+	fn target_endian<R>(little_endian: impl FnOnce() -> R, big_endian: impl FnOnce() -> R) -> R
+	{
+		if cfg!(target_endian = "little")
+		{
+			little_endian()
+		}
+		else if cfg!(target_endian = "big")
+		{
+			big_endian()
+		}
+		else
+		{
+			panic!("Unknown target_endian")
+		}
 	}
 }

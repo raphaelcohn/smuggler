@@ -16,6 +16,8 @@ use self::types::UnalignedU32;
 use self::types::UnalignedU64;
 use self::types::UnsignedIntegerTagType;
 use self::types::UnalignedUnsignedRational;
+use self::types::SignedRational;
+use self::types::UnsignedRational;
 use super::DirectoryEntry;
 use super::pointer::ImageFileDirectoryPointer;
 use likely::unlikely;
@@ -32,10 +34,19 @@ use std::ops::Deref;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::hash::Hash;
+use self::types::Unaligned;
+use self::types::RationalFraction;
 
 
 /// Parsers.
 pub mod parsers;
+
+
+/// Parsers.
+pub mod public;
+
+
+pub(in crate::tiff::image_file_directory::tags) mod tag_identifiers;
 
 
 /// Tag types.
@@ -43,12 +54,9 @@ pub mod types;
 
 
 include!("EnumRepresentationU16.rs");
-include!("PublicTag.rs");
-include!("PublicTagKey.rs");
 include!("RawTagKey.rs");
 include!("Tag.rs");
 include!("TagIdentifier.rs");
 include!("TagKey.rs");
 include!("Tags.rs");
 include!("UnrecognizedRepresentationValue.rs");
-include!("UnrecognizedTagValue.rs");

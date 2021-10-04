@@ -2,6 +2,7 @@
   <dictionary name="raph">
     <words>
       <w>appendv</w>
+      <w>bilevel</w>
       <w>bindgen</w>
       <w>chunksize</w>
       <w>cloexec</w>
@@ -10,6 +11,7 @@
       <w>datatype</w>
       <w>deserialise</w>
       <w>deserialiser</w>
+      <w>dgiwg</w>
       <w>dlid</w>
       <w>dont</w>
       <w>eacces</w>
@@ -27,12 +29,17 @@
       <w>fclass</w>
       <w>flowinfo</w>
       <w>funcs</w>
+      <w>gdal</w>
       <w>getinfo</w>
+      <w>gpsifd</w>
       <w>guid</w>
+      <w>hyla</w>
       <w>ibverbs</w>
       <w>infini</w>
       <w>infiniband</w>
       <w>inode</w>
+      <w>intergraph</w>
+      <w>intergraph's</w>
       <w>iovcnt</w>
       <w>iovec</w>
       <w>ipoib</w>
@@ -40,6 +47,7 @@
       <w>libfabric</w>
       <w>libibverbs</w>
       <w>libnuma</w>
+      <w>linearization</w>
       <w>madvise</w>
       <w>maskp</w>
       <w>maxevents</w>
@@ -65,6 +73,7 @@
       <w>nadsf</w>
       <w>nbyte</w>
       <w>nelems</w>
+      <w>nodata</w>
       <w>nonblock</w>
       <w>nonoverlapping</w>
       <w>nvml</w>
@@ -86,21 +95,28 @@
       <w>recv</w>
       <w>refcnt</w>
       <w>rkey</w>
+      <w>rsid</w>
       <w>rwlock</w>
       <w>serialiser</w>
       <w>setlocal</w>
       <w>shmem</w>
       <w>sigmask</w>
       <w>sigs</w>
+      <w>sint</w>
       <w>sockaddr</w>
       <w>strdup</w>
+      <w>subfile</w>
       <w>subrange</w>
+      <w>threshholding</w>
+      <w>tiepoint</w>
       <w>timewait</w>
       <w>tonode</w>
+      <w>uint</w>
       <w>unextended</w>
       <w>unmergeable</w>
       <w>unsubscribes</w>
       <w>upto</w>
+      <w>wang</w>
       <w>werror</w>
       <w>whitelist</w>
       <w>wrlock</w>

@@ -25,25 +25,25 @@ pub enum TagType
 	RATIONAL = TagType::Rational,
 	
 	/// Defined in TIFF version 6.
-	SBYTE = 6,
+	SBYTE = TagType::Sbyte,
 	
 	/// Defined in TIFF version 6.
-	UNDEFINED = 7,
+	UNDEFINED = TagType::Undefined,
 	
 	/// Defined in TIFF version 6.
-	SSHORT = 8,
+	SSHORT = TagType::Sshort,
 	
 	/// Defined in TIFF version 6.
-	SLONG = 9,
+	SLONG = TagType::Slong,
 	
 	/// Defined in TIFF version 6.
-	SRATIONAL = 10,
+	SRATIONAL = TagType::Srational,
 	
 	/// Defined in TIFF version 6.
-	FLOAT = 11,
+	FLOAT = TagType::Float,
 	
 	/// Defined in TIFF version 6.
-	DOUBLE = 12,
+	DOUBLE = TagType::Double,
 	
 	/// Proposed by Adobe in 1995 in PageMaker technical notes and unofficially adopted.
 	IFD = TagType::Ifd,
@@ -54,7 +54,7 @@ pub enum TagType
 	LONG8 = TagType::Long8,
 	
 	/// Defined in TIFF version BigTiff.
-	SLONG8 = 17,
+	SLONG8 = TagType::Slong8,
 	
 	/// Defined in TIFF version BigTiff.
 	IFD8 = TagType::Ifd8,
@@ -62,69 +62,7 @@ pub enum TagType
 
 impl TagType
 {
-	#[inline(always)]
-	pub(in crate::tiff::image_file_directory) fn parse(tag_type: u16) -> Result<Self, TagParseError>
-	{
-		use TagParseError::UnrecognizedTagType;
-		
-		#[inline(always)]
-		const fn ok(tag_type: u16) -> Result<TagType, TagParseError>
-		{
-			Ok(unsafe { transmute(tag_type) })
-		}
-		
-		#[inline(always)]
-		const fn error(tag_type: u16) -> Result<TagType, TagParseError>
-		{
-			Err(UnrecognizedTagType(tag_type))
-		}
-		
-		match tag_type
-		{
-			Self::Unrecognized0 => Self::unrecognized(tag_type),
-			
-			Self::Byte ..= Self::Ifd => Self::ok(tag_type),
-			
-			Self::Unrecognized14 ..= Self::Unrecognized15 => Self::unrecognized(tag_type),
-			
-			Self::Long8 ..= Self::Ifd8 => Self::ok(tag_type),
-			
-			_ => Self::unrecognized(tag_type)
-		}
-	}
-	
-	#[inline(always)]
-	pub(in crate::tiff::image_file_directory) fn parse_unsigned(tag_type: u16, tag_identifier: TagIdentifier) -> Result<Self, TagParseError>
-	{
-		use TagType::*;
-		
-		match tag_type
-		{
-			Self::Unrecognized0 => Self::unrecognized(tag_type),
-			
-			Self::Byte => Ok(BYTE),
-			
-			Self::Ascii => Self::invalid(tag_type, tag_identifier),
-			
-			Self::Short => Ok(SHORT),
-			
-			Self::Long => Ok(LONG),
-			
-			Self::Rational ..= Self::Ifd => Self::invalid(tag_type, tag_identifier),
-			
-			Self::Unrecognized14 ..= Self::Unrecognized15 => Self::unrecognized(tag_type),
-			
-			Self::Long8 => Ok(LONG8),
-			
-			_ => Self::unrecognized(tag_type)
-		}
-	}
-	
 	const Unrecognized0: u16 = 0;
-	
-	const Unrecognized14: u16 = 14;
-	
-	const Unrecognized15: u16 = 15;
 	
 	const Byte: u16 = 1;
 	
@@ -136,27 +74,47 @@ impl TagType
 	
 	const Rational: u16 = 5;
 	
+	const Sbyte: u16 = 6;
+	
+	const Undefined: u16 = 7;
+	
+	const Sshort: u16 = 8;
+	
+	const Slong: u16 = 9;
+	
+	const Srational: u16 = 10;
+	
+	const Float: u16 = 11;
+	
+	const Double: u16 = 12;
+	
 	const Ifd: u16 = 13;
 	
+	const Unrecognized14: u16 = 14;
+	
+	const Unrecognized15: u16 = 15;
+	
 	const Long8: u16 = 16;
+	
+	const Slong8: u16 = 17;
 	
 	const Ifd8: u16 = 18;
 	
 	#[inline(always)]
-	const fn ok<TT>(tag_type: u16) -> Result<TT, TagParseError>
+	const fn ok<TT>(tag_type: u16) -> Result<TT, SpecificTagParseError>
 	{
 		Ok(unsafe { transmute(tag_type) })
 	}
 	
 	#[inline(always)]
-	const fn unrecognized<TT>(tag_type: u16) -> Result<TT, TagParseError>
+	const fn unrecognized<TT>() -> Result<TT, SpecificTagParseError>
 	{
-		Err(TagParseError::UnrecognizedTagType(tag_type))
+		Err(SpecificTagParseError::UnrecognizedTagType)
 	}
 	
 	#[inline(always)]
-	const fn invalid<TT>(tag_type: u16, tag_identifier: TagIdentifier) -> Result<TT, TagParseError>
+	const fn invalid<TT>(tag_type: u16) -> Result<TT, SpecificTagParseError>
 	{
-		Err(TagParseError::InvalidTagTypeForTagIdentifier(unsafe { transmute(tag_type) }, tag_identifier))
+		Err(SpecificTagParseError::InvalidTagTypeForTagIdentifier(unsafe { transmute(tag_type) }))
 	}
 }

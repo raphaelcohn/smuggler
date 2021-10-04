@@ -15,16 +15,18 @@ pub enum TagParseError
 	},
 	
 	#[allow(missing_docs)]
-	UnrecognizedTagType(u16),
-	
-	#[allow(missing_docs)]
-	InvalidTagTypeForTagIdentifier(TagType, TagIdentifier),
-	
-	#[allow(missing_docs)]
-	OffsetParse(OffsetParseError),
-	
-	#[allow(missing_docs)]
-	Long8Overflow(OverflowError),
+	SpecificTagParse
+	{
+		cause: SpecificTagParseError,
+		
+		tag_identifier: TagIdentifier,
+		
+		tag_type: u16,
+		
+		count: u64,
+		
+		offset_or_value_union_index: u64,
+	}
 }
 
 impl Display for TagParseError
@@ -45,9 +47,7 @@ impl error::Error for TagParseError
 		
 		match self
 		{
-			OffsetParse(cause) => Some(cause),
-			
-			Long8Overflow(cause) => Some(cause),
+			SpecificTagParse { cause, .. } => Some(cause),
 			
 			_ => None,
 		}
