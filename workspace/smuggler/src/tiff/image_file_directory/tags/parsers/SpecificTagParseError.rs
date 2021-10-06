@@ -13,7 +13,7 @@ pub enum SpecificTagParseError
 	UnrecognizedTagType,
 	
 	#[allow(missing_docs)]
-	InvalidTagTypeForTagIdentifier(TagType),
+	InvalidTagTypeForTagIdentifier,
 	
 	#[allow(missing_docs)]
 	SliceOffsetParse(OffsetParseError),

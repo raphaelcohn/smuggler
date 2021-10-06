@@ -99,35 +99,35 @@ impl UnsignedIntegerValue
 		{
 			BYTE => Ok(U8(slice.as_non_null_ptr().read_unaligned())),
 			
-			ASCII => TagType::invalid(tag_type),
+			ASCII => TagType::invalid(),
 			
 			SHORT => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U16),
 			
 			LONG => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U32),
 			
-			RATIONAL => TagType::invalid(tag_type),
+			RATIONAL => TagType::invalid(),
 			
-			SBYTE => TagType::invalid(tag_type),
+			SBYTE => TagType::invalid(),
 			
-			UNDEFINED => TagType::invalid(tag_type),
+			UNDEFINED => TagType::invalid(),
 			
-			SSHORT => TagType::invalid(tag_type),
+			SSHORT => TagType::invalid(),
 			
-			SLONG => TagType::invalid(tag_type),
+			SLONG => TagType::invalid(),
 			
-			SRATIONAL => TagType::invalid(tag_type),
+			SRATIONAL => TagType::invalid(),
 			
-			FLOAT => TagType::invalid(tag_type),
+			FLOAT => TagType::invalid(),
 			
-			DOUBLE => TagType::invalid(tag_type),
+			DOUBLE => TagType::invalid(),
 			
-			IFD => TagType::invalid(tag_type),
+			IFD => TagType::invalid(),
 			
 			LONG8 => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U64),
 			
-			SLONG8 => TagType::invalid(tag_type),
+			SLONG8 => TagType::invalid(),
 			
-			IFD8 => TagType::invalid(tag_type),
+			IFD8 => TagType::invalid(),
 		}
 	}
 	

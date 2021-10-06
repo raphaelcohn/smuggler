@@ -68,6 +68,7 @@ impl TagParser for PublicTagParser
 				(
 					match count
 					{
+						// TODO: DO we want to support this sort of any-type leniency?
 						0 => UnsignedIntegerValue::U0,
 						
 						1 => UnsignedIntegerValue::parse_offset_or_value(tag_type, slice, byte_order)?,
@@ -77,9 +78,15 @@ impl TagParser for PublicTagParser
 				)
 			),
 			
+			// TODO: should be an array of short. do we want to be lenient and specify an array of any unsigned type?
 			BitsPerSample => PublicTag::BitsPerSample
 			(
-				// should be an array of short. do we want to be lenient and specify and an array of any unsigned type?
+				match tag_type
+				{
+					TagType::SHORT => u16::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice),
+					
+					_ => return TagType::invalid()
+				}
 			),
 			
 			_ => PublicTag::Unrecognized(UnrecognizedTag::parse(recursion_guard, allocator, tiff_bytes, tag_identifier, tag_type, count, byte_order, slice)?),

@@ -8,9 +8,9 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 	#[doc(hidden)]
 	type U: byte_swap::Unaligned;
 	
+	#[doc(hidden)]
 	const FieldCount: NonZeroUsize = new_non_zero_usize(1);
 	
-	#[doc(hidden)]
 	#[inline(always)]
 	fn slice_unaligned_and_byte_swap_as_appropriate<'a>(count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> &'a [Unaligned<Self>]
 	{

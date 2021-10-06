@@ -157,8 +157,8 @@ impl TagType
 	}
 	
 	#[inline(always)]
-	const fn invalid<TT>(tag_type: Self) -> Result<TT, SpecificTagParseError>
+	pub(super) const fn invalid<TT>() -> Result<TT, SpecificTagParseError>
 	{
-		Err(SpecificTagParseError::InvalidTagTypeForTagIdentifier(tag_type))
+		Err(SpecificTagParseError::InvalidTagTypeForTagIdentifier)
 	}
 }

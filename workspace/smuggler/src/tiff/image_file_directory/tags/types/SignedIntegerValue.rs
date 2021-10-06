@@ -97,37 +97,37 @@ impl SignedIntegerValue
 		
 		match tag_type
 		{
-			BYTE => TagType::invalid(tag_type),
+			BYTE => TagType::invalid(),
 			
-			ASCII => TagType::invalid(tag_type),
+			ASCII => TagType::invalid(),
 			
-			SHORT => TagType::invalid(tag_type),
+			SHORT => TagType::invalid(),
 			
-			LONG => TagType::invalid(tag_type),
+			LONG => TagType::invalid(),
 			
-			RATIONAL => TagType::invalid(tag_type),
+			RATIONAL => TagType::invalid(),
 			
 			SBYTE => Ok(I8(slice.as_non_null_ptr().cast().read_unaligned())),
 			
-			UNDEFINED => TagType::invalid(tag_type),
+			UNDEFINED => TagType::invalid(),
 			
 			SSHORT => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, I16),
 			
 			SLONG => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, I32),
 			
-			SRATIONAL => TagType::invalid(tag_type),
+			SRATIONAL => TagType::invalid(),
 			
-			FLOAT => TagType::invalid(tag_type),
+			FLOAT => TagType::invalid(),
 			
-			DOUBLE => TagType::invalid(tag_type),
+			DOUBLE => TagType::invalid(),
 			
-			IFD => TagType::invalid(tag_type),
+			IFD => TagType::invalid(),
 			
-			LONG8 => TagType::invalid(tag_type),
+			LONG8 => TagType::invalid(),
 			
 			SLONG8 => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, I64),
 			
-			IFD8 => TagType::invalid(tag_type),
+			IFD8 => TagType::invalid(),
 		}
 	}
 	

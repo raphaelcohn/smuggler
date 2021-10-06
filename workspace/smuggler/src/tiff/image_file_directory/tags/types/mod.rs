@@ -51,7 +51,6 @@ use swiss_army_knife::non_null::new_non_zero_usize;
 include!("AsciiStrings.rs");
 include!("BitField.rs");
 include!("BitFieldInteger.rs");
-include!("BytesSlice.rs");
 include!("EnumSignedInteger.rs");
 include!("EnumUnsignedInteger.rs");
 include!("IntegerNormalizedType.rs");
