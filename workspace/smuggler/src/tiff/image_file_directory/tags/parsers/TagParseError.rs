@@ -25,7 +25,7 @@ pub enum TagParseError
 		
 		count: u64,
 		
-		offset_or_value_union_index: u64,
+		offset_or_value_union_index: Index,
 	}
 }
 

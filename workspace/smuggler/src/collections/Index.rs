@@ -2,15 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-#[inline(always)]
-fn u64_index_to_usize_index(value: u64) -> usize
-{
-	if cfg!(target_pointer_width = "64")
-	{
-		value as usize
-	}
-	else
-	{
-		value.try_into().expect("Can not handle indices larger than pointer width on a 32-bit or 16-bit CPU")
-	}
-}
+/// An index into the TIFF bytes.
+///
+/// Similar to an offset, but without alignment restrictions.
+pub type Index = u64;

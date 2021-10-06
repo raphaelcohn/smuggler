@@ -4,7 +4,7 @@
 
 use crate::collections::ByteOrder;
 use crate::collections::VecExt;
-use crate::collections::Bytes;
+use crate::collections::TiffBytes;
 use likely::unlikely;
 use self::header::Header;
 use self::header::HeaderParseError;

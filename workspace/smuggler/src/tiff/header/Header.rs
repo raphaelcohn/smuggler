@@ -16,7 +16,7 @@ pub struct Header
 impl Header
 {
 	#[inline(always)]
-	fn parse(tiff_bytes: &impl Bytes) -> Result<(Self, ImageFileDirectoryPointer), HeaderParseError>
+	fn parse(tiff_bytes: &impl TiffBytes) -> Result<(Self, ImageFileDirectoryPointer), HeaderParseError>
 	{
 		use HeaderParseError::*;
 		
@@ -42,7 +42,7 @@ impl Header
 	}
 	
 	#[inline(always)]
-	fn parse_byte_order(tiff_bytes: &impl Bytes) -> Result<ByteOrder, ByteOrderParseError>
+	fn parse_byte_order(tiff_bytes: &impl TiffBytes) -> Result<ByteOrder, ByteOrderParseError>
 	{
 		use ByteOrderParseError::*;
 		use ByteOrder::*;
@@ -53,7 +53,7 @@ impl Header
 		/// `MM`.
 		const MotorolaByteOrder: u16 = 0x4D4D;
 		
-		match tiff_bytes.unaligned_u16_native_endian_byte_order(0).map_err(TooFewBytesForByteOrder)?
+		match tiff_bytes.unaligned_u16_checked_native_endian_byte_order(0).map_err(TooFewBytesForByteOrder)?
 		{
 			IntelByteOrder => Ok(LittleEndian),
 			
@@ -64,12 +64,12 @@ impl Header
 	}
 	
 	#[inline(always)]
-	fn parse_version(tiff_bytes: &impl Bytes, byte_order: ByteOrder) -> Result<Version, VersionParseError>
+	fn parse_version(tiff_bytes: &impl TiffBytes, byte_order: ByteOrder) -> Result<Version, VersionParseError>
 	{
 		use VersionParseError::*;
 		use Version::*;
 		
-		match tiff_bytes.unaligned_u16(2, byte_order).map_err(TooFewBytesForVersion)?
+		match tiff_bytes.unaligned_checked(2, byte_order).map_err(TooFewBytesForVersion)?
 		{
 			42 => Ok(_6),
 			
@@ -80,7 +80,7 @@ impl Header
 	}
 	
 	#[inline(always)]
-	fn zeroth_image_file_directory_pointer(self, tiff_bytes: &impl Bytes) -> Result<ImageFileDirectoryPointer, HeaderParseError>
+	fn zeroth_image_file_directory_pointer(self, tiff_bytes: &impl TiffBytes) -> Result<ImageFileDirectoryPointer, HeaderParseError>
 	{
 		use HeaderParseError::*;
 		use Version::*;
@@ -100,14 +100,14 @@ impl Header
 	}
 	
 	#[inline(always)]
-	fn parse_version_big_tiff_constants(&self, tiff_bytes: &impl Bytes) -> Result<(), BigTiffHeaderParseError>
+	fn parse_version_big_tiff_constants(&self, tiff_bytes: &impl TiffBytes) -> Result<(), BigTiffHeaderParseError>
 	{
 		let byte_order = self.byte_order;
 		
 		use BigTiffHeaderParseError::*;
 		
 		{
-			let offset_size_in_bytes = tiff_bytes.unaligned_u16(4, byte_order).map_err(TooFewBytesForOffsetSize)?;
+			let offset_size_in_bytes = tiff_bytes.unaligned_checked(4, byte_order).map_err(TooFewBytesForOffsetSize)?;
 			if unlikely!(offset_size_in_bytes != 0x0008)
 			{
 				return Err(OffsetSizeWasNot8 { offset_size_in_bytes })
@@ -115,7 +115,7 @@ impl Header
 		}
 		
 		{
-			let constant = tiff_bytes.unaligned_u16(6, byte_order).map_err(TooFewBytesForConstant)?;
+			let constant = tiff_bytes.unaligned_checked(6, byte_order).map_err(TooFewBytesForConstant)?;
 			if unlikely!(constant != 0x0000)
 			{
 				return Err(ConstantWasNot0 { constant })
@@ -126,11 +126,21 @@ impl Header
 	}
 	
 	#[inline(always)]
-	fn parse_zeroth_image_file_directory_pointer(self, tiff_bytes: &impl Bytes, index: u64) -> Result<x, ZerothImageFileDirectoryPointerParseError>
+	fn parse_zeroth_image_file_directory_pointer(self, tiff_bytes: &impl TiffBytes, index: Index) -> Result<x, ZerothImageFileDirectoryPointerParseError>
 	{
 		use ZerothImageFileDirectoryPointerParseError::*;
 		
-		let pointer = tiff_bytes.image_file_directory_pointer(index, self).map_err(PointerToZerothImageFileDirectory)?;
+		use Version::*;
+		
+		let byte_order = self.byte_order;
+		let offset = match self.version
+		{
+			_6 => tiff_bytes.offset_version_6(index, byte_order),
+			
+			BigTiff => tiff_bytes.offset_version_big_tiff(index, byte_order),
+		};
+		
+		let pointer = ImageFileDirectoryPointer::new_unchecked(offset).map_err(PointerToZerothImageFileDirectory)?;
 		pointer.ok_or(ThereMustBeAtLeastOneImageFileDirectory)
 	}
 }

@@ -2,9 +2,18 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-pub(in crate::tiff::image_file_directory) trait TagParser
+/// An unrecognized tag.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct UnrecognizedTag<'a, A: Allocator>(pub TagIdentifier, pub UnrecognizedTagValue<'a, A>);
+
+impl<'a, A: Allocator> Tag for UnrecognizedTag<'a, A>
 {
-	type Tag<'a, A: Allocator>: Tag<'a, A>;
+	/// Key type.
+	type Key = TagIdentifier;
 	
-	fn parse<'a, Unit: Version6OrBigTiffUnit, A: Allocator, TB: TiffBytes>(&self, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: Index) -> Result<Self::Tag<'a, A>, TagParseError>;
+	/// Obtain key.
+	fn key(&self) -> Self::Key
+	{
+		self.0
+	}
 }

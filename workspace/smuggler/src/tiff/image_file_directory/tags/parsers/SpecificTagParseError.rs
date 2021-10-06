@@ -38,6 +38,21 @@ pub enum SpecificTagParseError
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForAsciiStringReference(TryReserveError),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForImageFileDirectories(TryReserveError),
+	
+	#[allow(missing_docs)]
+	ImageFileDirectoryPointerParse(ImageFileDirectoryPointerParseError),
+	
+	#[allow(missing_docs)]
+	ImageFileDirectoryPointerIsNull,
+	
+	/// Can occur when parsing a sub image file directory.
+	CouldNotAllocateMemoryForImageFileDirectoriesParseError(AllocError),
+	
+	/// Can occur when parsing a sub image file directory.
+	ImageFileDirectoriesParse(Box<ImageFileDirectoriesParseError>),
 }
 
 impl Display for SpecificTagParseError
@@ -71,6 +86,14 @@ impl error::Error for SpecificTagParseError
 			OffsetIsTooLargeForTargetArchitecture(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForAsciiStringReference(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForImageFileDirectories(cause) => Some(cause),
+			
+			ImageFileDirectoryPointerParse(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForImageFileDirectoriesParseError(cause) => Some(cause),
+			
+			ImageFileDirectoriesParse(cause) => Some(&cause),
 			
 			_ => None,
 		}

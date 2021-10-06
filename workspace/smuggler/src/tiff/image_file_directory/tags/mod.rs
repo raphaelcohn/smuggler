@@ -36,6 +36,7 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use self::types::Unaligned;
 use self::types::RationalFraction;
+use crate::tiff::image_file_directory::tags::types::UnrecognizedTagValue;
 
 
 /// Parsers.
@@ -60,3 +61,4 @@ include!("TagIdentifier.rs");
 include!("TagKey.rs");
 include!("Tags.rs");
 include!("UnrecognizedRepresentationValue.rs");
+include!("UnrecognizedTag.rs");

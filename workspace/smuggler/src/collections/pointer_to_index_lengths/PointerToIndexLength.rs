@@ -7,10 +7,10 @@ pub(super) trait PointerToIndexLength: Default + Debug + Copy + Clone + Eq + Ord
 	type CheckOutcome;
 	
 	#[inline(always)]
-	fn check<X: Sized, B: Bytes>(bytes: &B, index: u64) -> Self::CheckOutcome
+	fn check<X: Sized, TB: TiffBytes>(bytes: &TB, index: Index) -> Self::CheckOutcome
 	{
 		Self::check_inner(index, size_of_u64::<X>(), bytes.file_length())
 	}
 	
-	fn check_inner(index: u64, size: u64, file_length: FileLength) -> Self::CheckOutcome;
+	fn check_inner(index: Index, size_in_bytes: u64, file_length: FileLength) -> Self::CheckOutcome;
 }

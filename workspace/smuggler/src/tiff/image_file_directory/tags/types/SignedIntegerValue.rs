@@ -90,7 +90,7 @@ impl SignedIntegerValue
 	}
 	
 	#[inline(always)]
-	pub(in crate::tiff::image_file_directory::tags) fn parse_offset_or_value<Unit: Version6OrBigTiffUnit>(tag_type: u16, tiff_bytes: &impl Bytes, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<Self, SpecificTagParseError>
+	pub(in crate::tiff::image_file_directory::tags) fn parse_offset_or_value<Unit: Version6OrBigTiffUnit>(tag_type: u16, tiff_bytes: &impl TiffBytes, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<Self, SpecificTagParseError>
 	{
 		use SignedIntegerValue::*;
 		
@@ -108,13 +108,13 @@ impl SignedIntegerValue
 			
 			TagType::Rational => TagType::invalid(tag_type),
 			
-			TagType::Sbyte => Ok(I8(tiff_bytes.i8_unchecked(offset_or_value_union_index))),
+			TagType::Sbyte => Ok(I8(tiff_bytes.byte_unchecked(offset_or_value_union_index))),
 			
 			TagType::Undefined => TagType::invalid(tag_type),
 			
-			TagType::Sshort => Ok(I16(tiff_bytes.unaligned_i16_unchecked(offset_or_value_union_index))),
+			TagType::Sshort => Ok(I16(tiff_bytes.unaligned_unchecked(offset_or_value_union_index))),
 			
-			TagType::Slong => Ok(I32(tiff_bytes.unaligned_i32_unchecked(offset_or_value_union_index))),
+			TagType::Slong => Ok(I32(tiff_bytes.unaligned_unchecked(offset_or_value_union_index))),
 			
 			TagType::Srational => TagType::invalid(tag_type),
 			

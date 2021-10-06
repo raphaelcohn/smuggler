@@ -2,16 +2,16 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-pub(super) trait BytesSlice: Bytes
+pub(super) trait BytesSlice: TiffBytes
 {
 	#[inline(always)]
-	fn byte_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64) -> Result<&[u8], SpecificTagParseError>
+	fn byte_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index) -> Result<&[u8], SpecificTagParseError>
 	{
 		unsafe { transmute(self.slice_from_offset_or_value::<u8>(count, offset_or_value_union_index, Unit::Count8)?) }
 	}
 	
 	#[inline(always)]
-	fn ascii_strings<'a, Unit: Version6OrBigTiffUnit, A: Allocator>(&'a mut self, count: u64, offset_or_value_union_index: u64, allocator: A) -> Result<AsciiStrings<'a, A>, SpecificTagParseError>
+	fn ascii_strings<'a, Unit: Version6OrBigTiffUnit, A: Allocator>(&'a mut self, count: u64, offset_or_value_union_index: Index, allocator: A) -> Result<AsciiStrings<'a, A>, SpecificTagParseError>
 	{
 		#[inline(always)]
 		fn u8_to_ascii(string: &[u8]) -> &[NonZeroU8]
@@ -54,80 +54,80 @@ pub(super) trait BytesSlice: Bytes
 	}
 	
 	#[inline(always)]
-	fn short_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<u16>], SpecificTagParseError>
+	fn short_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<u16>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned16>(count, offset_or_value_union_index, Unit::Count16, byte_order)?) }
 	}
 	
 	#[inline(always)]
-	fn long_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<u32>], SpecificTagParseError>
+	fn long_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<u32>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned32>(count, offset_or_value_union_index, Unit::Count32, byte_order)?) }
 	}
 	
 	#[inline(always)]
-	fn rational_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<RationalFraction<u32>>], SpecificTagParseError>
+	fn rational_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<RationalFraction<u32>>], SpecificTagParseError>
 	{
 		self.rational_slice_internal::<Unit, u32>(count, offset_or_value_union_index, byte_order)
 	}
 	
 	#[inline(always)]
-	fn sbyte_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[i8], SpecificTagParseError>
+	fn sbyte_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[i8], SpecificTagParseError>
 	{
 		unsafe { transmute(self.slice_from_offset_or_value::<i8>(count, offset_or_value_union_index, Unit::Count8)?) }
 	}
 	
 	#[inline(always)]
-	fn undefined_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[u8], SpecificTagParseError>
+	fn undefined_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[u8], SpecificTagParseError>
 	{
 		self.byte_slice(count, offset_or_value_union_index, byte_order)
 	}
 	
 	#[inline(always)]
-	fn sshort_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<i16>], SpecificTagParseError>
+	fn sshort_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<i16>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned16>(count, offset_or_value_union_index, Unit::Count16, byte_order)?) }
 	}
 	
 	#[inline(always)]
-	fn slong_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<i32>], SpecificTagParseError>
+	fn slong_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<i32>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned32>(count, offset_or_value_union_index, Unit::Count32, byte_order)?) }
 	}
 	
 	#[inline(always)]
-	fn srational_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<RationalFraction<i32>>], SpecificTagParseError>
+	fn srational_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<RationalFraction<i32>>], SpecificTagParseError>
 	{
 		self.rational_slice_internal::<Unit, i32>(count, offset_or_value_union_index, byte_order)
 	}
 	
 	#[inline(always)]
-	fn float_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<f32>], SpecificTagParseError>
+	fn float_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<f32>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned32>(count, offset_or_value_union_index, Unit::Count32, byte_order)?) }
 	}
 	
 	#[inline(always)]
-	fn double_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<f64>], SpecificTagParseError>
+	fn double_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<f64>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned64>(count, offset_or_value_union_index, Unit::Count64, byte_order)?) }
 	}
 	
 	#[inline(always)]
-	fn long8_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<u64>], SpecificTagParseError>
+	fn long8_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<u64>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned64>(count, offset_or_value_union_index, Unit::Count64, byte_order)?) }
 	}
 	
 	#[inline(always)]
-	fn slong8_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<i64>], SpecificTagParseError>
+	fn slong8_slice<Unit: Version6OrBigTiffUnit>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<i64>], SpecificTagParseError>
 	{
 		unsafe { transmute(self.byte_swapped_slice::<Unaligned64>(count, offset_or_value_union_index, Unit::Count64, byte_order)?) }
 	}
 	
 	#[doc(hidden)]
 	#[inline(always)]
-	fn rational_slice_internal<Unit: Version6OrBigTiffUnit, RFA: RationalFractionAtor>(&mut self, count: u64, offset_or_value_union_index: u64, byte_order: ByteOrder) -> Result<&[Unaligned<RationalFraction<RFA>>], SpecificTagParseError>
+	fn rational_slice_internal<Unit: Version6OrBigTiffUnit, RFA: RationalFractionAtor>(&mut self, count: u64, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<&[Unaligned<RationalFraction<RFA>>], SpecificTagParseError>
 	{
 		let rational_fraction_slice = self.slice_from_offset_or_value::<Unaligned<RationalFraction<u32>>>(count, offset_or_value_union_index, Unit::Count64, byte_order)?;
 		
@@ -144,7 +144,7 @@ pub(super) trait BytesSlice: Bytes
 	// `Count` should be a generic const but Rust does not like that it is a const member of the Unit trait.
 	#[doc(hidden)]
 	#[inline(always)]
-	fn byte_swapped_slice<U: byte_swap::Unaligned>(&mut self, count: u64, offset_or_value_union_index: u64, Count: u64, byte_order: ByteOrder) -> Result<&[U], SpecificTagParseError>
+	fn byte_swapped_slice<U: byte_swap::Unaligned>(&mut self, count: u64, offset_or_value_union_index: Index, Count: u64, byte_order: ByteOrder) -> Result<&[U], SpecificTagParseError>
 	{
 		let slice = self.slice_from_offset_or_value::<U>(count, offset_or_value_union_index, Count)?;
 		byte_order.byte_swap(slice);
@@ -154,20 +154,20 @@ pub(super) trait BytesSlice: Bytes
 	// `Count` should be a generic const but Rust does not like that it is a const member of the Unit trait.
 	#[doc(hidden)]
 	#[inline(always)]
-	fn slice_from_offset_or_value<X>(&mut self, count: u64, offset_or_value_union_index: u64, Count: u64) -> Result<&mut [X], SpecificTagParseError>
+	fn slice_from_offset_or_value<X>(&mut self, count: u64, offset_or_value_union_index: Index, Count: u64) -> Result<&mut [X], SpecificTagParseError>
 	{
 		use SpecificTagParseError::*;
 		
 		let slice = if count <= Count
 		{
-			let pointer = self.pointer_to_index_unchecked_mut::<X>(offset_or_value_union_index);
-			unsafe { from_raw_parts_mut(pointer, count as usize) }
+			let pointer = self.non_null_to_index_unchecked_mut::<X>(offset_or_value_union_index);
+			unsafe { from_raw_parts_mut(pointer.as_ptr(), count as usize) }
 		}
 		else
 		{
 			Self::guard_count_fits_in_usize(count)?;
 			let offset = Offset::parse_offset_value(tiff_bytes, offset_or_value_union_index).map_err(SliceOffsetParse)?;
-			self.slice::<X>(offset.u64(), count).map_err(OffsetIsTooLargeForTargetArchitecture)?
+			self.slice_mut_checked::<X>(offset.index(), count).map_err(OffsetIsTooLargeForTargetArchitecture)?
 		};
 		Ok(slice)
 	}
@@ -186,6 +186,6 @@ pub(super) trait BytesSlice: Bytes
 	}
 }
 
-impl<B: Bytes> BytesSlice for B
+impl<TB: TiffBytes> BytesSlice for TB
 {
 }

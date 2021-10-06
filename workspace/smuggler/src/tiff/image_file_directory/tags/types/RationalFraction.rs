@@ -11,6 +11,22 @@ pub struct RationalFraction<RFA: RationalFractionAtor>
 	denominator: RFA,
 }
 
+impl<RFA: RationalFractionAtor> CanBeUnaligned for RationalFraction<RFA>
+{
+	#[inline(always)]
+	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
+	{
+		let numerator_non_null: NonNull<RFA> = this.cast();
+		let denominator_non_null = new_non_null(unsafe { numerator_non_null.as_ptr().add(1) });
+		
+		Self::new
+		(
+			RFA::read_unaligned_byte_swapped(numerator_non_null),
+			RFA::read_unaligned_byte_swapped(denominator_non_null),
+		)
+	}
+}
+
 impl<RFA: RationalFractionAtor> RationalFraction<RFA>
 {
 	/// Numerator.
@@ -36,14 +52,5 @@ impl<RFA: RationalFractionAtor> RationalFraction<RFA>
 		
 			denominator,
 		}
-	}
-}
-
-impl<RFA: RationalFractionAtor> CanBeUnaligned for RationalFraction<RFA>
-{
-	#[inline(always)]
-	fn dereference(may_be_unaligned: *const Self, byte_order: ByteOrder) -> Self
-	{
-		byte_order.read_unaligned_rational_fraction(may_be_unaligned)
 	}
 }

@@ -3,23 +3,25 @@
 
 
 use crate::collections::ByteOrder;
-use crate::collections::Bytes;
+use crate::collections::Index;
 use crate::collections::OverflowError;
+use crate::collections::TiffBytes;
 use crate::tiff::header::Header;
+use crate::tiff::image_file_directory::ImageFileDirectoriesParseError;
+use crate::tiff::image_file_directory::tags::types::TagType;
 use crate::tiff::offset::OffsetParseError;
-use super::super::pointer::ImageFileDirectoryPointer;
-use super::super::pointer::ImageFileDirectoryPointerParseError;
-use super::PublicTag;
-use super::TagIdentifier;
-use super::UnrecognizedTagValue;
-use std::alloc::Allocator;
+use std::alloc::{Allocator, AllocError};
+use std::collections::TryReserveError;
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use crate::tiff::image_file_directory::tags::types::TagType;
-use std::collections::TryReserveError;
+use super::PublicTag;
+use super::TagIdentifier;
+use super::UnrecognizedTagValue;
+use super::super::pointer::ImageFileDirectoryPointer;
+use super::super::pointer::ImageFileDirectoryPointerParseError;
 
 
 include!("SpecificTagParseError.rs");

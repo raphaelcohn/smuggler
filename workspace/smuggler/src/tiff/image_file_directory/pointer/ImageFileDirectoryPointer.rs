@@ -16,11 +16,18 @@ impl ImageFileDirectoryPointer
 		{
 			Ok(offset) => offset,
 			
-			Err(cause) => OffsetParse(cause),
+			Err(cause) => return Err(ImageFileDirectoryPointerParseError::OffsetParse(cause)),
 		};
 		
+		Self::new_from_offset(offset.get())
+	}
+	
+	#[inline(always)]
+	pub(crate) fn new_from_offset(offset: Offset) -> Result<Option<Self>, ImageFileDirectoryPointerParseError>
+	{
+		use ImageFileDirectoryPointerParseError::*;
+	
 		let raw_offset = offset.get();
-		
 		if unlikely!(raw_offset % 2 == 1)
 		{
 			return Err(NotAlignedToA16BitWordBoundary { offset })
@@ -39,7 +46,7 @@ impl ImageFileDirectoryPointer
 	}
 	
 	#[inline(always)]
-	pub(crate) const fn u64(self) -> u64
+	pub(crate) const fn index(self) -> Index
 	{
 		self.0.get()
 	}

@@ -2,9 +2,24 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-pub(in crate::tiff::image_file_directory) trait TagParser
+trait NonNullExt<T: Sized>
 {
-	type Tag<'a, A: Allocator>: Tag<'a, A>;
+	fn read(self) -> T;
 	
-	fn parse<'a, Unit: Version6OrBigTiffUnit, A: Allocator, TB: TiffBytes>(&self, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: Index) -> Result<Self::Tag<'a, A>, TagParseError>;
+	fn read_unaligned(self) -> T;
+}
+
+impl<T: Sized> NonNullExt<T> for NonNull<T>
+{
+	#[inline(always)]
+	fn read(self) -> T
+	{
+		unsafe { self.as_ptr().read() }
+	}
+	
+	#[inline(always)]
+	fn read_unaligned(self) -> T
+	{
+		unsafe { self.as_ptr().read_unaligned() }
+	}
 }

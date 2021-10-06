@@ -8,3 +8,13 @@ pub trait TagKey: Debug + Copy + Clone + PartialEq + Eq + PartialOrd + Hash
 	/// Tag identifier.
 	fn tag_identifier(self) -> TagIdentifier;
 }
+
+/// Used for unrecognized tags.
+impl TagKey for TagIdentifier
+{
+	#[inline(always)]
+	fn tag_identifier(self) -> TagIdentifier
+	{
+		self
+	}
+}

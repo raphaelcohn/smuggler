@@ -21,23 +21,32 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
 use std::mem::size_of;
+use std::mem::transmute;
 use std::ptr;
 use std::slice::from_raw_parts;
 use std::slice::from_raw_parts_mut;
 use swiss_army_knife::byte_swap::Unaligned;
+use swiss_army_knife::byte_swap::Unaligned16;
+use swiss_army_knife::byte_swap::Unaligned32;
+use swiss_army_knife::byte_swap::Unaligned64;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::get_unchecked::AsUsizeIndex;
 use crate::tiff::image_file_directory::tags::types::RationalFraction;
 use crate::tiff::image_file_directory::tags::types::RationalFractionAtor;
+use std::ptr::NonNull;
+use std::hash::Hash;
 
 
 mod pointer_to_index_lengths;
 
 
-include!("Bytes.rs");
+include!("Byte.rs");
 include!("ByteOrder.rs");
+include!("CanBeUnaligned.rs");
 include!("FileLength.rs");
+include!("Index.rs");
+include!("NonNullExt.rs");
 include!("OverflowError.rs");
 include!("size_of_u64.rs");
-include!("u64_index_to_usize_index.rs");
+include!("TiffBytes.rs");
 include!("VecExt.rs");

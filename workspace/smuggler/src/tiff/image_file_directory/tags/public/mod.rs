@@ -3,7 +3,8 @@
 
 
 use crate::collections::ByteOrder;
-use crate::collections::Bytes;
+use crate::collections::Index;
+use crate::collections::TiffBytes;
 use std::alloc::Allocator;
 use std::cmp::Ordering;
 use std::mem::transmute;
@@ -261,7 +262,6 @@ use strum::ToString;
 use super::types::TagType;
 use super::types::UnsignedIntegerValue;
 use super::types::UnsignedInteger;
-use super::types::UnrecognizedTagValue;
 use super::types::EnumUnsignedInteger;
 use super::types::UnsignedEnum;
 use super::types::Unaligned;
@@ -270,6 +270,7 @@ use swiss_army_knife::byte_swap::Unaligned16;
 use swiss_army_knife::byte_swap::Unaligned32;
 use swiss_army_knife::byte_swap::Unaligned64;
 use crate::tiff::image_file_directory::tags::parsers::SpecificTagParseError;
+use crate::tiff::image_file_directory::tags::UnrecognizedTag;
 
 
 include!("NewSubfileTypeBitField.rs");

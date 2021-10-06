@@ -11,20 +11,40 @@ impl PointerToIndexLength for CheckedPointerToIndexLength
 	type CheckOutcome = Result<(), OverflowError>;
 	
 	#[inline(always)]
-	fn check_inner(index: u64, size: u64, file_length: FileLength) -> Self::CheckOutcome
+	fn check_inner(index: Index, size_in_bytes: u64, file_length: FileLength) -> Self::CheckOutcome
 	{
 		use OverflowError::*;
 		
-		let end_pointer = match index.checked_add(size)
+		let end_pointer = match index.checked_add(size_in_bytes)
 		{
-			None => return Err(SizeOverflowsIndex { index, size }),
+			None => return Err(SizeOverflowsIndex { index, size_in_bytes }),
 			
 			Some(end_pointer) => end_pointer,
 		};
 		
 		if unlikely!(end_pointer > file_length)
 		{
-			return Err(PointerOverflowsFileLength { index, size, file_length })
+			return Err(PointerOverflowsFileLength { index, size_in_bytes, file_length })
+		}
+		
+		#[cfg(not(target_pointer_width = "64"))]
+		{
+			const Maximum: u64 = usize::MAX as u64;
+			if unlikely!(index > Maximum)
+			{
+				return Err(IndexExceedsUsize { index })
+			}
+			
+			if unlikely!(size_in_bytes > Maximum)
+			{
+				return Err(SizeExceedsUsize { size_in_bytes })
+			}
+			
+			const MaximumPlusOne: u64 = Maximum + 1;
+			if unlikely!(end_pointer > Maximum)
+			{
+				return Err(EndPointerExceedsUsizePlusOne { index, size_in_bytes })
+			}
 		}
 		
 		Ok(())

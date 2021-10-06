@@ -3,9 +3,9 @@
 
 
 #[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct ImageFileDirectories<'a, A: Allocator>(Vec<ImageFileDirectory<'a, A>, A>);
+pub struct ImageFileDirectories<'a, A: Allocator, T: Tag>(Vec<ImageFileDirectory<'a, A, T>, A>);
 
-impl<'a, A: Allocator> Deref for ImageFileDirectories<'a, A>
+impl<'a, A: Allocator, T: Tag> Deref for ImageFileDirectories<'a, A, T>
 {
 	type Target = [ImageFileDirectory<'a, A>];
 	
@@ -16,35 +16,34 @@ impl<'a, A: Allocator> Deref for ImageFileDirectories<'a, A>
 	}
 }
 
-impl<'a, A: Allocator> ImageFileDirectories<'a, A>
+impl<'a, A: Allocator, T: Tag> ImageFileDirectories<'a, A, T>
 {
 	#[inline(always)]
-	pub(crate) fn parse_top_level<B: Bytes>(allocator: A, tiff_bytes: &'a mut B, header: Header, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
+	pub(crate) fn parse_public_top_level<TB: TiffBytes>(allocator: A, tiff_bytes: &'a mut TB, header: Header, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
 	{
 		use Version::*;
 		
 		let byte_order = header.byte_order;
-		
+		let tag_parser = PublicTagParser::default();
 		match header.version
 		{
-			_6 => Self::parse_top_level_inner::<B, u32>(allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer),
+			_6 => Self::parse::<PublicTagParser, TB, u32>(tag_parser, allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer),
 			
-			BigTiff => Self::parse_top_level_inner::<B, u64>(allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer),
+			BigTiff => Self::parse::<PublicTagParser, TB, u64>(tag_parser, allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer),
 		}
 	}
 	
 	#[inline(always)]
-	pub(crate) fn parse_top_level_inner<B: Bytes, Unit: Version6OrBigTiffUnit>(allocator: A, tiff_bytes: &'a impl B, byte_order: ByteOrder, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
+	pub(crate) fn parse<TP: TagParser<Tag=T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, allocator: A, tiff_bytes: &'a mut TB, byte_order: ByteOrder, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
 	{
 		use ImageFileDirectoriesParseError::*;
 		
-		let tag_parser = PublicTagParser::default();
 		let mut image_file_directories = Vec::new_in(allocator);
 		let mut image_file_directory_pointer = zeroth_image_file_directory_pointer;
 		let mut index = 0;
 		loop
 		{
-			let (image_file_directory, next_image_file_directory_pointer) = ImageFileDirectory::parse::<PublicTagParser, B, Unit>(tag_parser, allocator, tiff_bytes, byte_order, image_file_directory_pointer).map_err(|cause| ImageFileDirectoryParse { cause, image_file_directory_pointer, index })?;
+			let (image_file_directory, next_image_file_directory_pointer) = ImageFileDirectory::parse::<TP, TB, Unit>(tag_parser, allocator, tiff_bytes, byte_order, image_file_directory_pointer).map_err(|cause| ImageFileDirectoryParse { cause, image_file_directory_pointer, index })?;
 			image_file_directories.try_push(image_file_directory).map_err(|cause| CouldNotAllocateMemoryForImageFileDirectoryStorage)?;
 			
 			match next_image_file_directory_pointer

@@ -11,11 +11,11 @@ impl PointerToIndexLength for UncheckedPointerToIndexLength
 	type CheckOutcome = ();
 	
 	#[inline(always)]
-	fn check_inner(file_length: FileLength, index: u64, size: u64) -> Self::CheckOutcome
+	fn check_inner(file_length: FileLength, index: Index, size_in_bytes: u64) -> Self::CheckOutcome
 	{
 		if cfg!(debug_assertions)
 		{
-			let end_pointer = index.checked_add(size).unwrap();
+			let end_pointer = index.checked_add(size_in_bytes).unwrap();
 			debug_assert!(end_pointer <= file_length);
 		}
 		()

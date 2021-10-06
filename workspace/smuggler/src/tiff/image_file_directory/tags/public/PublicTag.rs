@@ -736,7 +736,7 @@ pub enum PublicTag<'a, A: Allocator>
 	EnhanceParams(u64) = EnhanceParams,
 	
 	#[allow(missing_docs)]
-	Unrecognized(TagIdentifier, UnrecognizedTagValue<'a>) = UnrecognizedRepresentationValue,
+	Unrecognized(UnrecognizedTag<'a, A>) = UnrecognizedRepresentationValue,
 }
 
 impl<'a, A: Allocator> EnumRepresentationU16 for PublicTag<'a, A>

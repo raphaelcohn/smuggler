@@ -10,7 +10,7 @@ impl TagParser for PublicTagParser
 	type Tag<'a, A: Allocator> = PublicTag<'a, A>;
 	
 	#[inline(always)]
-	fn parse<'a, A, Unit: Version6OrBigTiffUnit, B: Bytes>(&self, allocator: A, tiff_bytes: &'a mut B, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: u64) -> Result<PublicTag<'a, A>, TagParseError>
+	fn parse<'a, A, Unit: Version6OrBigTiffUnit, TB: TiffBytes>(&self, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: Index) -> Result<PublicTag<'a, A>, TagParseError>
 	{
 		self.parse_inner(allocator, tiff_bytes, tag_identifier, tag_type, count, byte_order, offset_or_value_union_index).map_err(|cause| TagParseError::SpecificTagParse { cause, tag_identifier, tag_type, count, offset_or_value_union_index })
 	}
@@ -18,7 +18,7 @@ impl TagParser for PublicTagParser
 
 impl PublicTagParser
 {
-	fn parse_inner<'a, A, Unit: Version6OrBigTiffUnit, B: Bytes>(&self, allocator: A, tiff_bytes: &'a mut B, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: u64) -> Result<PublicTag<'a, A>, SpecificTagParseError>
+	fn parse_inner<'a, A, Unit: Version6OrBigTiffUnit, TB: TiffBytes>(&self, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: u16, count: u64, byte_order: ByteOrder, offset_or_value_union_index: Index) -> Result<PublicTag<'a, A>, SpecificTagParseError>
 	{
 		use SpecificTagParseError::*;
 		
@@ -92,7 +92,7 @@ impl PublicTagParser
 			
 			
 			
-			_ => PublicTag::Unrecognized(tag_identifier, UnrecognizedTagValue::parse(tag_type, tiff_bytes, count, byte_order, offset_or_value_union_index)?),
+			_ => PublicTag::Unrecognized(UnrecognizedTag(tag_identifier, UnrecognizedTagValue::parse(tag_type, tiff_bytes, count, byte_order, offset_or_value_union_index, allocator)?)),
 		};
 		
 		Ok(public_tag)

@@ -3,25 +3,14 @@
 
 
 /// A rational fraction 'ator': a numerator or a denominator.
-pub trait RationalFractionAtor: Default + Debug + Copy + Eq + Ord + Hash
+pub trait RationalFractionAtor: Default + Debug + Copy + Eq + Ord + Hash + CanBeUnaligned
 {
-	fn read_unaligned(byte_order: ByteOrder, pointer_to_index: *const Self) -> Self;
 }
 
 impl RationalFractionAtor for u32
 {
-	#[inline(always)]
-	fn read_unaligned(byte_order: ByteOrder, pointer_to_index: *const Self) -> Self
-	{
-		byte_order.read_unaligned_u32(pointer_to_index)
-	}
 }
 
 impl RationalFractionAtor for i32
 {
-	#[inline(always)]
-	fn read_unaligned(byte_order: ByteOrder, pointer_to_index: *const Self) -> Self
-	{
-		byte_order.read_unaligned_i32(pointer_to_index)
-	}
 }

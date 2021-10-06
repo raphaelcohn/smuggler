@@ -8,21 +8,21 @@ pub(crate) struct Offset(u64);
 impl Offset
 {
 	#[inline(always)]
-	pub(crate) fn version_6<B: Bytes>(bytes: &B, index: u64, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
+	pub(crate) fn version_6<TB: TiffBytes>(bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		Self::<B, u32>(bytes, index, byte_order, B::unaligned_u32)
+		Self::get_and_parse::<TB, u32>(bytes, index, byte_order)
 	}
 	
 	#[inline(always)]
-	pub(crate) fn version_big_tiff<B: Bytes>(bytes: &B, index: u64, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
+	pub(crate) fn version_big_tiff<TB: TiffBytes>(bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		Self::<B, u64>(bytes, index, byte_order, B::unaligned_u64)
+		Self::get_and_parse::<TB, u64>(bytes, index, byte_order)
 	}
 	
 	#[inline(always)]
-	fn get_and_parse<B: Bytes, Unit: Into<u64>>(bytes: &B, index: u64, byte_order: ByteOrder, get_raw_offset_callback: impl FnOnce(&B, u64, ByteOrder) -> Result<Unit, OverflowError>) -> Result<Self, OffsetParseError>
+	fn get_and_parse<TB: TiffBytes, CBU: CanBeUnaligned + Into<u64>>(bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Self, OffsetParseError>
 	{
-		let raw_offset = match get_raw_offset_callback(bytes, index)
+		let raw_offset = match TB::unaligned_checked::<CBU>(bytes, index, byte_order)
 		{
 			Ok(raw_offset) => raw_offset,
 			
@@ -32,7 +32,14 @@ impl Offset
 	}
 	
 	#[inline(always)]
-	pub(crate) fn parse_offset_value(bytes: &impl Bytes, raw_offset: u64) -> Result<Self, OffsetParseError>
+	fn parse<Unit: Into<u64>>(bytes: &impl TiffBytes, raw_offset: Unit) -> Result<Self, OffsetParseError>
+	{
+		let raw_offset = raw_offset.into();
+		Self::parse_offset_value(bytes, raw_offset)
+	}
+	
+	#[inline(always)]
+	pub(crate) fn parse_offset_value(bytes: &impl TiffBytes, raw_offset: u64) -> Result<Self, OffsetParseError>
 	{
 		let file_length = bytes.file_length();
 		if unlikely!(raw_offset > file_length)
@@ -44,14 +51,7 @@ impl Offset
 	}
 	
 	#[inline(always)]
-	fn parse<Unit: Into<u64>>(bytes: &impl Bytes, raw_offset: Unit) -> Result<Self, OffsetParseError>
-	{
-		let raw_offset = raw_offset.into();
-		Self::parse_offset_value(bytes, raw_offset)
-	}
-	
-	#[inline(always)]
-	pub(crate) const fn u64(self) -> u64
+	pub(crate) const fn index(self) -> Index
 	{
 		self.0
 	}

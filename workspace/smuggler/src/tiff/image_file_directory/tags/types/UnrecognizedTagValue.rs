@@ -46,7 +46,7 @@ pub enum UnrecognizedTagValue<'a, A: Allocator>
 	DOUBLE(&'a [Unaligned<f64>]) = TagType::Double,
 	
 	/// Proposed by Adobe in 1995 in PageMaker technical notes and unofficially adopted.
-	IFD(ImageFileDirectoryPointer) = TagType::Ifd,
+	IFD(Vec<ImageFileDirectories<'a, A, UnrecognizedTag<'a, A>>, A>) = TagType::Ifd,
 	
 	// Values 14 and 15 don't seem to be defined.
 	
@@ -57,12 +57,13 @@ pub enum UnrecognizedTagValue<'a, A: Allocator>
 	SLONG8(&'a [Unaligned<i64>]) = TagType::Slong8,
 	
 	/// Defined in TIFF version BigTiff.
-	IFD8(ImageFileDirectoryPointer) = TagType::Ifd8,
+	IFD8(Vec<ImageFileDirectories<'a, A, UnrecognizedTag<'a, A>>, A>) = TagType::Ifd8,
 }
 
-impl<'a, A: Allocator> UnrecognizedTagValue<'a, A>
+impl<'a, A: Allocator + Copy> UnrecognizedTagValue<'a, A>
 {
-	pub(in crate::tiff::image_file_directory::tags) fn parse<Unit: Version6OrBigTiffUnit, B: Bytes>(tag_type: u16, tiff_bytes: &mut B, count: u64, byte_order: ByteOrder, offset_or_value_union_index: u64, allocator: A) -> Result<Self, SpecificTagParseError>
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory::tags) fn parse<Unit: Version6OrBigTiffUnit, TB: TiffBytes>(tag_type: u16, tiff_bytes: &mut TB, count: u64, byte_order: ByteOrder, offset_or_value_union_index: Index, allocator: A) -> Result<Self, SpecificTagParseError>
 	{
 		use SpecificTagParseError::*;
 		use UnrecognizedTagValue::*;
@@ -95,7 +96,7 @@ impl<'a, A: Allocator> UnrecognizedTagValue<'a, A>
 			
 			TagType::Double => DOUBLE(tiff_bytes.double_slice::<Unit>(count, offset_or_value_union_index)?),
 			
-			TagType::Ifd => IFD(),
+			TagType::Ifd => IFD(Self::ifd::<Unit, TB>(tiff_bytes, count, byte_order, offset_or_value_union_index, allocator)?),
 			
 			TagType::Unrecognized14 => return TagType::unrecognized(),
 			
@@ -105,10 +106,65 @@ impl<'a, A: Allocator> UnrecognizedTagValue<'a, A>
 			
 			TagType::Slong8 => SLONG8(tiff_bytes.slong8_slice::<Unit>(count, offset_or_value_union_index, byte_order)?),
 			
-			TagType::Ifd8 => IFD8(),
+			TagType::Ifd8 => IFD8(Self::ifd8::<Unit, TB>(tiff_bytes, count, byte_order, offset_or_value_union_index, allocator)?),
 			
 			_ => return TagType::unrecognized(),
 		};
 		Ok(this)
+	}
+	
+	#[inline(always)]
+	fn ifd<Unit: Version6OrBigTiffUnit, TB: TiffBytes>(tiff_bytes: &mut TB, count: u64, byte_order: ByteOrder, offset_or_value_union_index: Index, allocator: A) -> Result<Vec<ImageFileDirectories<'a, A, UnrecognizedTag<'a, A>>, A>, SpecificTagParseError>
+	{
+		let offsets = tiff_bytes.long_slice::<Unit>(count, offset_or_value_union_index, byte_order)?;
+		let mut vec_image_file_directories = Vec::new_with_capacity(offsets.len(), allocator).map_err(SpecificTagParseError::CouldNotAllocateMemoryForImageFileDirectories)?;
+		for offset in offsets
+		{
+			let offset = offset.read() as u64;
+			Self::parse_image_file_directory(tiff_bytes, byte_order, allocator, &mut vec_image_file_directories, offset)?;
+		}
+		Ok(vec_image_file_directories)
+	}
+	
+	#[inline(always)]
+	fn ifd8<Unit: Version6OrBigTiffUnit, TB: TiffBytes>(tiff_bytes: &mut TB, count: u64, byte_order: ByteOrder, offset_or_value_union_index: Index, allocator: A) -> Result<Vec<ImageFileDirectories<'a, A, UnrecognizedTag<'a, A>>, A>, SpecificTagParseError>
+	{
+		let offsets = tiff_bytes.long8_slice::<Unit>(count, offset_or_value_union_index, byte_order)?;
+		let mut vec_image_file_directories = Vec::new_with_capacity(offsets.len(), allocator).map_err(SpecificTagParseError::CouldNotAllocateMemoryForImageFileDirectories)?;
+		for offset in offsets
+		{
+			let offset = offset.read();
+			Self::parse_image_file_directory(tiff_bytes, byte_order, allocator, &mut vec_image_file_directories, offset)?;
+		}
+		Ok(vec_image_file_directories)
+	}
+	
+	// TODO: Check for circular pointers.
+	xxxx;
+	// TODO: Maximum recursion depth check.
+	xxxx;
+	
+	#[inline(always)]
+	fn parse_image_file_directory<Unit: Version6OrBigTiffUnit, TB: TiffBytes>(tiff_bytes: &mut TB, byte_order: ByteOrder, allocator: A, vec_image_file_directories: &mut Vec<ImageFileDirectories<'a, A, UnrecognizedTag<'a, A>>>, offset: u64) -> Result<(), SpecificTagParseError>
+	{
+		use SpecificTagParseError::*;
+		
+		let zeroth_image_file_directory_pointer = ImageFileDirectoryPointer::new_from_offset(Offset(offset)).map_err(ImageFileDirectoryPointerParse)?.ok_or(ImageFileDirectoryPointerIsNull)?;
+		
+		xxxx;
+		let tag_parser = UnrecognizedTagParser::DDDDDDDDDDDDDD;
+		
+		let image_file_directories = match ImageFileDirectories::parse(tag_parser, allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer)
+		{
+			Ok(image_file_directories) => image_file_directories,
+			
+			Err(cause) =>
+			{
+				let cause = Box::try_new_in(cause, allocator).map_err(CouldNotAllocateMemoryForImageFileDirectoriesParseError)?;
+				Err(ImageFileDirectoriesParse(cause))
+			}
+		};
+		vec_image_file_directories.push_unchecked(image_file_directories);
+		Ok(())
 	}
 }

@@ -8,7 +8,8 @@ use std::fmt::Debug;
 use std::hash::Hash;
 use std::marker::PhantomData;
 use super::FileLength;
-use super::Bytes;
+use super::Index;
+use super::TiffBytes;
 use super::size_of_u64;
 
 

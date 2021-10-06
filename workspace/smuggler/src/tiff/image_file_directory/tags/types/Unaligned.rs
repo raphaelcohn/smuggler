@@ -78,6 +78,7 @@ impl<CBU: CanBeUnaligned> Unaligned<CBU>
 	#[inline(always)]
 	fn read(&self) -> CBU
 	{
-		unsafe { (self as *const Self as *const CBU).read_unaligned() }
+		let pointer = addr_of!(self.0);
+		unsafe { pointer.read_unaligned() }
 	}
 }
