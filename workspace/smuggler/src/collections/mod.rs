@@ -25,16 +25,18 @@ use std::mem::transmute;
 use std::ptr;
 use std::slice::from_raw_parts;
 use std::slice::from_raw_parts_mut;
-use swiss_army_knife::byte_swap::Unaligned;
+use swiss_army_knife::byte_swap;
 use swiss_army_knife::byte_swap::Unaligned16;
 use swiss_army_knife::byte_swap::Unaligned32;
 use swiss_army_knife::byte_swap::Unaligned64;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::get_unchecked::AsUsizeIndex;
-use crate::tiff::image_file_directory::tags::types::RationalFraction;
+use crate::tiff::image_file_directory::tags::types::{RationalFraction, Unaligned};
 use crate::tiff::image_file_directory::tags::types::RationalFractionAtor;
 use std::ptr::NonNull;
 use std::hash::Hash;
+use std::num::NonZeroUsize;
+use swiss_army_knife::non_null::new_non_zero_usize;
 
 
 mod pointer_to_index_lengths;

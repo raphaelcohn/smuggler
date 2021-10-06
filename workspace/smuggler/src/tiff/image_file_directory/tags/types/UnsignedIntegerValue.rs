@@ -90,51 +90,50 @@ impl UnsignedIntegerValue
 	}
 	
 	#[inline(always)]
-	pub(in crate::tiff::image_file_directory::tags) fn parse_offset_or_value<Unit: Version6OrBigTiffUnit>(tag_type: u16, tiff_bytes: &impl TiffBytes, offset_or_value_union_index: Index, byte_order: ByteOrder) -> Result<Self, SpecificTagParseError>
+	pub(in crate::tiff::image_file_directory::tags) fn parse_offset_or_value(tag_type: TagType, slice: NonNull<[u8]>, byte_order: ByteOrder) -> Result<Self, SpecificTagParseError>
 	{
+		use TagType::*;
 		use UnsignedIntegerValue::*;
 		
 		match tag_type
 		{
-			TagType::Unrecognized0 => TagType::unrecognized(),
+			BYTE => Ok(U8(slice.as_non_null_ptr().read_unaligned())),
 			
-			TagType::Byte => Ok(U8(tiff_bytes.byte_unchecked(offset_or_value_union_index))),
+			ASCII => TagType::invalid(tag_type),
 			
-			TagType::Ascii => TagType::invalid(tag_type),
+			SHORT => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U16),
 			
-			TagType::Short => Ok(U16(tiff_bytes.unaligned_unchecked(offset_or_value_union_index))),
+			LONG => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U32),
 			
-			TagType::Long => Ok(U32(tiff_bytes.unaligned_unchecked(offset_or_value_union_index))),
+			RATIONAL => TagType::invalid(tag_type),
 			
-			TagType::Rational => TagType::invalid(tag_type),
+			SBYTE => TagType::invalid(tag_type),
 			
-			TagType::Sbyte => TagType::invalid(tag_type),
+			UNDEFINED => TagType::invalid(tag_type),
 			
-			TagType::Undefined => TagType::invalid(tag_type),
+			SSHORT => TagType::invalid(tag_type),
 			
-			TagType::Sshort => TagType::invalid(tag_type),
+			SLONG => TagType::invalid(tag_type),
 			
-			TagType::Slong => TagType::invalid(tag_type),
+			SRATIONAL => TagType::invalid(tag_type),
 			
-			TagType::Srational => TagType::invalid(tag_type),
+			FLOAT => TagType::invalid(tag_type),
 			
-			TagType::Float => TagType::invalid(tag_type),
+			DOUBLE => TagType::invalid(tag_type),
 			
-			TagType::Double => TagType::invalid(tag_type),
+			IFD => TagType::invalid(tag_type),
 			
-			TagType::Ifd => TagType::invalid(tag_type),
+			LONG8 => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U64),
 			
-			TagType::Unrecognized14 => TagType::unrecognized(),
+			SLONG8 => TagType::invalid(tag_type),
 			
-			TagType::Unrecognized15 => TagType::unrecognized(),
-			
-			TagType::Long8 => Ok(U64(Unit::long8_offset_or_value(tiff_bytes, offset_or_value_union_index, byte_order)?)),
-			
-			TagType::Slong8 => TagType::invalid(tag_type),
-			
-			TagType::Ifd8 => TagType::invalid(tag_type),
-			
-			_ => TagType::unrecognized()
+			IFD8 => TagType::invalid(tag_type),
 		}
+	}
+	
+	#[inline(always)]
+	fn read_unaligned_and_byte_swap_as_appropriate<CBU: CanBeUnaligned>(slice: NonNull<[u8]>, byte_order: ByteOrder, constructor: impl FnOnce(CBU) -> Self) -> Result<Self, SpecificTagParseError>
+	{
+		Ok(constructor(CBU::read_unaligned_and_byte_swap_as_appropriate(slice.as_non_null_ptr().cast(), byte_order)))
 	}
 }

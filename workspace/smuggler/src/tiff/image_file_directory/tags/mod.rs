@@ -27,7 +27,10 @@ use std::collections::TryReserveError;
 use std::mem::size_of;
 use std::mem::transmute;
 use swiss_army_knife::get_unchecked::GetUnchecked;
+use crate::collections::TiffBytes;
+use crate::collections::Index;
 use crate::collections::VecExt;
+use crate::collections::ByteOrder;
 use std::num::NonZeroU64;
 use std::convert::TryInto;
 use std::ops::Deref;
@@ -37,6 +40,8 @@ use std::hash::Hash;
 use self::types::Unaligned;
 use self::types::RationalFraction;
 use crate::tiff::image_file_directory::tags::types::UnrecognizedTagValue;
+use crate::tiff::image_file_directory::tags::parsers::{Version6OrBigTiffUnit, RecursionGuard, SpecificTagParseError};
+use std::ptr::NonNull;
 
 
 /// Parsers.

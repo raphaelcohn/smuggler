@@ -16,6 +16,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use strum::EnumDiscriminants;
 use crate::collections::Index;
+use crate::tiff::FreeSpace;
 
 
 include!("BigTiffHeaderParseError.rs");

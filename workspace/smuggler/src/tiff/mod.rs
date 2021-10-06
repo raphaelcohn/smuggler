@@ -3,6 +3,7 @@
 
 
 use crate::collections::ByteOrder;
+use crate::collections::Index;
 use crate::collections::VecExt;
 use crate::collections::TiffBytes;
 use likely::unlikely;
@@ -41,6 +42,7 @@ use std::num::NonZeroU32;
 use std::ops::RangeInclusive;
 use std::alloc::Allocator;
 use std::slice::from_raw_parts;
+use crate::tiff::header::Version;
 
 
 /// Header.
@@ -55,4 +57,5 @@ pub mod image_file_directory;
 pub mod offset;
 
 
+include!("FreeSpace.rs");
 include!("TiffParseError.rs");

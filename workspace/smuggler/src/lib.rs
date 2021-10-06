@@ -30,6 +30,9 @@
 #![feature(arbitrary_enum_discriminant)]
 #![feature(maybe_uninit_uninit_array)]
 #![feature(maybe_uninit_array_assume_init)]
+#![feature(nonnull_slice_from_raw_parts)]
+#![feature(slice_ptr_get)]
+#![feature(slice_ptr_len)]
 
 
 #![doc = include_str!("../README.md")]

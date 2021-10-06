@@ -5,6 +5,12 @@
 /// A byte such as u8 or i8.
 pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
 {
+	#[inline(always)]
+	fn byte_slice(slice: NonNull<[u8]>) -> &[Self]
+	{
+		let slice: NonNull<B> = slice.cast();
+		unsafe { from_raw_parts(slice.as_mut_ptr(), slice.len()) }
+	}
 }
 
 impl Byte for u8

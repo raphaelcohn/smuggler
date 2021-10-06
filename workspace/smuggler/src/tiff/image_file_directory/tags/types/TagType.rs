@@ -101,20 +101,64 @@ impl TagType
 	const Ifd8: u16 = 18;
 	
 	#[inline(always)]
-	const fn ok<TT>(tag_type: u16) -> Result<TT, SpecificTagParseError>
+	pub(in crate::tiff::image_file_directory) fn parse(tag_type: u16) -> Result<(Self, u64), TagParseError>
 	{
-		Ok(unsafe { transmute(tag_type) })
+		#[inline(always)]
+		const fn unrecognized(tag_type: u16) -> Result<(Self, u64), TagParseError>
+		{
+			Err(TagParseError::UnrecognizedTagType { tag_type })
+		}
+		
+		use TagType::*;
+		
+		let ok = match tag_type
+		{
+			TagType::Unrecognized0 => return unrecognized(TagType::Unrecognized0),
+			
+			TagType::Byte => (BYTE, 1),
+			
+			TagType::Ascii => (ASCII, 1),
+			
+			TagType::Short => (SHORT, 2),
+			
+			TagType::Long => (LONG, 4),
+			
+			TagType::Rational => (RATIONAL, 8),
+			
+			TagType::Sbyte => (SBYTE, 1),
+			
+			TagType::Undefined => (UNDEFINED, 1),
+			
+			TagType::Sshort => (SSHORT, 1),
+			
+			TagType::Slong => (SLONG, 4),
+			
+			TagType::Srational => (SRATIONAL, 8),
+			
+			TagType::Float => (FLOAT, 4),
+			
+			TagType::Double => (DOUBLE, 8),
+			
+			TagType::Ifd => (IFD, 4),
+			
+			TagType::Unrecognized14 => return unrecognized(TagType::Unrecognized14),
+			
+			TagType::Unrecognized15 => return unrecognized(TagType::Unrecognized15),
+			
+			TagType::Long8 => (LONG8, 8),
+			
+			TagType::Slong8 => (SLONG8, 8),
+			
+			TagType::Ifd8 => (IFD8, 8),
+			
+			_ => return unrecognized(tag_type),
+		};
+		Ok(ok)
 	}
 	
 	#[inline(always)]
-	const fn unrecognized<TT>() -> Result<TT, SpecificTagParseError>
+	const fn invalid<TT>(tag_type: Self) -> Result<TT, SpecificTagParseError>
 	{
-		Err(SpecificTagParseError::UnrecognizedTagType)
-	}
-	
-	#[inline(always)]
-	const fn invalid<TT>(tag_type: u16) -> Result<TT, SpecificTagParseError>
-	{
-		Err(SpecificTagParseError::InvalidTagTypeForTagIdentifier(unsafe { transmute(tag_type) }))
+		Err(SpecificTagParseError::InvalidTagTypeForTagIdentifier(tag_type))
 	}
 }

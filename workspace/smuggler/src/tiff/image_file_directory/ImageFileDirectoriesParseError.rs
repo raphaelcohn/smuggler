@@ -18,6 +18,12 @@ pub(crate) enum ImageFileDirectoriesParseError
 	
 	#[allow(missing_docs)]
 	CouldNotAllocateMemoryForImageFileDirectoryStorage(TryReserveError),
+	
+	#[allow(missing_docs)]
+	CyclicImageFileDirectoryPointer(ImageFileDirectoryPointer),
+	
+	#[allow(missing_docs)]
+	CouldNotAllocateMemoryForImageFileDirectoryPointer(TryReserveError),
 }
 
 impl Display for ImageFileDirectoriesParseError
@@ -41,6 +47,8 @@ impl error::Error for ImageFileDirectoriesParseError
 			ImageFileDirectoryParse { cause, .. } => Some(cause),
 			
 			CouldNotAllocateMemoryForImageFileDirectoryStorage(cause) => Some(cause),
+			
+			CouldNotAllocateMemoryForImageFileDirectoryPointer(cause) => Some(cause),
 		}
 	}
 }

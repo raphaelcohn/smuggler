@@ -49,7 +49,7 @@ pub(crate) trait TiffBytes
 	#[inline(always)]
 	fn byte_checked<B: Byte>(&self, index: Index) -> Result<B, OverflowError>
 	{
-		let this = self.non_null_to_index_checked(index)?;
+		let this = self.non_null_to_index_checked(index, 1)?;
 		Ok(this.read())
 	}
 	
@@ -74,27 +74,30 @@ pub(crate) trait TiffBytes
 		CBU::read_unaligned_and_byte_swap_as_appropriate(this, byte_order)
 	}
 	
-	#[doc(hidden)]
 	#[inline(always)]
-	fn non_null_to_index_checked<X: Sized>(&self, index: Index) -> Result<NonNull<X>, OverflowError>
+	fn non_null_to_index_checked<X: Sized>(&self, index: Index, count: u64) -> Result<NonNull<X>, OverflowError>
 	{
-		CheckedPointerToIndexLength::check::<X, _>(self, index)?;
+		CheckedPointerToIndexLength::check::<X, _>(self, index, count)?;
 		Ok(new_non_null(Ok(self.pointer_to_index_length::<X>(index))?))
 	}
 	
-	#[doc(hidden)]
 	#[inline(always)]
-	fn non_null_to_index_unchecked<X: Sized>(&self, index: Index) -> NonNull<X>
+	fn non_null_to_index_unchecked<X: Sized>(&self, index: Index, count: u64) -> NonNull<X>
 	{
-		UncheckedPointerToIndexLength::check::<X, _>(self, index);
+		UncheckedPointerToIndexLength::check::<X, _>(self, index, count);
 		new_non_null(self.pointer_to_index_length::<X>(index))
 	}
 	
-	#[doc(hidden)]
 	#[inline(always)]
-	fn non_null_to_index_unchecked_mut<X: Sized>(&mut self, index: Index) -> NonNull<X>
+	fn non_null_to_index_checked_mut<X: Sized>(&mut self, index: Index, count: u64) -> Result<NonNull<X>, OverflowError>
 	{
-		self.non_null_to_index_unchecked(index)
+		self.non_null_to_index_checked(index, count)
+	}
+	
+	#[inline(always)]
+	fn non_null_to_index_unchecked_mut<X: Sized>(&mut self, index: Index, count: u64) -> NonNull<X>
+	{
+		self.non_null_to_index_unchecked(index, count)
 	}
 	
 	#[doc(hidden)]

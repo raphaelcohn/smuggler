@@ -15,6 +15,49 @@ pub struct AsciiStrings<'a, A: Allocator>
 impl<'a, A: Allocator> AsciiStrings<'a, A>
 {
 	#[inline(always)]
+	fn parse(slice: NonNull<[u8]>, allocator: A) -> Result<Self, SpecificTagParseError>
+	{
+		#[inline(always)]
+		fn u8_to_ascii(string: &[u8]) -> &[NonZeroU8]
+		{
+			unsafe { transmute(string) }
+		}
+		
+		#[inline(always)]
+		fn try_push_string<'a>(strings: &mut Vec<&'a [NonZeroU8]>, string: &'a [u8]) -> Result<(), SpecificTagParseError>
+		{
+			strings.try_push(u8_to_ascii(string)).map_err(SpecificTagParseError::CouldNotAllocateMemoryForAsciiStringReference)
+		}
+		
+		let mut strings: Vec<&'a [NonZeroU8]> = Vec::new_in(allocator);
+		let mut remaining_bytes = u8::byte_slice(slice);
+		loop
+		{
+			match memchr(0x00, remaining_bytes)
+			{
+				None =>
+				{
+					try_push_string(&mut strings, remaining_bytes)?;
+					
+					return Ok(Self::new(strings, true))
+				}
+				
+				Some(index) =>
+				{
+					try_push_string(&mut strings, remaining_bytes.get_unchecked_range_safe(.. index))?;
+					
+					let next = index + 1;
+					if next == remaining_bytes.len()
+					{
+						return Ok(Self::new(strings, false))
+					}
+					remaining_bytes = remaining_bytes.get_unchecked_range_safe(next ..);
+				}
+			}
+		}
+	}
+	
+	#[inline(always)]
 	const fn new(strings: Vec<&'a [NonZeroU8], A>, omits_final_nul_byte: bool) -> Self
 	{
 		Self

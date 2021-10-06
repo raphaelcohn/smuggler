@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::TiffBytes;
+use crate::collections::{TiffBytes, CanBeUnaligned};
 use crate::collections::ByteOrder;
 use crate::collections::Index;
 use crate::collections::OverflowError;
@@ -27,11 +27,17 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::mem::size_of;
+use std::ptr::NonNull;
 use std::ops::Deref;
 use std::num::NonZeroU64;
 use swiss_army_knife::non_zero::new_non_zero_u64;
-use crate::tiff::image_file_directory::tags::parsers::PublicTagParser;
+use crate::tiff::image_file_directory::tags::parsers::{PublicTagParser, SpecificTagParseError};
+use crate::tiff::image_file_directory::tags::parsers::Recursion;
+use crate::tiff::image_file_directory::tags::parsers::RecursionGuard;
 use crate::tiff::image_file_directory::tags::public::PublicTagParser;
+use crate::tiff::image_file_directory::tags::types::TagType;
+use crate::tiff::offset::Offset;
+use crate::tiff::image_file_directory::tags::UnrecognizedTag;
 
 
 /// Pointer.

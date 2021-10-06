@@ -269,8 +269,9 @@ use swiss_army_knife::byte_swap::ByteSwapUnalignedMemory;
 use swiss_army_knife::byte_swap::Unaligned16;
 use swiss_army_knife::byte_swap::Unaligned32;
 use swiss_army_knife::byte_swap::Unaligned64;
-use crate::tiff::image_file_directory::tags::parsers::SpecificTagParseError;
+use crate::tiff::image_file_directory::tags::parsers::{SpecificTagParseError, RecursionGuard, RecursionGuard};
 use crate::tiff::image_file_directory::tags::UnrecognizedTag;
+use std::ptr::NonNull;
 
 
 include!("NewSubfileTypeBitField.rs");

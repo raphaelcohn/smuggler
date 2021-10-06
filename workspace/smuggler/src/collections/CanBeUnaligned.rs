@@ -5,6 +5,25 @@
 /// Can be unaligned.
 pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 {
+	#[doc(hidden)]
+	type U: byte_swap::Unaligned;
+	
+	const FieldCount: NonZeroUsize = new_non_zero_usize(1);
+	
+	#[doc(hidden)]
+	#[inline(always)]
+	fn slice_unaligned_and_byte_swap_as_appropriate<'a>(count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> &'a [Unaligned<Self>]
+	{
+		debug_assert_eq!(slice.len() % size_of::<Self>(), 0);
+		debug_assert_eq!((slice.len() / size_of::<Self>()) as u64, count);
+		
+		let count = count as usize;
+		
+		let slice = unsafe { from_raw_parts_mut(slice.as_mut_ptr() as *mut Self::U, count * Self::FieldCount.get()) };
+		byte_order.byte_swap(slice);
+		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Unaligned<Self>, count) }
+	}
+	
 	#[inline(always)]
 	fn read_unaligned_and_byte_swap_as_appropriate(this: NonNull<Self>, byte_order: ByteOrder) -> Self
 	{
@@ -49,6 +68,8 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 
 impl CanBeUnaligned for u16
 {
+	type U = Unaligned16;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{
@@ -58,6 +79,8 @@ impl CanBeUnaligned for u16
 
 impl CanBeUnaligned for u32
 {
+	type U = Unaligned32;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{
@@ -67,6 +90,8 @@ impl CanBeUnaligned for u32
 
 impl CanBeUnaligned for u64
 {
+	type U = Unaligned64;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{
@@ -76,6 +101,8 @@ impl CanBeUnaligned for u64
 
 impl CanBeUnaligned for i16
 {
+	type U = Unaligned16;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{
@@ -86,6 +113,8 @@ impl CanBeUnaligned for i16
 
 impl CanBeUnaligned for i32
 {
+	type U = Unaligned32;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{
@@ -96,6 +125,8 @@ impl CanBeUnaligned for i32
 
 impl CanBeUnaligned for i64
 {
+	type U = Unaligned64;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{
@@ -106,6 +137,8 @@ impl CanBeUnaligned for i64
 
 impl CanBeUnaligned for f32
 {
+	type U = Unaligned32;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{
@@ -116,6 +149,8 @@ impl CanBeUnaligned for f32
 
 impl CanBeUnaligned for f64
 {
+	type U = Unaligned64;
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{

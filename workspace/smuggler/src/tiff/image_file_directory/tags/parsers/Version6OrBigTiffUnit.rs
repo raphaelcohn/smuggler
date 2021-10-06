@@ -6,7 +6,13 @@ pub(in crate::tiff::image_file_directory) trait Version6OrBigTiffUnit: Into<u64>
 {
 	type NumberOfDirectoryEntries: Into<u64>;
 	
+	const NumberOfDirectoryEntriesSize: u64 = size_of_u64::<Self::NumberOfDirectoryEntries>();
+	
 	type OffsetLikeValue: Into<u64>;
+	
+	const ImageFileDirectoryPointerSize: u64 = size_of_u64::<Self::OffsetLikeValue>();
+	
+	const OffsetOrValueUnionSize: u64 = size_of_u64::<Self::OffsetLikeValue>();
 	
 	const Count8: u64;
 	

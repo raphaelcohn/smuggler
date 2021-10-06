@@ -39,7 +39,7 @@ impl Offset
 	}
 	
 	#[inline(always)]
-	pub(crate) fn parse_offset_value(bytes: &impl TiffBytes, raw_offset: u64) -> Result<Self, OffsetParseError>
+	pub(crate) fn parse_offset_value(bytes: &impl TiffBytes, raw_offset: Index) -> Result<Self, OffsetParseError>
 	{
 		let file_length = bytes.file_length();
 		if unlikely!(raw_offset > file_length)

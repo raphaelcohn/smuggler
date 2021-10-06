@@ -20,7 +20,7 @@ impl<CBU: CanBeUnaligned> Debug for Unaligned<CBU>
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		self.read().fmt(f)
+		self.read_assuming_is_native_endian().fmt(f)
 	}
 }
 
@@ -29,7 +29,7 @@ impl<CBU: CanBeUnaligned> Clone for Unaligned<CBU>
 	#[inline(always)]
 	fn clone(&self) -> Self
 	{
-		Self(self.read())
+		Self(self.read_assuming_is_native_endian())
 	}
 }
 
@@ -38,7 +38,7 @@ impl<CBU: CanBeUnaligned> PartialEq for Unaligned<CBU>
 	#[inline(always)]
 	fn eq(&self, rhs: &Self) -> bool
 	{
-		self.read().eq(&rhs.read())
+		self.read_assuming_is_native_endian().eq(&rhs.read_assuming_is_native_endian())
 	}
 }
 
@@ -51,7 +51,7 @@ impl<CBU: CanBeUnaligned> PartialOrd for Unaligned<CBU>
 	#[inline(always)]
 	fn partial_cmp(&self, rhs: &Self) -> Option<Ordering>
 	{
-		self.read().partial_cmp(&rhs.read())
+		self.read_assuming_is_native_endian().partial_cmp(&rhs.read_assuming_is_native_endian())
 	}
 }
 
@@ -60,7 +60,7 @@ impl<CBU: CanBeUnaligned + Eq + Ord> Ord for Unaligned<CBU>
 	#[inline(always)]
 	fn cmp(&self, rhs: &Self) -> Ordering
 	{
-		self.read().cmp(&rhs.read())
+		self.read_assuming_is_native_endian().cmp(&rhs.read_assuming_is_native_endian())
 	}
 }
 
@@ -69,14 +69,14 @@ impl<CBU: CanBeUnaligned + Hash> Hash for Unaligned<CBU>
 	#[inline(always)]
 	fn hash<H: Hasher>(&self, state: &mut H)
 	{
-		self.read().hash(state)
+		self.read_assuming_is_native_endian().hash(state)
 	}
 }
 
 impl<CBU: CanBeUnaligned> Unaligned<CBU>
 {
 	#[inline(always)]
-	fn read(&self) -> CBU
+	pub(crate) fn read_assuming_is_native_endian(&self) -> CBU
 	{
 		let pointer = addr_of!(self.0);
 		unsafe { pointer.read_unaligned() }

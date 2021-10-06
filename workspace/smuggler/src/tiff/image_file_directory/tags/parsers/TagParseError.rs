@@ -15,13 +15,19 @@ pub enum TagParseError
 	},
 	
 	#[allow(missing_docs)]
+	UnrecognizedTagType
+	{
+		tag_type: u16,
+	},
+	
+	#[allow(missing_docs)]
 	SpecificTagParse
 	{
 		cause: SpecificTagParseError,
 		
 		tag_identifier: TagIdentifier,
 		
-		tag_type: u16,
+		tag_type: TagType,
 		
 		count: u64,
 		

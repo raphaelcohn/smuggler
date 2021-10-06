@@ -7,6 +7,9 @@
 pub enum SpecificTagParseError
 {
 	#[allow(missing_docs)]
+	MaximumDescentReached,
+	
+	#[allow(missing_docs)]
 	UnrecognizedTagType,
 	
 	#[allow(missing_docs)]

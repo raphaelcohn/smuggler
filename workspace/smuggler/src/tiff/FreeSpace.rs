@@ -2,9 +2,29 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-pub(in crate::tiff::image_file_directory) trait TagParser
+#[derive(Debug)]
+struct FreeSpace
 {
-	type Tag<'a, A: Allocator>: Tag<'a, A>;
+}
+
+impl FreeSpace
+{
+	#[inline(always)]
+	fn record_header(&mut self, version: Version)
+	{
+		use Version::*;
+		
+		let size_in_bytes = match version
+		{
+			_6 => 8,
+			
+			BigTiff => 16,
+		};
+		self.record_used_space_slice(0, size_in_bytes);
+	}
 	
-	fn parse<'a, Unit: Version6OrBigTiffUnit, A: Allocator, TB: TiffBytes>(&self, recursion_guard: &RecursionGuard, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: TagType, count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> Result<Self::Tag<'a, A>, SpecificTagParseError>;
+	#[inline(always)]
+	fn record_used_space_slice(&mut self, index: Index, size_in_bytes: u64)
+	{
+	}
 }

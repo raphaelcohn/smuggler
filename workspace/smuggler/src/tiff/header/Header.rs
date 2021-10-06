@@ -16,7 +16,7 @@ pub struct Header
 impl Header
 {
 	#[inline(always)]
-	fn parse(tiff_bytes: &impl TiffBytes) -> Result<(Self, ImageFileDirectoryPointer), HeaderParseError>
+	fn parse(tiff_bytes: &impl TiffBytes, free_space: &mut FreeSpace) -> Result<(Self, ImageFileDirectoryPointer), HeaderParseError>
 	{
 		use HeaderParseError::*;
 		
@@ -31,6 +31,8 @@ impl Header
 		};
 		
 		let zeroth_image_file_directory_pointer = header.zeroth_image_file_directory_pointer(tiff_bytes)?;
+		
+		free_space.record_header(version);
 		
 		Ok
 		(

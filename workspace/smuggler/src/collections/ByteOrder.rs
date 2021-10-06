@@ -26,7 +26,7 @@ impl Default for ByteOrder
 impl ByteOrder
 {
 	#[inline(always)]
-	pub(crate) fn byte_swap(self, slice: &mut [impl Unaligned])
+	pub(crate) fn byte_swap(self, slice: &mut [impl byte_swap::Unaligned])
 	{
 		use ByteOrder::*;
 		

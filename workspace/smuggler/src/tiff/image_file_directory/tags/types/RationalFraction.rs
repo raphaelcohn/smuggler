@@ -4,6 +4,7 @@
 
 /// A rational fraction.
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[repr(C)]
 pub struct RationalFraction<RFA: RationalFractionAtor>
 {
 	numerator: RFA,
@@ -13,6 +14,11 @@ pub struct RationalFraction<RFA: RationalFractionAtor>
 
 impl<RFA: RationalFractionAtor> CanBeUnaligned for RationalFraction<RFA>
 {
+	#[doc(hidden)]
+	type U = RFA::U;
+	
+	const FieldCount: NonZeroUsize = new_non_zero_usize(2);
+	
 	#[inline(always)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self
 	{

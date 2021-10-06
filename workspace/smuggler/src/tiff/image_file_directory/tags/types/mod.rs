@@ -2,44 +2,50 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use likely::unlikely;
-use super::TagIdentifier;
-use super::parsers::TagParseError;
-use super::parsers::SpecificTagParseError;
-use super::parsers::Version6OrBigTiffUnit;
-use crate::collections::ByteOrder;
-use crate::collections::Index;
-use crate::collections::VecExt;
+use crate::collections::{ByteOrder, NonNullExt, Byte};
 use crate::collections::CanBeUnaligned;
+use crate::collections::Index;
 use crate::collections::TiffBytes;
+use crate::collections::VecExt;
+use crate::tiff::image_file_directory::ImageFileDirectories;
+use crate::tiff::image_file_directory::ImageFileDirectory;
 use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointer;
+use crate::tiff::image_file_directory::tags::UnrecognizedTag;
+use crate::tiff::image_file_directory::tags::parsers::RecursionGuard;
+use crate::tiff::image_file_directory::tags::parsers::UnrecognizedTagParser;
 use crate::tiff::offset::Offset;
+use likely::unlikely;
 use memchr::memchr;
 use std::alloc::Allocator;
+use std::cell::Cell;
 use std::cmp::Ordering;
+use std::convert::TryInto;
 use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::fmt;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::marker::PhantomData;
+use std::mem::size_of;
 use std::mem::transmute;
-use std::num::NonZeroU8;
+use std::num::{NonZeroU8, NonZeroUsize};
+use std::ptr::NonNull;
+use std::ptr::addr_of;
+use std::slice::from_raw_parts;
+use std::slice::from_raw_parts_mut;
+use std::str::FromStr;
 use strum::EnumCount;
 use strum::IntoEnumIterator;
-use std::str::FromStr;
-use std::convert::TryInto;
-use std::slice::from_raw_parts_mut;
-use std::ptr::addr_of;
-use std::ptr::NonNull;
-use swiss_army_knife::byte_swap;
+use super::TagIdentifier;
+use super::parsers::SpecificTagParseError;
+use super::parsers::TagParseError;
+use super::parsers::Version6OrBigTiffUnit;
 use swiss_army_knife::byte_swap::Unaligned16;
 use swiss_army_knife::byte_swap::Unaligned32;
 use swiss_army_knife::byte_swap::Unaligned64;
+use swiss_army_knife::byte_swap;
 use swiss_army_knife::non_null::new_non_null;
-use crate::tiff::image_file_directory::ImageFileDirectory;
-use crate::tiff::image_file_directory::ImageFileDirectories;
-use crate::tiff::image_file_directory::tags::UnrecognizedTag;
+use swiss_army_knife::non_null::new_non_zero_usize;
 
 
 include!("AsciiStrings.rs");

@@ -17,3 +17,13 @@ impl<'a, A: Allocator> Tag for UnrecognizedTag<'a, A>
 		self.0
 	}
 }
+
+impl<'a, A: Allocator> UnrecognizedTag<'a, A>
+{
+	#[inline(always)]
+	fn parse<'a, A, Unit: Version6OrBigTiffUnit, TB: TiffBytes>(recursion_guard: &RecursionGuard, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: TagType, count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> Result<UnrecognizedTag<'a, A>, SpecificTagParseError>
+	{
+		let unrecognized_tag_value = UnrecognizedTagValue::parse(tag_type, tiff_bytes, count, byte_order, slice, recursion_guard, allocator)?;
+		Ok(UnrecognizedTag(tag_identifier, unrecognized_tag_value))
+	}
+}
