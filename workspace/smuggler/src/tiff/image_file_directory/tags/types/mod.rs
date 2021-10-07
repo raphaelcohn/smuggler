@@ -11,7 +11,7 @@ use crate::tiff::image_file_directory::ImageFileDirectories;
 use crate::tiff::image_file_directory::ImageFileDirectory;
 use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointer;
 use crate::tiff::image_file_directory::tags::UnrecognizedTag;
-use crate::tiff::image_file_directory::tags::parsers::RecursionGuard;
+use crate::tiff::image_file_directory::tags::parsers::{RecursionGuard, TagParserCommon, RawTagValue};
 use crate::tiff::image_file_directory::tags::parsers::UnrecognizedTagParser;
 use crate::tiff::offset::Offset;
 use likely::unlikely;

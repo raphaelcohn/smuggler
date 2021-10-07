@@ -18,11 +18,11 @@ impl Recursion
 	const MaximumDescents: NonZeroU8 = new_non_zero_u8(3);
 	
 	#[inline(always)]
-	pub(in crate::tiff::tags) fn top_level(&self) -> Result<RecursionGuard, SpecificTagParseError>
+	pub(in crate::tiff::tags) fn top_level(&self) -> RecursionGuard
 	{
 		debug_assert_eq!(self.descent_depth.get(), 0, "Already descending");
 		self.descent_depth.set(1);
-		Ok(RecursionGuard(self))
+		RecursionGuard(self)
 	}
 	
 	#[inline(always)]

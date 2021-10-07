@@ -4,12 +4,12 @@
 
 /// Tags; always sorted in ascending key (tag identifier) order except for unrecognized tags, which are sorted last.
 #[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct Tags<'a, A: Allocator, T: Tag<'a, A>>
+pub struct Tags<A: Allocator, T: Tag<A>>
 {
 	sorted_tags: Vec<T, A>,
 }
 
-impl <'a, A: Allocator, T: Tag<'a, A>> Deref for Tags<'a, A, T>
+impl<A: Allocator, T: Tag<A>> Deref for Tags<A, T>
 {
 	type Target = [T];
 	
@@ -20,7 +20,16 @@ impl <'a, A: Allocator, T: Tag<'a, A>> Deref for Tags<'a, A, T>
 	}
 }
 
-impl <'a, A: Allocator, T: Tag<'a, A>> Tags<'a, A, T>
+impl<A: Allocator, T: Tag<A>> TagEventHandler for Tags<A, T>
+{
+	#[inline(always)]
+	fn handle_tag_event(&mut self, tag: T)
+	{
+		self.sorted_tags.push_unchecked(tag)
+	}
+}
+
+impl<A: Allocator, T: Tag<A>> Tags<A, T>
 {
 	/// Find a tag.
 	#[inline(always)]
@@ -54,11 +63,5 @@ impl <'a, A: Allocator, T: Tag<'a, A>> Tags<'a, A, T>
 				sorted_tags: Vec::new_with_capacity(length, allocator)?
 			}
 		)
-	}
-	
-	#[inline(always)]
-	pub(super) fn push_unchecked_for_duplicates_or_sort(&mut self, tag: T)
-	{
-		self.sorted_tags.push_unchecked(tag);
 	}
 }

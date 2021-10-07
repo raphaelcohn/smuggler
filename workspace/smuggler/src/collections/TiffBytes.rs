@@ -31,15 +31,6 @@ pub(crate) trait TiffBytes
 	}
 	
 	#[inline(always)]
-	fn slice_mut_checked<X>(&mut self, index: Index, length: u64) -> Result<&mut [X], OverflowError>
-	{
-		let size_in_bytes = length.checked_mul(size_of::<X>() as u64).ok_or(OverflowError::SizeOverflowsIndex { index, size_in_bytes: length })?;
-		CheckedPointerToIndexLength::check_inner(index, size_in_bytes, self.file_length())?;
-		
-		Ok(unsafe { from_raw_parts_mut(self.pointer_to_index_length_mut::<X>(index), length as usize) })
-	}
-	
-	#[inline(always)]
 	fn unaligned_u16_checked_native_endian_byte_order(&self, index: Index) -> Result<u16, OverflowError>
 	{
 		let this = self.non_null_to_index_checked(index)?;

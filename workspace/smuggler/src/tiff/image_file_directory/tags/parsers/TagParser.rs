@@ -2,9 +2,19 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-pub(in crate::tiff::image_file_directory) trait TagParser
+pub(in crate::tiff::image_file_directory) trait TagParser<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator + Copy, TEH: TagEventHandler<T, A>, T: Tag<A>>: Default
 {
-	type Tag<'a, A: Allocator>: Tag<'a, A>;
+	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH);
 	
-	fn parse<'a, Unit: Version6OrBigTiffUnit, A: Allocator, TB: TiffBytes>(&self, recursion_guard: &RecursionGuard, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: TagType, count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> Result<Self::Tag<'a, A>, SpecificTagParseError>;
+	#[inline(always)]
+	fn parse_tag<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(&mut self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, tag_type_size_in_bytes: u64, count: u64, offset_or_value_union_index: Index) -> Result<(), SpecificTagParseError>
+	{
+		use SpecificTagParseError::*;
+		
+		let raw_tag_value = RawTagValue::parse(common.recursion_guard, common.tiff_bytes_with_order.tiff_bytes, tag_type_size_in_bytes, count, offset_or_value_union_index)?;
+		
+		self.parse::<TB, Unit>(common, tag_event_handler, tag_identifier, tag_type, raw_tag_value)
+	}
+	
+	fn parse<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(&mut self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), SpecificTagParseError>;
 }

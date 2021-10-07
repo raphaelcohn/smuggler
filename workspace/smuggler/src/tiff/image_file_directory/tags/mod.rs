@@ -40,7 +40,10 @@ use std::hash::Hash;
 use self::types::Unaligned;
 use self::types::RationalFraction;
 use crate::tiff::image_file_directory::tags::types::UnrecognizedTagValue;
-use crate::tiff::image_file_directory::tags::parsers::{Version6OrBigTiffUnit, RecursionGuard, SpecificTagParseError};
+use crate::tiff::image_file_directory::tags::parsers::{TagEventHandler, RawTagValue, TagParserCommon};
+use crate::tiff::image_file_directory::tags::parsers::RecursionGuard;
+use crate::tiff::image_file_directory::tags::parsers::Version6OrBigTiffUnit;
+use crate::tiff::image_file_directory::tags::parsers::SpecificTagParseError;
 use std::ptr::NonNull;
 
 

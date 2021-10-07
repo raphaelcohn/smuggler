@@ -5,7 +5,7 @@
 /// A public tag.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[repr(u16)]
-pub enum PublicTag<'a, A: Allocator>
+pub enum PublicTag<'tiff_bytes, A: Allocator>
 {
 	/// A general indication of the kind of data contained in this subfile.
 	NewSubfileType(BitFieldInteger<NewSubfileTypeBitField>) = NewSubfileType,
@@ -26,7 +26,7 @@ pub enum PublicTag<'a, A: Allocator>
 	/// Number of bits per component.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum.
-	BitsPerSample(&'a [Unaligned<u16>]) = BitsPerSample,
+	BitsPerSample(&'tiff_bytes [Unaligned<u16>]) = BitsPerSample,
 	
 	/// Compression scheme used on the image data.
 	///
@@ -53,7 +53,7 @@ pub enum PublicTag<'a, A: Allocator>
 	/// A string that describes the subject of the image.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum (this or the extended tag `DocumentName` or both).
-	ImageDescription(&'a [AsciiCharacter]) = ImageDescription,
+	ImageDescription(&'tiff_bytes [AsciiCharacter]) = ImageDescription,
 	
 	/// The scanner manufacturer.
 	///
@@ -736,14 +736,14 @@ pub enum PublicTag<'a, A: Allocator>
 	EnhanceParams(u64) = EnhanceParams,
 	
 	#[allow(missing_docs)]
-	Unrecognized(UnrecognizedTag<'a, A>) = UnrecognizedRepresentationValue,
+	Unrecognized(UnrecognizedTag<'tiff_bytes, A>) = UnrecognizedRepresentationValue,
 }
 
-impl<'a, A: Allocator> EnumRepresentationU16 for PublicTag<'a, A>
+impl<'tiff_bytes, A: Allocator> EnumRepresentationU16 for PublicTag<'tiff_bytes, A>
 {
 }
 
-impl<'a, A: Allocator> Tag for PublicTag<'a, A>
+impl<'tiff_bytes, A: Allocator> Tag<A> for PublicTag<'tiff_bytes, A>
 {
 	type Key = PublicTagKey;
 	

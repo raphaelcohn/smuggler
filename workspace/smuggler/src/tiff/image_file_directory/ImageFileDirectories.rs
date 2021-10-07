@@ -3,11 +3,11 @@
 
 
 #[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct ImageFileDirectories<'a, A: Allocator, T: Tag>(Vec<ImageFileDirectory<'a, A, T>, A>);
+pub struct ImageFileDirectories<A: Allocator, T: Tag>(Vec<ImageFileDirectory<A, T>, A>);
 
-impl<'a, A: Allocator, T: Tag> Deref for ImageFileDirectories<'a, A, T>
+impl<A: Allocator, T: Tag> Deref for ImageFileDirectories<A, T>
 {
-	type Target = [ImageFileDirectory<'a, A>];
+	type Target = [ImageFileDirectory<A, T>];
 	
 	#[inline(always)]
 	fn deref(&self) -> &Self::Target
@@ -16,38 +16,44 @@ impl<'a, A: Allocator, T: Tag> Deref for ImageFileDirectories<'a, A, T>
 	}
 }
 
-impl<'a, A: Allocator, T: Tag> ImageFileDirectories<'a, A, T>
+impl<A: Allocator + Copy, T: Tag> ImageFileDirectories<A, T>
 {
 	#[inline(always)]
-	pub(crate) fn parse_public_top_level<TB: TiffBytes>(allocator: A, tiff_bytes: &'a mut TB, header: Header, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
+	pub(crate) fn parse_public_top_level<TB>(version: Version, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer, tiff_bytes_with_order: TiffBytesWithOrder<TB>, allocator: A) -> Result<Self, ImageFileDirectoriesParseError>
 	{
 		let recursion = Recursion::default();
-		let recursion_guard = recursion.top_level().map_err(|cause| TagParseError::SpecificTagParse { cause, tag_identifier, tag_type, count, offset_or_value_union_index })?;
+		
+		let common =
+		{
+			let recursion_guard = recursion.top_level();
+			TagParserCommon::new(tiff_bytes_with_order, &recursion_guard, allocator)
+		};
 		
 		use Version::*;
 		
-		let byte_order = header.byte_order;
-		let tag_parser = PublicTagParser;
-		match header.version
+		match version
 		{
-			_6 => Self::parse::<PublicTagParser, TB, u32>(tag_parser, recursion_guard, allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer),
+			_6 => Self::parse::<PublicTagParser, _, u32>(&common, zeroth_image_file_directory_pointer),
 			
-			BigTiff => Self::parse::<PublicTagParser, TB, u64>(tag_parser, recursion_guard, allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer),
+			BigTiff => Self::parse::<PublicTagParser, _, u64>(&common, zeroth_image_file_directory_pointer),
 		}
 	}
 	
 	#[inline(always)]
-	pub(crate) fn parse<TP: TagParser<Tag=T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, mut recursion_guard: RecursionGuard, allocator: A, tiff_bytes: &'a mut TB, byte_order: ByteOrder, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
+	pub(crate) fn parse<'tiff_bytes, 'recursion, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<Self, ImageFileDirectoriesParseError>
 	{
 		use ImageFileDirectoriesParseError::*;
 		
-		let mut image_file_directories = Vec::new_in(allocator);
+		let mut image_file_directories = Vec::new_in(common.allocator);
 		let mut image_file_directory_pointer = zeroth_image_file_directory_pointer;
 		let mut index = 0;
 		loop
 		{
-			recursion_guard.guard_image_file_directory_pointer(image_file_directory_pointer);
-			let (image_file_directory, next_image_file_directory_pointer) = ImageFileDirectory::parse::<TP, TB, Unit>(tag_parser, &recursion_guard, allocator, tiff_bytes, byte_order, image_file_directory_pointer).map_err(|cause| ImageFileDirectoryParse { cause, image_file_directory_pointer, index })?;
+			common.recursion_guard.guard_image_file_directory_pointer(image_file_directory_pointer);
+			
+			let tag_parser = TP::default();
+			let (image_file_directory, next_image_file_directory_pointer) = ImageFileDirectory::parse::<_, _, Unit>(tag_parser, common, image_file_directory_pointer).map_err(|cause| ImageFileDirectoryParse { cause, image_file_directory_pointer, index })?;
+			
 			image_file_directories.try_push(image_file_directory).map_err(|cause| CouldNotAllocateMemoryForImageFileDirectoryStorage)?;
 			
 			match next_image_file_directory_pointer
@@ -64,27 +70,32 @@ impl<'a, A: Allocator, T: Tag> ImageFileDirectories<'a, A, T>
 	}
 	
 	#[inline(always)]
-	fn parse_child_image_file_directories<Unit: Version6OrBigTiffUnit, TB: TiffBytes, CBU: CanBeUnaligned + Into<u64>>(tiff_bytes: &mut TB, count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>, recursion_guard: &RecursionGuard, allocator: A) -> Result<Vec<ImageFileDirectories<'a, A, UnrecognizedTag<'a, A>>, A>, SpecificTagParseError>
+	fn parse_child_image_file_directories<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, Unit: Version6OrBigTiffUnit, CBU: CanBeUnaligned + Into<u64>>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Vec<ImageFileDirectories<A, UnrecognizedTag<'tiff_bytes, A>>, A>, SpecificTagParseError>
 	{
-		let offsets = CBU::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice);
-		let mut vec_image_file_directories = Vec::new_with_capacity(offsets.len(), allocator).map_err(SpecificTagParseError::CouldNotAllocateMemoryForImageFileDirectories)?;
+		let offsets = CBU::slice_unaligned_and_byte_swap_as_appropriate(raw_tag_value.count, common.tiff_bytes_with_order.byte_order, raw_tag_value.slice);
+		let mut vec_image_file_directories = Vec::new_with_capacity(offsets.len(), common.allocator).map_err(SpecificTagParseError::CouldNotAllocateMemoryForImageFileDirectories)?;
 		for offset in offsets
 		{
 			let offset = offset.read_assuming_is_native_endian().into();
-			Self::parse_child_image_file_directory::<Unit, TB>(tiff_bytes, byte_order, recursion_guard, allocator, &mut vec_image_file_directories, offset)?;
+			Self::parse_child_image_file_directory::<_, Unit>(common, &mut vec_image_file_directories, offset)?;
 		}
 		Ok(vec_image_file_directories)
 	}
 	
 	#[inline(always)]
-	fn parse_child_image_file_directory<Unit: Version6OrBigTiffUnit, TB: TiffBytes>(tiff_bytes: &mut TB, byte_order: ByteOrder, recursion_guard: &RecursionGuard, allocator: A, vec_image_file_directories: &mut Vec<ImageFileDirectories<'a, A, UnrecognizedTag<'a, A>>>, offset: u64) -> Result<(), SpecificTagParseError>
+	fn parse_child_image_file_directory<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, vec_image_file_directories: &mut Vec<ImageFileDirectories<A, UnrecognizedTag<'tiff_bytes, A>>, A>, offset: u64) -> Result<(), SpecificTagParseError>
 	{
 		use SpecificTagParseError::*;
 		
 		let zeroth_image_file_directory_pointer = ImageFileDirectoryPointer::new_from_offset(Offset(offset)).map_err(ImageFileDirectoryPointerParse)?.ok_or(ImageFileDirectoryPointerIsNull)?;
 		
-		let recursion_guard = recursion_guard.recurse()?;
-		let image_file_directories = match ImageFileDirectories::parse::<_, _, Unit>(UnrecognizedTagParser, recursion_guard, allocator, tiff_bytes, byte_order, zeroth_image_file_directory_pointer)
+		let common =
+		{
+			let recursion_guard = common.recursion_guard.recurse()?;
+			TagParserCommon::new(common.tiff_bytes_with_order, &recursion_guard, common.allocator)
+		};
+		
+		let image_file_directories = match Self::parse::<UnrecognizedTagParser, TB, Unit>(&common, zeroth_image_file_directory_pointer)
 		{
 			Ok(image_file_directories) => image_file_directories,
 			

@@ -4,9 +4,9 @@
 
 /// An unrecognized tag.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct UnrecognizedTag<'a, A: Allocator>(pub TagIdentifier, pub UnrecognizedTagValue<'a, A>);
+pub struct UnrecognizedTag<'tiff_bytes, A: Allocator>(pub TagIdentifier, pub UnrecognizedTagValue<'tiff_bytes, A>);
 
-impl<'a, A: Allocator> Tag for UnrecognizedTag<'a, A>
+impl<'tiff_bytes, A: Allocator> Tag<A> for UnrecognizedTag<'tiff_bytes, A>
 {
 	/// Key type.
 	type Key = TagIdentifier;
@@ -18,12 +18,12 @@ impl<'a, A: Allocator> Tag for UnrecognizedTag<'a, A>
 	}
 }
 
-impl<'a, A: Allocator> UnrecognizedTag<'a, A>
+impl<'tiff_bytes, A: Allocator + Copy> UnrecognizedTag<'tiff_bytes, A>
 {
 	#[inline(always)]
-	fn parse<'a, A, Unit: Version6OrBigTiffUnit, TB: TiffBytes>(recursion_guard: &RecursionGuard, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: TagType, count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> Result<UnrecognizedTag<'a, A>, SpecificTagParseError>
+	fn parse<'recursion, 'recursion_guard, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<UnrecognizedTag<'tiff_bytes, A>, SpecificTagParseError>
 	{
-		let unrecognized_tag_value = UnrecognizedTagValue::parse(tag_type, tiff_bytes, count, byte_order, slice, recursion_guard, allocator)?;
+		let unrecognized_tag_value = UnrecognizedTagValue::parse::<_, Unit>(common, tag_type, raw_tag_value)?;
 		Ok(UnrecognizedTag(tag_identifier, unrecognized_tag_value))
 	}
 }

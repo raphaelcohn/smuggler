@@ -14,11 +14,11 @@ pub(in crate::tiff::image_file_directory) trait Version6OrBigTiffUnit: Into<u64>
 	
 	const OffsetOrValueUnionSize: u64 = size_of_u64::<Self::OffsetLikeValue>();
 	
-	fn number_of_directory_entries<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Self::NumberOfDirectoryEntries, OverflowError>;
+	fn number_of_directory_entries<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<Self::NumberOfDirectoryEntries, OverflowError>;
 	
-	fn offset_like_value_unchecked<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Self::OffsetLikeValue;
+	fn offset_like_value_unchecked<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Self::OffsetLikeValue;
 	
-	fn image_file_directory_pointer<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>;
+	fn image_file_directory_pointer<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>;
 }
 
 impl Version6OrBigTiffUnit for u32
@@ -28,21 +28,21 @@ impl Version6OrBigTiffUnit for u32
 	type OffsetLikeValue = u32;
 	
 	#[inline(always)]
-	fn number_of_directory_entries<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Self::NumberOfDirectoryEntries, OverflowError>
+	fn number_of_directory_entries<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<Self::NumberOfDirectoryEntries, OverflowError>
 	{
-		tiff_bytes.unaligned_checked(index, byte_order)
+		tiff_bytes_with_order.unaligned_checked(index)
 	}
 	
 	#[inline(always)]
-	fn offset_like_value_unchecked<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Self::OffsetLikeValue
+	fn offset_like_value_unchecked<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Self::OffsetLikeValue
 	{
-		tiff_bytes.unaligned_unchecked(index, byte_order)
+		tiff_bytes_with_order.unaligned_unchecked(index)
 	}
 	
 	#[inline(always)]
-	fn image_file_directory_pointer<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
+	fn image_file_directory_pointer<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
 	{
-		tiff_bytes.image_file_directory_pointer_version_6(index, byte_order)
+		tiff_bytes_with_order.image_file_directory_pointer_version_6(index)
 	}
 }
 
@@ -53,20 +53,20 @@ impl Version6OrBigTiffUnit for u64
 	type OffsetLikeValue = u64;
 	
 	#[inline(always)]
-	fn number_of_directory_entries<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Self::NumberOfDirectoryEntries, OverflowError>
+	fn number_of_directory_entries<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<Self::NumberOfDirectoryEntries, OverflowError>
 	{
-		tiff_bytes.unaligned_checked(index, byte_order)
+		tiff_bytes_with_order.unaligned_checked(index)
 	}
 	
 	#[inline(always)]
-	fn offset_like_value_unchecked<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Self::OffsetLikeValue
+	fn offset_like_value_unchecked<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Self::OffsetLikeValue
 	{
-		tiff_bytes.unaligned_unchecked(index, byte_order)
+		tiff_bytes_with_order.unaligned_unchecked(index)
 	}
 	
 	#[inline(always)]
-	fn image_file_directory_pointer<TB: TiffBytes>(tiff_bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
+	fn image_file_directory_pointer<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
 	{
-		tiff_bytes.image_file_directory_pointer_version_big_tiff(index, byte_order)
+		tiff_bytes_with_order.image_file_directory_pointer_version_big_tiff(index)
 	}
 }

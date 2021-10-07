@@ -15,6 +15,7 @@ use super::TagIdentifier;
 use super::TagKey;
 use super::UnrecognizedRepresentationValue;
 use super::UnrecognizedTagValue;
+use super::parsers::TagParserCommon;
 use super::parsers::TagParseError;
 use super::parsers::TagParser;
 use super::parsers::Version6OrBigTiffUnit;
@@ -269,9 +270,13 @@ use swiss_army_knife::byte_swap::ByteSwapUnalignedMemory;
 use swiss_army_knife::byte_swap::Unaligned16;
 use swiss_army_knife::byte_swap::Unaligned32;
 use swiss_army_knife::byte_swap::Unaligned64;
-use crate::tiff::image_file_directory::tags::parsers::{SpecificTagParseError, RecursionGuard, RecursionGuard};
-use crate::tiff::image_file_directory::tags::UnrecognizedTag;
+use super::parsers::RecursionGuard;
+use super::parsers::SpecificTagParseError;
+use super::parsers::RawTagValue;
+use super::parsers::TagEventHandler;
+use super::UnrecognizedTag;
 use std::ptr::NonNull;
+use std::ops::Deref;
 
 
 include!("NewSubfileTypeBitField.rs");
