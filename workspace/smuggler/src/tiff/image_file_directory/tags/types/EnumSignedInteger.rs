@@ -6,7 +6,7 @@
 #[repr(transparent)]
 pub struct EnumSignedInteger<SINT: SignedIntegerNormalizedType, SE: SignedEnum>(SignedInteger<SINT>, PhantomData<SE>);
 
-impl<SINT: SignedIntegerNormalizedType, SE: SignedEnum> From<UnsignedIntegerValue> for EnumUnsignedInteger<SINT, SE>
+impl<SINT: SignedIntegerNormalizedType, SE: SignedEnum> From<SignedIntegerValue> for EnumSignedInteger<SINT, SE>
 {
 	#[inline(always)]
 	fn from(value: SignedIntegerValue) -> Self

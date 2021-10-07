@@ -277,6 +277,7 @@ use super::parsers::TagEventHandler;
 use super::UnrecognizedTag;
 use std::ptr::NonNull;
 use std::ops::Deref;
+use crate::tiff::image_file_directory::tags::types::{UnsignedIntegerNormalizedType, SignedIntegerNormalizedType, SignedInteger, SignedIntegerValue, EnumSignedInteger, SignedEnum};
 
 
 include!("NewSubfileTypeBitField.rs");

@@ -3,19 +3,30 @@
 
 
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(in crate::tiff::image_file_directory) struct TagParserCommon<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>
+pub(crate) struct TagParserCommon<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>
 {
-	pub(in crate::tiff::image_file_directory) tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>,
+	tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>,
 	
-	pub(in crate::tiff::image_file_directory) recursion_guard: &'recursion_guard RecursionGuard<'recursion>,
+	pub(crate) recursion_guard: &'recursion_guard RecursionGuard<'recursion>,
 	
-	pub(in crate::tiff::image_file_directory) allocator: A,
+	pub(crate) allocator: A,
+}
+
+impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy> Deref for TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, A>
+{
+	type Target = TiffBytesWithOrder<'tiff_bytes, TB>;
+	
+	#[inline(always)]
+	fn deref(&self) -> &Self::Target
+	{
+		&self.tiff_bytes_with_order
+	}
 }
 
 impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy> TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, A>
 {
 	#[inline(always)]
-	pub(in crate::tiff::image_file_directory) const fn new(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, recursion_guard: &'recursion_guard RecursionGuard<'recursion>, allocator: A) -> Self
+	pub(crate) const fn new(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, recursion_guard: &'recursion_guard RecursionGuard<'recursion>, allocator: A) -> Self
 	{
 		Self
 		{
@@ -25,5 +36,17 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes,
 		
 			allocator,
 		}
+	}
+	
+	#[inline(always)]
+	pub(crate) const fn tiff_bytes(&self) -> &'tiff_bytes TB
+	{
+		self.tiff_bytes_with_order.tiff_bytes
+	}
+	
+	#[inline(always)]
+	pub(crate) const fn byte_order(&self) -> ByteOrder
+	{
+		self.tiff_bytes_with_order.byte_order
 	}
 }

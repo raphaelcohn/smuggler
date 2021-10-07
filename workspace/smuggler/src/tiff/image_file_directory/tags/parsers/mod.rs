@@ -2,14 +2,14 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::{ByteOrder, size_of_u64};
+use crate::collections::{ByteOrder, size_of_u64, Byte, CanBeUnaligned};
 use crate::collections::Index;
 use crate::collections::OverflowError;
 use crate::collections::TiffBytes;
 use crate::collections::TiffBytesWithOrder;
 use crate::tiff::header::Header;
 use crate::tiff::image_file_directory::ImageFileDirectoriesParseError;
-use crate::tiff::image_file_directory::tags::types::TagType;
+use crate::tiff::image_file_directory::tags::types::{TagType, Unaligned, AsciiStrings, UnsignedIntegerNormalizedType, SignedIntegerNormalizedType, UnsignedIntegerValue, SignedIntegerValue, EnumSignedInteger, EnumUnsignedInteger, BitFieldInteger, BitField, UnsignedEnum, SignedEnum, UnsignedInteger, SignedInteger};
 use crate::tiff::offset::OffsetParseError;
 use crate::tiff::offset::Offset;
 use likely::unlikely;

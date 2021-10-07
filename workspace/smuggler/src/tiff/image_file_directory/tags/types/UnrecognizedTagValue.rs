@@ -67,41 +67,37 @@ impl<'tiff_bytes, A: Allocator + Copy> UnrecognizedTagValue<'tiff_bytes, A>
 	{
 		use UnrecognizedTagValue::*;
 		
-		let byte_order = common.tiff_bytes_with_order.byte_order;
-		let count = raw_tag_value.count;
-		let slice = raw_tag_value.slice;
-		
 		let this = match tag_type
 		{
-			TagType::BYTE => BYTE(u8::byte_slice(slice)),
+			TagType::BYTE => BYTE(raw_tag_value.byte_slice()),
 			
-			TagType::ASCII => ASCII(AsciiStrings::parse(slice, common.allocator)?),
+			TagType::ASCII => ASCII(raw_tag_value.ascii_strings(common)?),
 			
-			TagType::SHORT => SHORT(u16::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::SHORT => SHORT(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::LONG => LONG(u32::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::LONG => LONG(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::RATIONAL => RATIONAL(RationalFraction::<u32>::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::RATIONAL => RATIONAL(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::SBYTE => SBYTE(i8::byte_slice(slice)),
+			TagType::SBYTE => SBYTE(raw_tag_value.byte_slice()),
 			
-			TagType::UNDEFINED => UNDEFINED(u8::byte_slice(slice)),
+			TagType::UNDEFINED => UNDEFINED(raw_tag_value.byte_slice()),
 			
-			TagType::SSHORT => SSHORT(i16::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)?),
+			TagType::SSHORT => SSHORT(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::SLONG => SLONG(i32::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::SLONG => SLONG(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::SRATIONAL => SRATIONAL(RationalFraction::<i32>::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::SRATIONAL => SRATIONAL(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::FLOAT => FLOAT(f32::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::FLOAT => FLOAT(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::DOUBLE => DOUBLE(f64::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::DOUBLE => DOUBLE(raw_tag_value.unaligned_slice(common)),
 			
 			TagType::IFD => IFD(ImageFileDirectories::parse_child_image_file_directories::<_, Unit, u32>(common, raw_tag_value)?),
 			
-			TagType::LONG8 => LONG8(u64::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::LONG8 => LONG8(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::SLONG8 => SLONG8(i64::slice_unaligned_and_byte_swap_as_appropriate(count, byte_order, slice)),
+			TagType::SLONG8 => SLONG8(raw_tag_value.unaligned_slice(common)),
 			
 			TagType::IFD8 => IFD8(ImageFileDirectories::parse_child_image_file_directories::<_, Unit, u64>(common, raw_tag_value)?),
 		};

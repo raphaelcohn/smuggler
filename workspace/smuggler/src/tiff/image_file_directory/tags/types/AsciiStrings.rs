@@ -12,10 +12,10 @@ pub struct AsciiStrings<'a, A: Allocator>
 	omits_final_nul_byte: bool,
 }
 
-impl<'a, A: Allocator> AsciiStrings<'a, A>
+impl<'a, A: Allocator + Copy> AsciiStrings<'a, A>
 {
 	#[inline(always)]
-	fn parse(slice: NonNull<[u8]>, allocator: A) -> Result<Self, SpecificTagParseError>
+	pub(crate) fn parse<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
 	{
 		#[inline(always)]
 		fn u8_to_ascii(string: &[u8]) -> &[NonZeroU8]
@@ -29,8 +29,8 @@ impl<'a, A: Allocator> AsciiStrings<'a, A>
 			strings.try_push(u8_to_ascii(string)).map_err(SpecificTagParseError::CouldNotAllocateMemoryForAsciiStringReference)
 		}
 		
-		let mut strings: Vec<&'a [NonZeroU8]> = Vec::new_in(allocator);
-		let mut remaining_bytes = u8::byte_slice(slice);
+		let mut strings: Vec<&'a [NonZeroU8]> = Vec::new_in(common.allocator);
+		let mut remaining_bytes = raw_tag_value.byte_slice();
 		loop
 		{
 			match memchr(0x00, remaining_bytes)

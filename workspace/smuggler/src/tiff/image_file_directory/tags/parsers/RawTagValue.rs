@@ -15,6 +15,66 @@ pub(in crate::tiff::image_file_directory) struct RawTagValue<'tiff_bytes>
 impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 {
 	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn byte_slice<B: Byte>(self) -> &'tiff_bytes [B]
+	{
+		B::byte_slice(self.slice)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn unaligned_slice<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy, CBU: CanBeUnaligned>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>) -> &'tiff_bytes [Unaligned<CBU>]
+	{
+		CBU::slice_unaligned_and_byte_swap_as_appropriate(self.count, common.byte_order(), self.slice)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn ascii_strings<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>) -> Result<AsciiStrings, SpecificTagParseError>
+	{
+		AsciiStrings::parse(common, self)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn bitfield_integer<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, UINT: UnsignedIntegerNormalizedType, BF: BitField>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<BitFieldInteger<UINT, BF>, SpecificTagParseError>
+	{
+		self.unsigned_integer_value(common, tag_type).map(BitFieldInteger::from)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn enum_unsigned_integer<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<EnumUnsignedInteger<UINT, UE>, SpecificTagParseError>
+	{
+		self.unsigned_integer_value(common, tag_type).map(EnumUnsignedInteger::from)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn enum_signed_integer<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, SINT: SignedIntegerNormalizedType, SE: SignedEnum>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<EnumSignedInteger<SINT, SE>, SpecificTagParseError>
+	{
+		self.signed_integer_value(common, tag_type).map(EnumSignedInteger::from)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn unsigned_integer<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, UINT: UnsignedIntegerNormalizedType>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<UnsignedInteger<UINT>, SpecificTagParseError>
+	{
+		self.unsigned_integer_value(common, tag_type).map(UnsignedInteger::from)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn signed_integer<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, SINT: SignedIntegerNormalizedType>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<SignedInteger<SINT>, SpecificTagParseError>
+	{
+		self.signed_integer_value(common, tag_type).map(SignedInteger::from)
+	}
+	
+	#[inline(always)]
+	fn unsigned_integer_value<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<UnsignedIntegerValue, SpecificTagParseError>
+	{
+		UnsignedIntegerValue::parse(common.byte_order(), tag_type, self)
+	}
+	
+	#[inline(always)]
+	fn signed_integer_value<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<SignedIntegerValue, SpecificTagParseError>
+	{
+		SignedIntegerValue::parse(common.byte_order(), tag_type, self)
+	}
+	
+	#[inline(always)]
 	fn parse<Unit: Version6OrBigTiffUnit>(recursion_guard: &RecursionGuard, tiff_bytes: &'tiff_bytes impl TiffBytes, tag_type_size_in_bytes: u64, count: u64, offset_or_value_union_index: u64) -> Result<Self, SpecificTagParseError>
 	{
 		use SpecificTagParseError::*;

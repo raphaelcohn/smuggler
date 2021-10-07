@@ -52,80 +52,25 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator +
 	#[inline(always)]
 	fn parse<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(&mut self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), SpecificTagParseError>
 	{
-		use SpecificTagParseError::*;
-		
 		// <https://www.awaresystems.be/imaging/tiff/tifftags.html>
 		let tag = match tag_identifier
 		{
 			// Baseline tags.
 			
-			NewSubfileType => PublicTag::NewSubfileType
-			(
-				BitFieldInteger::from
-				(
-					match count
-					{
-						0 => UnsignedIntegerValue::U0,
-						
-						1 => UnsignedIntegerValue::parse_offset_or_value(tag_type, raw_tag_value.slice, common.tiff_bytes_with_order.byte_order)?,
-						
-						_ => return Err(CountExceedsOne)
-					}
-				)
-			),
+			NewSubfileType => PublicTag::NewSubfileType(raw_tag_value.bitfield_integer(common, tag_type)?),
 			
-			SubfileType => PublicTag::SubfileType
-			(
-				EnumUnsignedInteger::from
-				(
-					match count
-					{
-						0 => UnsignedIntegerValue::U0,
-						
-						1 => UnsignedIntegerValue::parse_offset_or_value(tag_type, raw_tag_value.slice, common.tiff_bytes_with_order.byte_order)?,
-						
-						_ => return Err(CountExceedsOne)
-					}
-				)
-			),
+			SubfileType => PublicTag::SubfileType(raw_tag_value.enum_unsigned_integer(common, tag_type)?),
 			
-			ImageWidth => PublicTag::ImageWidth
-			(
-				UnsignedInteger::from
-				(
-					match count
-					{
-						0 => UnsignedIntegerValue::U0,
-						
-						1 => UnsignedIntegerValue::parse_offset_or_value(tag_type, raw_tag_value.slice, common.tiff_bytes_with_order.byte_order)?,
-						
-						_ => return Err(CountExceedsOne)
-					}
-				)
-			),
+			ImageWidth => PublicTag::ImageWidth(raw_tag_value.unsigned_integer(common, tag_type)?),
 			
-			ImageLength => PublicTag::ImageLength
-			(
-				UnsignedInteger::from
-				(
-					match count
-					{
-						// TODO: DO we want to support this sort of any-type leniency?
-						0 => UnsignedIntegerValue::U0,
-						
-						1 => UnsignedIntegerValue::parse_offset_or_value(tag_type, raw_tag_value.slice, common.tiff_bytes_with_order.byte_order)?,
-						
-						_ => return Err(CountExceedsOne)
-					}
-				)
-			),
+			ImageLength => PublicTag::ImageLength(raw_tag_value.unsigned_integer(common, tag_type)?),
 			
 			// TODO: should be an array of short. do we want to be lenient and specify an array of any unsigned type?
 			BitsPerSample => PublicTag::BitsPerSample
 			(
 				match tag_type
 				{
-					TagType::SHORT => u16::slice_unaligned_and_byte_swap_as_appropriate(raw_tag_value.count, common.tiff_bytes_with_order.byte_order, raw_tag_value.slice),
+					TagType::SHORT => raw_tag_value.unaligned_slice(common),
 					
 					_ => return TagType::invalid()
 				}

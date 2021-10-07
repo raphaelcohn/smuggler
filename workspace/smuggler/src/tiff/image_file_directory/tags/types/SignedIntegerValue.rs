@@ -90,6 +90,19 @@ impl SignedIntegerValue
 	}
 	
 	#[inline(always)]
+	pub(in crate::tiff::image_file_directory::tags) fn parse<'tiff_bytes, TB: TiffBytes>(byte_order: ByteOrder, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
+	{
+		match raw_tag_value.count
+		{
+			0 => Ok(SignedIntegerValue::I0),
+			
+			1 => Self::parse_offset_or_value(tag_type, raw_tag_value.slice, byte_order)?,
+			
+			_ => Err(SpecificTagParseError::CountExceedsOne)
+		}
+	}
+	
+	#[inline(always)]
 	pub(in crate::tiff::image_file_directory::tags) fn parse_offset_or_value(tag_type: TagType, slice: NonNull<[u8]>, byte_order: ByteOrder) -> Result<Self, SpecificTagParseError>
 	{
 		use TagType::*;
