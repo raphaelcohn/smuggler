@@ -17,13 +17,6 @@ pub trait BitField: Default + Debug + Copy + Eq + Ord + Hash + Into<u64>
 		value & (1 << bit_value) != 0
 	}
 	
-	/// Constructs an instance by converting bits, returning a valid bit field and (just) the bits that were unrecognized (which is this case, are irrelevant).
-	#[inline(always)]
-	fn try_from_u0() -> Self
-	{
-		Self::default()
-	}
-	
 	/// Constructs an instance by converting bits, returning a valid bit field and (just) the bits that were unrecognized.
 	#[inline(always)]
 	fn try_from_u8(bits: u8) -> Result<Self, (Self, u64)>

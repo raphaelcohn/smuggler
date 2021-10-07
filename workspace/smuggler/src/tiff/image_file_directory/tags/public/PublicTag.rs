@@ -26,7 +26,7 @@ pub enum PublicTag<'tiff_bytes, A: Allocator>
 	/// Number of bits per component.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum.
-	BitsPerSample(&'tiff_bytes [Unaligned<u16>]) = BitsPerSample,
+	BitsPerSample(UnsignedIntegers<'tiff_bytes, u16>) = BitsPerSample,
 	
 	/// Compression scheme used on the image data.
 	///

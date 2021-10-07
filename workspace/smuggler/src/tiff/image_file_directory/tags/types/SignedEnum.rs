@@ -7,13 +7,6 @@ pub trait SignedEnum: Sized + Copy + Eq + Ord + Hash
 {
 	/// Constructs an instance or returns an error if the value is unrecognized.
 	#[inline(always)]
-	fn try_from_i0() -> Result<Self, i64>
-	{
-		Self::try_from_i64(0)
-	}
-	
-	/// Constructs an instance or returns an error if the value is unrecognized.
-	#[inline(always)]
 	fn try_from_i8(value: i8) -> Result<Self, i64>
 	{
 		Self::try_from_i64(value as i64)

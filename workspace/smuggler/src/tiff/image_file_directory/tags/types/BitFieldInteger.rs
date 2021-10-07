@@ -18,8 +18,6 @@ impl<UINT: UnsignedIntegerNormalizedType, BF: BitField> TryInto<BF> for BitField
 		let unsigned_integer = self.0;
 		match unsigned_integer.0
 		{
-			U0 => Ok(BF::try_from_u0()),
-			
 			U8(bits) => BF::try_from_u8(bits).map_err(|(bit_field, unrecognized_bits)| (bit_field, U8(unrecognized_bits as u8))),
 			
 			U16(bits) => BF::try_from_u16(bits).map_err(|(bit_field, unrecognized_bits)| (bit_field, U16(unrecognized_bits as u16))),

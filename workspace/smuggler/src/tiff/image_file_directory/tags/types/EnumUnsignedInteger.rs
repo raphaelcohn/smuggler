@@ -26,8 +26,6 @@ impl<UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum> TryInto<UE> for Enum
 		
 		match (self.0).0
 		{
-			U0 => UE::try_from_u0().map_err(|_| U0),
-			
 			U8(value) => UE::try_from_u8(value).map_err(U8),
 			
 			U16(value) => UE::try_from_u16(value).map_err(U16),

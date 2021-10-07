@@ -27,8 +27,6 @@ impl<SINT: SignedIntegerNormalizedType, SE: SignedEnum> TryInto<SE> for EnumSign
 		let signed_integer = self.0;
 		match signed_integer.0
 		{
-			I0 => SE::try_from_i0().map_err(|_| I0),
-			
 			I8(value) => SE::try_from_i8(value).map_err(I8),
 			
 			I16(value) => SE::try_from_i16(value).map_err(I16),

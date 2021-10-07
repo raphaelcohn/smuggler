@@ -7,9 +7,6 @@
 #[repr(u8)]
 pub enum UnsignedIntegerValue
 {
-	/// A specialized variant used when a tag's count is zero.
-	U0,
-	
 	#[allow(missing_docs)]
 	U8(u8),
 	
@@ -21,15 +18,6 @@ pub enum UnsignedIntegerValue
 	
 	#[allow(missing_docs)]
 	U64(u64),
-}
-
-impl Default for UnsignedIntegerValue
-{
-	#[inline(always)]
-	fn default() -> Self
-	{
-		UnsignedIntegerValue::U0
-	}
 }
 
 impl Into<u8> for UnsignedIntegerValue
@@ -77,8 +65,6 @@ impl UnsignedIntegerValue
 		
 		match self
 		{
-			U0 => u8(0),
-			
 			U8(value) => u8(value),
 			
 			U16(value) => u16(value),
@@ -92,14 +78,11 @@ impl UnsignedIntegerValue
 	#[inline(always)]
 	pub(in crate::tiff::image_file_directory::tags) fn parse<'tiff_bytes, TB: TiffBytes>(byte_order: ByteOrder, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
 	{
-		match raw_tag_value.count
+		if unlikely!(count != 0)
 		{
-			0 => Ok(UnsignedIntegerValue::U0),
-			
-			1 => Self::parse_offset_or_value(tag_type, raw_tag_value.slice, byte_order)?,
-			
-			_ => Err(SpecificTagParseError::CountExceedsOne)
+			return Err(SpecificTagParseError::CountShouldBeOne)
 		}
+		Self::parse_offset_or_value(tag_type, raw_tag_value.slice, byte_order)
 	}
 	
 	#[inline(always)]

@@ -7,9 +7,6 @@
 #[repr(u8)]
 pub enum SignedIntegerValue
 {
-	/// A specialized variant used when a tag's count is zero.
-	I0,
-	
 	#[allow(missing_docs)]
 	I8(i8),
 	
@@ -21,15 +18,6 @@ pub enum SignedIntegerValue
 	
 	#[allow(missing_docs)]
 	I64(i64),
-}
-
-impl Default for SignedIntegerValue
-{
-	#[inline(always)]
-	fn default() -> Self
-	{
-		SignedIntegerValue::I8(0)
-	}
 }
 
 impl Into<i8> for SignedIntegerValue
@@ -77,8 +65,6 @@ impl SignedIntegerValue
 		
 		match self
 		{
-			I0 => i8(0),
-			
 			I8(value) => i8(value),
 			
 			I16(value) => i16(value),
@@ -92,14 +78,11 @@ impl SignedIntegerValue
 	#[inline(always)]
 	pub(in crate::tiff::image_file_directory::tags) fn parse<'tiff_bytes, TB: TiffBytes>(byte_order: ByteOrder, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
 	{
-		match raw_tag_value.count
+		if unlikely!(count != 0)
 		{
-			0 => Ok(SignedIntegerValue::I0),
-			
-			1 => Self::parse_offset_or_value(tag_type, raw_tag_value.slice, byte_order)?,
-			
-			_ => Err(SpecificTagParseError::CountExceedsOne)
+			return Err(SpecificTagParseError::CountShouldBeOne)
 		}
+		Self::parse_offset_or_value(tag_type, raw_tag_value.slice, byte_order)
 	}
 	
 	#[inline(always)]

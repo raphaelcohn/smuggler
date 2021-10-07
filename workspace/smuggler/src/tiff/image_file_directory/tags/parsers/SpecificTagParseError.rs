@@ -31,7 +31,7 @@ pub enum SpecificTagParseError
 	Slong8Overflow(OverflowError),
 	
 	#[allow(missing_docs)]
-	CountExceedsOne,
+	CountShouldBeOne,
 	
 	#[allow(missing_docs)]
 	CountIsTooLargeForTargetArchitecture,

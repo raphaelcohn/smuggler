@@ -63,6 +63,18 @@ impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 	}
 	
 	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn unsigned_integers<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, UINT: UnsignedIntegerNormalizedType>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<UnsignedIntegers<UINT>, SpecificTagParseError>
+	{
+		self.unsigned_integer_values(common, tag_type).map(UnsignedIntegers::from)
+	}
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn signed_integers<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, SINT: SignedIntegerNormalizedType>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<SignedIntegers<SINT>, SpecificTagParseError>
+	{
+		self.signed_integer_values(common, tag_type).map(SignedIntegers::from)
+	}
+	
+	#[inline(always)]
 	fn unsigned_integer_value<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<UnsignedIntegerValue, SpecificTagParseError>
 	{
 		UnsignedIntegerValue::parse(common.byte_order(), tag_type, self)
@@ -72,6 +84,18 @@ impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 	fn signed_integer_value<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<SignedIntegerValue, SpecificTagParseError>
 	{
 		SignedIntegerValue::parse(common.byte_order(), tag_type, self)
+	}
+	
+	#[inline(always)]
+	fn unsigned_integer_values<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<UnsignedIntegerValues<'tiff_bytes>, SpecificTagParseError>
+	{
+		UnsignedIntegerValues::parse(common, tag_type, self)
+	}
+	
+	#[inline(always)]
+	fn signed_integer_values<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType) -> Result<SignedIntegerValues<'tiff_bytes>, SpecificTagParseError>
+	{
+		SignedIntegerValues::parse(common, tag_type, self)
 	}
 	
 	#[inline(always)]

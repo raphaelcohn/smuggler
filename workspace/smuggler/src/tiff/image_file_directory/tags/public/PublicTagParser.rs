@@ -65,16 +65,7 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator +
 			
 			ImageLength => PublicTag::ImageLength(raw_tag_value.unsigned_integer(common, tag_type)?),
 			
-			// TODO: should be an array of short. do we want to be lenient and specify an array of any unsigned type?
-			BitsPerSample => PublicTag::BitsPerSample
-			(
-				match tag_type
-				{
-					TagType::SHORT => raw_tag_value.unaligned_slice(common),
-					
-					_ => return TagType::invalid()
-				}
-			),
+			BitsPerSample => PublicTag::BitsPerSample(raw_tag_value.unsigned_integers(common, tag_type)?),
 			
 			// Compression => PublicTag::Compression
 			// (

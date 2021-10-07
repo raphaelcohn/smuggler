@@ -9,7 +9,7 @@ use crate::collections::TiffBytes;
 use crate::collections::TiffBytesWithOrder;
 use crate::tiff::header::Header;
 use crate::tiff::image_file_directory::ImageFileDirectoriesParseError;
-use crate::tiff::image_file_directory::tags::types::{TagType, Unaligned, AsciiStrings, UnsignedIntegerNormalizedType, SignedIntegerNormalizedType, UnsignedIntegerValue, SignedIntegerValue, EnumSignedInteger, EnumUnsignedInteger, BitFieldInteger, BitField, UnsignedEnum, SignedEnum, UnsignedInteger, SignedInteger};
+use crate::tiff::image_file_directory::tags::types::{TagType, Unaligned, AsciiStrings, UnsignedIntegerNormalizedType, SignedIntegerNormalizedType, UnsignedIntegerValue, SignedIntegerValue, EnumSignedInteger, EnumUnsignedInteger, BitFieldInteger, BitField, UnsignedEnum, SignedEnum, UnsignedInteger, SignedInteger, UnsignedIntegerValues, SignedIntegerValues, UnsignedIntegers, SignedIntegers};
 use crate::tiff::offset::OffsetParseError;
 use crate::tiff::offset::Offset;
 use likely::unlikely;
