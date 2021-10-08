@@ -2,12 +2,12 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointer;
-use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointerParseError;
-use crate::tiff::image_file_directory::tags::parsers::Version6OrBigTiffUnit;
-use crate::tiff::image_file_directory::tags::types::Unaligned;
-use crate::tiff::offset::Offset;
-use crate::tiff::offset::OffsetParseError;
+use crate::image_file_directory::pointer::ImageFileDirectoryPointer;
+use crate::image_file_directory::pointer::ImageFileDirectoryPointerParseError;
+use crate::image_file_directory::tags::parsers::Version6OrBigTiffUnit;
+use crate::image_file_directory::tags::types::Unaligned;
+use crate::offset::Offset;
+use crate::offset::OffsetParseError;
 use self::pointer_to_index_lengths::CheckedPointerToIndexLength;
 use self::pointer_to_index_lengths::PointerToIndexLength;
 use self::pointer_to_index_lengths::UncheckedPointerToIndexLength;
@@ -22,6 +22,7 @@ use std::hash::Hash;
 use std::mem::size_of;
 use std::mem::transmute;
 use std::num::NonZeroUsize;
+use std::ops::{Deref, DerefMut};
 use std::ptr::NonNull;
 use std::ptr;
 use std::slice::from_raw_parts;

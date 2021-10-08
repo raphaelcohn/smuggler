@@ -11,6 +11,7 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 	#[doc(hidden)]
 	const FieldCount: NonZeroUsize = new_non_zero_usize(1);
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn slice_unaligned_and_byte_swap_as_appropriate<'a>(count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> &'a [Unaligned<Self>]
 	{
@@ -24,6 +25,7 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Unaligned<Self>, count) }
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn read_unaligned_and_byte_swap_as_appropriate(this: NonNull<Self>, byte_order: ByteOrder) -> Self
 	{
@@ -35,6 +37,7 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 		)
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn read_unaligned_if_native_endian_is_little_endian(this: NonNull<Self>, byte_order: ByteOrder) -> Self
 	{
@@ -48,6 +51,7 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 		}
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn read_unaligned_if_native_endian_is_big_endian(this: NonNull<Self>, byte_order: ByteOrder) -> Self
 	{
@@ -61,6 +65,7 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 		}
 	}
 	
+	#[doc(hidden)]
 	fn read_unaligned_byte_swapped(this: NonNull<Self>) -> Self;
 }
 

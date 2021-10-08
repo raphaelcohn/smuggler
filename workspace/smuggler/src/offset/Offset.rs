@@ -2,21 +2,27 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-/// A byte such as u8 or i8.
-pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
+/// An offset.
+#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct Offset(u64);
+
+impl Offset
 {
-	#[doc(hidden)]
 	#[inline(always)]
-	fn byte_slice<'tiff_bytes>(slice: NonNull<[u8]>) -> &'tiff_bytes [Self]
+	pub(crate) fn parse_offset_value<TB: TiffBytes + ?Sized>(tiff_bytes: &TB, raw_offset: Index) -> Result<Self, OffsetParseError>
 	{
-		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Self, slice.len()) }
+		let file_length = tiff_bytes.file_length();
+		if unlikely!(raw_offset > file_length)
+		{
+			return Err(OffsetParseError::TooLarge { offset: raw_offset, file_length })
+		}
+		
+		Ok(Self(raw_offset))
 	}
-}
-
-impl Byte for u8
-{
-}
-
-impl Byte for i8
-{
+	
+	#[inline(always)]
+	pub(crate) const fn index(self) -> Index
+	{
+		self.0
+	}
 }

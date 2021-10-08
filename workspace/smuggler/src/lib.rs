@@ -23,22 +23,61 @@
 #![warn(unused_crate_dependencies)]
 
 
-#![feature(core_intrinsics)]
-#![feature(option_result_unwrap_unchecked)]
 #![feature(allocator_api)]
-#![feature(try_reserve)]
 #![feature(arbitrary_enum_discriminant)]
-#![feature(maybe_uninit_uninit_array)]
+#![feature(const_fn_trait_bound)]
+#![feature(core_intrinsics)]
 #![feature(maybe_uninit_array_assume_init)]
+#![feature(maybe_uninit_uninit_array)]
 #![feature(nonnull_slice_from_raw_parts)]
+#![feature(option_result_unwrap_unchecked)]
 #![feature(slice_ptr_get)]
 #![feature(slice_ptr_len)]
+#![feature(try_reserve)]
 
 
 #![doc = include_str!("../README.md")]
 
 
-pub(crate) mod collections;
+use std::alloc::Allocator;
+use self::collections::TiffBytes;
+use self::header::HeaderParseError;
+use self::image_file_directory::ImageFileDirectoriesParseError;
+use std::error;
+use std::fmt;
+use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use crate::collections::ByteOrder;
+use crate::collections::TiffBytesWithOrder;
+use crate::header::parse_header_zeroth_image_file_directory_pointer;
+use crate::header::Version;
+use crate::header::parse_header_byte_order;
+use crate::header::VersionParseError;
+use crate::image_file_directory::ImageFileDirectories;
+use crate::image_file_directory::pointer::ImageFileDirectoryPointer;
+use crate::image_file_directory::tags::parsers::{FreeSpace, TagParserCommon};
+use crate::image_file_directory::tags::parsers::Version6;
+use crate::image_file_directory::tags::parsers::Version6OrBigTiffUnit;
+use crate::image_file_directory::tags::parsers::VersionBigTiff;
+use crate::image_file_directory::tags::public::PublicTag;
 
 
-pub(crate) mod tiff;
+/// Collections.
+pub mod collections;
+
+
+/// Header.
+pub mod header;
+
+
+/// Image File Directory (IFD).
+pub mod image_file_directory;
+
+
+/// Offset.
+pub mod offset;
+
+
+include!("Tiff.rs");
+include!("TiffParseError.rs");

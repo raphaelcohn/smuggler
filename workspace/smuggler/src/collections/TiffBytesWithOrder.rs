@@ -2,18 +2,39 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
+#[doc(hidden)]
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(crate) struct TiffBytesWithOrder<'tiff_bytes, TB: TiffBytes>
+pub struct TiffBytesWithOrder<'tiff_bytes, TB: TiffBytes>
 {
 	pub(crate) tiff_bytes: &'tiff_bytes mut TB,
 	
 	pub(crate) byte_order: ByteOrder,
 }
 
+impl<'tiff_bytes, TB: TiffBytes> Deref for TiffBytesWithOrder<'tiff_bytes, TB>
+{
+	type Target = TB;
+	
+	#[inline(always)]
+	fn deref(&self) -> &Self::Target
+	{
+		self.tiff_bytes
+	}
+}
+
+impl<'tiff_bytes, TB: TiffBytes> DerefMut for TiffBytesWithOrder<'tiff_bytes, TB>
+{
+	#[inline(always)]
+	fn deref_mut(&mut self) -> &mut Self::Target
+	{
+		self.tiff_bytes
+	}
+}
+
 impl<'tiff_bytes, TB: TiffBytes> TiffBytesWithOrder<'tiff_bytes, TB>
 {
 	#[inline(always)]
-	pub(crate) const fn new(tiff_bytes: &'tiff_bytes mut TB, byte_order: ByteOrder) -> Self
+	pub(crate) fn new(tiff_bytes: &'tiff_bytes mut TB, byte_order: ByteOrder) -> Self
 	{
 		Self
 		{

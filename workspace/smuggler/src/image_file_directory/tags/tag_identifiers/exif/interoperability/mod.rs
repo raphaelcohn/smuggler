@@ -2,21 +2,8 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-/// A byte such as u8 or i8.
-pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
-{
-	#[doc(hidden)]
-	#[inline(always)]
-	fn byte_slice<'tiff_bytes>(slice: NonNull<[u8]>) -> &'tiff_bytes [Self]
-	{
-		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Self, slice.len()) }
-	}
-}
+use super::super::super::TagIdentifier;
 
-impl Byte for u8
-{
-}
 
-impl Byte for i8
-{
-}
+/// Indicates the identification of the Interoperability rule.
+pub(in crate::image_file_directory::tags) const InteroperabilityIndex: TagIdentifier = 0x0001;

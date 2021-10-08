@@ -2,16 +2,20 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-pub(crate) trait TiffBytes
+/// Represents TIFF bytes from a file or other source.
+pub trait TiffBytes
 {
+	/// File length.
 	fn file_length(&self) -> FileLength;
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn image_file_directory_pointer<Unit: Version6OrBigTiffUnit>(&self, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
 	{
 		ImageFileDirectoryPointer::new_unchecked(self.offset::<Unit>(index, byte_order))
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn offset<Unit: Version6OrBigTiffUnit>(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
@@ -24,6 +28,7 @@ pub(crate) trait TiffBytes
 		Offset::parse_offset_value(self, raw_offset)
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn unaligned_u16_checked_native_endian_byte_order(&self, index: Index) -> Result<u16, OverflowError>
 	{
@@ -31,6 +36,7 @@ pub(crate) trait TiffBytes
 		Ok(this.read_unaligned())
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn byte_checked<B: Byte>(&self, index: Index) -> Result<B, OverflowError>
 	{
@@ -38,6 +44,7 @@ pub(crate) trait TiffBytes
 		Ok(this.read())
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn byte_unchecked<B: Byte>(&self, index: Index) -> B
 	{
@@ -45,6 +52,7 @@ pub(crate) trait TiffBytes
 		this.read()
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn unaligned_checked<CBU: CanBeUnaligned>(&self, index: Index, byte_order: ByteOrder) -> Result<CBU, OverflowError>
 	{
@@ -52,6 +60,7 @@ pub(crate) trait TiffBytes
 		Ok(CBU::read_unaligned_and_byte_swap_as_appropriate(this, byte_order))
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn unaligned_unchecked<CBU: CanBeUnaligned>(&self, index: Index, byte_order: ByteOrder) -> CBU
 	{
@@ -59,6 +68,7 @@ pub(crate) trait TiffBytes
 		CBU::read_unaligned_and_byte_swap_as_appropriate(this, byte_order)
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn non_null_to_index_checked<X: Sized>(&self, index: Index, count: u64) -> Result<NonNull<X>, OverflowError>
 	{
@@ -66,6 +76,7 @@ pub(crate) trait TiffBytes
 		Ok(new_non_null(self.pointer_to_index_length::<X>(index) as *mut _))
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn non_null_to_index_unchecked<X: Sized>(&self, index: Index, count: u64) -> NonNull<X>
 	{
@@ -73,22 +84,24 @@ pub(crate) trait TiffBytes
 		new_non_null(self.pointer_to_index_length::<X>(index) as *mut _)
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn non_null_to_index_checked_mut<X: Sized>(&mut self, index: Index, count: u64) -> Result<NonNull<X>, OverflowError>
 	{
 		self.non_null_to_index_checked(index, count)
 	}
 	
+	#[doc(hidden)]
 	#[inline(always)]
 	fn non_null_to_index_unchecked_mut<X: Sized>(&mut self, index: Index, count: u64) -> NonNull<X>
 	{
 		self.non_null_to_index_unchecked(index, count)
 	}
 	
-	#[doc(hidden)]
+	#[allow(missing_docs)]
 	fn pointer_to_index_length<X: Sized>(&self, index: Index) -> *const X;
 	
-	#[doc(hidden)]
+	#[allow(missing_docs)]
 	fn pointer_to_index_length_mut<X: Sized>(&mut self, index: Index) -> *mut X;
 }
 

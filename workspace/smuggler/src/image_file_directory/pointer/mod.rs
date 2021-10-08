@@ -2,21 +2,18 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-/// A byte such as u8 or i8.
-pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
-{
-	#[doc(hidden)]
-	#[inline(always)]
-	fn byte_slice<'tiff_bytes>(slice: NonNull<[u8]>) -> &'tiff_bytes [Self]
-	{
-		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Self, slice.len()) }
-	}
-}
+use crate::collections::Index;
+use crate::offset::Offset;
+use crate::offset::OffsetParseError;
+use likely::unlikely;
+use std::error;
+use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt;
+use std::num::NonZeroU64;
+use swiss_army_knife::non_zero::new_non_zero_u64;
 
-impl Byte for u8
-{
-}
 
-impl Byte for i8
-{
-}
+include!("ImageFileDirectoryPointer.rs");
+include!("ImageFileDirectoryPointerParseError.rs");

@@ -4,51 +4,28 @@
 
 /// A parse error.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum OverflowError
+pub enum BigTiffHeaderParseError
 {
 	#[allow(missing_docs)]
-	SizeOverflowsIndex
+	TooFewBytesForOffsetSize(OverflowError),
+	
+	#[allow(missing_docs)]
+	OffsetSizeWasNot8
 	{
-		index: Index,
-		
-		size_in_bytes: u64,
+		offset_size_in_bytes: u16,
 	},
 	
 	#[allow(missing_docs)]
-	PointerOverflowsFileLength
-	{
-		index: Index,
-		
-		size_in_bytes: u64,
-		
-		file_length: FileLength,
-	},
+	TooFewBytesForConstant(OverflowError),
 	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	IndexExceedsUsize
+	#[allow(missing_docs)]
+	ConstantWasNot0
 	{
-		index: Index,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	SizeExceedsUsize
-	{
-		size_in_bytes: u64,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	EndPointerExceedsUsizePlusOne
-	{
-		index: Index,
-		
-		size_in_bytes: u64,
+		constant: u16,
 	},
 }
 
-impl Display for OverflowError
+impl Display for BigTiffHeaderParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -57,6 +34,20 @@ impl Display for OverflowError
 	}
 }
 
-impl error::Error for OverflowError
+impl error::Error for BigTiffHeaderParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use BigTiffHeaderParseError::*;
+		
+		match self
+		{
+			TooFewBytesForOffsetSize(cause) => Some(cause),
+			
+			TooFewBytesForConstant(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

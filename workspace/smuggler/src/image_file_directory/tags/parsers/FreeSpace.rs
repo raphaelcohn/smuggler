@@ -2,21 +2,24 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-/// A byte such as u8 or i8.
-pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
+/// Records free space in the TIFF file.
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct FreeSpace
 {
-	#[doc(hidden)]
+}
+
+impl FreeSpace
+{
 	#[inline(always)]
-	fn byte_slice<'tiff_bytes>(slice: NonNull<[u8]>) -> &'tiff_bytes [Self]
+	fn new() -> Self
 	{
-		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Self, slice.len()) }
+		Self
+		{
+		}
 	}
-}
-
-impl Byte for u8
-{
-}
-
-impl Byte for i8
-{
+	
+	#[inline(always)]
+	fn record_used_space_slice(&mut self, index: Index, size_in_bytes: u64)
+	{
+	}
 }

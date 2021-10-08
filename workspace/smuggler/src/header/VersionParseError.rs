@@ -4,51 +4,19 @@
 
 /// A parse error.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum OverflowError
+pub enum VersionParseError
 {
 	#[allow(missing_docs)]
-	SizeOverflowsIndex
-	{
-		index: Index,
-		
-		size_in_bytes: u64,
-	},
+	TooFewBytesForVersion(OverflowError),
 	
 	#[allow(missing_docs)]
-	PointerOverflowsFileLength
+	UnknownVersion
 	{
-		index: Index,
-		
-		size_in_bytes: u64,
-		
-		file_length: FileLength,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	IndexExceedsUsize
-	{
-		index: Index,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	SizeExceedsUsize
-	{
-		size_in_bytes: u64,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	EndPointerExceedsUsizePlusOne
-	{
-		index: Index,
-		
-		size_in_bytes: u64,
+		version: u16,
 	},
 }
 
-impl Display for OverflowError
+impl Display for VersionParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -57,6 +25,18 @@ impl Display for OverflowError
 	}
 }
 
-impl error::Error for OverflowError
+impl error::Error for VersionParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use VersionParseError::*;
+		
+		match self
+		{
+			TooFewBytesForVersion(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }

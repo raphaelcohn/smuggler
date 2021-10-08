@@ -2,21 +2,21 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-/// A byte such as u8 or i8.
-pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
+pub(crate) type Version6 = u32;
+
+impl Version6OrBigTiffUnit for Version6
 {
-	#[doc(hidden)]
+	type NumberOfDirectoryEntries = u16;
+	
+	const U16: u16 = 42;
+	
+	const Version: Version = Version::_6;
+	
+	const IndexOfZerothImageFileDirectory: Index = 4;
+	
 	#[inline(always)]
-	fn byte_slice<'tiff_bytes>(slice: NonNull<[u8]>) -> &'tiff_bytes [Self]
+	fn parse_header_constants<TB: TiffBytes>(_tiff_bytes_with_order: &TiffBytesWithOrder<TB>) -> Result<(), BigTiffHeaderParseError>
 	{
-		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Self, slice.len()) }
+		Ok(())
 	}
-}
-
-impl Byte for u8
-{
-}
-
-impl Byte for i8
-{
 }

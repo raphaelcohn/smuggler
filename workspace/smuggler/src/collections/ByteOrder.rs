@@ -2,9 +2,10 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
+/// Byte order (endiannes).
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[repr(u8)]
-pub(crate) enum ByteOrder
+pub enum ByteOrder
 {
 	/// Known as 'Intel' in EXIF.
 	LittleEndian,

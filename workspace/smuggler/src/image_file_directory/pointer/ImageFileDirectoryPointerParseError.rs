@@ -4,51 +4,19 @@
 
 /// A parse error.
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum OverflowError
+pub enum ImageFileDirectoryPointerParseError
 {
 	#[allow(missing_docs)]
-	SizeOverflowsIndex
-	{
-		index: Index,
-		
-		size_in_bytes: u64,
-	},
+	OffsetParse(OffsetParseError),
 	
 	#[allow(missing_docs)]
-	PointerOverflowsFileLength
+	NotAlignedToA16BitWordBoundary
 	{
-		index: Index,
-		
-		size_in_bytes: u64,
-		
-		file_length: FileLength,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	IndexExceedsUsize
-	{
-		index: Index,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	SizeExceedsUsize
-	{
-		size_in_bytes: u64,
-	},
-	
-	/// This only occurs on 32-bit and 16-bit architectures.
-	#[cfg(not(target_pointer_width = "64"))]
-	EndPointerExceedsUsizePlusOne
-	{
-		index: Index,
-		
-		size_in_bytes: u64,
+		raw_offset: u64,
 	},
 }
 
-impl Display for OverflowError
+impl Display for ImageFileDirectoryPointerParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -57,6 +25,18 @@ impl Display for OverflowError
 	}
 }
 
-impl error::Error for OverflowError
+impl error::Error for ImageFileDirectoryPointerParseError
 {
+	#[inline(always)]
+	fn source(&self) -> Option<&(dyn error::Error + 'static)>
+	{
+		use ImageFileDirectoryPointerParseError::*;
+		
+		match self
+		{
+			OffsetParse(cause) => Some(cause),
+			
+			_ => None,
+		}
+	}
 }
