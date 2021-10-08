@@ -98,11 +98,8 @@ pub enum PublicTag<'tiff_bytes, A: Allocator>
 	/// How the components of each pixel are stored.
 	PlanarConfiguration(u64) = PlanarConfiguration,
 	
-	/// For each string of contiguous unused bytes in a TIFF file, the byte offset of the string.
-	FreeOffsets(u64) = FreeOffsets,
-	
 	/// For each string of contiguous unused bytes in a TIFF file, the number of bytes in the string.
-	FreeByteCounts(u64) = FreeByteCounts,
+	Frees(Vec<&'tiff_bytes [u8], A>) = FreeByteCounts,
 	
 	/// The precision of the information contained in the GrayResponseCurve.
 	GrayResponseUnit(u64) = GrayResponseUnit,
@@ -190,11 +187,8 @@ pub enum PublicTag<'tiff_bytes, A: Allocator>
 	/// The tile length (height) in pixels. This is the number of rows in each tile.
 	TileLength(u64) = TileLength,
 	
-	/// For each tile, the byte offset of that tile, as compressed and stored on disk.
-	TileOffsets(u64) = TileOffsets,
-	
 	/// For each tile, the number of (compressed) bytes in that tile.
-	TileByteCounts(u64) = TileByteCounts,
+	Tiles(Vec<&'tiff_bytes [u8], A>) = TileByteCounts,
 	
 	/// Used in the TIFF-F standard, denotes the number of 'bad' scan lines encountered by the facsimile device.
 	BadFaxLines(u64) = BadFaxLines,

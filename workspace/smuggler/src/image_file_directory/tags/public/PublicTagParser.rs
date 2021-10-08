@@ -186,15 +186,12 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			//
 			// ),
 			//
-			// // TODO: Needs special handling.
-			// FreeOffsets => PublicTag::FreeOffsets
-			// (
-			//
-			// ),
-			// FreeByteCounts => PublicTag::FreeByteCounts
-			// (
-			//
-			// ),
+			FreeOffsets =>
+			{
+				self.free_offsets = Some(raw_tag_value.unsigned_integers(common, tag_type)?);
+				return Ok(())
+			}
+			FreeByteCounts => PublicTag::Frees(Self::parse_offsets_array(common, &mut self.free_offsets, tag_type, raw_tag_value)?),
 			//
 			// GrayResponseUnit => PublicTag::GrayResponseUnit
 			// (
@@ -247,9 +244,12 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			// ),
 			//
 			// // Extension tags.
-			// // TODO: Needs special handling.
-			// TileOffsets,
-			// TileByteCounts,
+			TileOffsets =>
+			{
+				self.tile_offsets = Some(raw_tag_value.unsigned_integers(common, tag_type)?);
+				return Ok(())
+			}
+			TileByteCounts => PublicTag::Tiles(Self::parse_offsets_array(common, &mut self.tile_offsets, tag_type, raw_tag_value)?),
 			//
 			// // TODO: Can have 0 to n count.
 			// SubIFDs,
@@ -259,8 +259,8 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			// GlobalParametersIFD,
 			//
 			//
-			// JPEGInterchangeFormat,
-			// JPEGInterchangeFormatLength,
+			// TODO: JPEGInterchangeFormat,
+			// TODO: JPEGInterchangeFormatLength,
 			//
 			// // TODO: Also EXIF, GPS, Interoperability;
 			// // TODO: ICC Profile has its own weird format.
