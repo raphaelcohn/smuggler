@@ -23,3 +23,12 @@ pub enum NewSubfileTypeBitFieldBit
 	/// This bit has conflicting meanings.
 	MixedRasterContentOrEnhancedImageDigitalNegative = 4,
 }
+
+impl Into<u8> for NewSubfileTypeBitFieldBit
+{
+	#[inline(always)]
+	fn into(self) -> u8
+	{
+		self as u8
+	}
+}

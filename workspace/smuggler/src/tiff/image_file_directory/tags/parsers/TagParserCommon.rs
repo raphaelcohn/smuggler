@@ -46,12 +46,6 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes,
 	}
 	
 	#[inline(always)]
-	pub(crate) const fn tiff_bytes(&self) -> &'tiff_bytes TB
-	{
-		self.tiff_bytes_with_order.tiff_bytes
-	}
-	
-	#[inline(always)]
 	pub(crate) const fn byte_order(&self) -> ByteOrder
 	{
 		self.tiff_bytes_with_order.byte_order

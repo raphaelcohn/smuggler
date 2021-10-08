@@ -33,7 +33,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectories<A, T>
 			let tag_parser = TP::default();
 			let (image_file_directory, next_image_file_directory_pointer) = ImageFileDirectory::parse::<_, _, Unit>(tag_parser, common, image_file_directory_pointer).map_err(|cause| ImageFileDirectoryParse { cause, image_file_directory_pointer, index })?;
 			
-			image_file_directories.try_push(image_file_directory).map_err(|cause| CouldNotAllocateMemoryForImageFileDirectoryStorage)?;
+			image_file_directories.try_push(image_file_directory).map_err(CouldNotAllocateMemoryForImageFileDirectoryStorage)?;
 			
 			match next_image_file_directory_pointer
 			{
