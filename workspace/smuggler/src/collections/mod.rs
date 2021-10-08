@@ -33,6 +33,7 @@ use swiss_army_knife::byte_swap::Unaligned32;
 use swiss_army_knife::byte_swap::Unaligned64;
 use swiss_army_knife::byte_swap;
 use swiss_army_knife::get_unchecked::AsUsizeIndex;
+use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::non_zero::new_non_zero_usize;
 
@@ -42,6 +43,7 @@ mod pointer_to_index_lengths;
 
 include!("Byte.rs");
 include!("ByteOrder.rs");
+include!("ByteOrUnaligned.rs");
 include!("CanBeUnaligned.rs");
 include!("FileLength.rs");
 include!("Index.rs");

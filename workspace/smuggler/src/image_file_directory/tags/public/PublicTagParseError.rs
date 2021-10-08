@@ -13,10 +13,10 @@ pub enum PublicTagParseError
 	IntegerValuesParse(IntegerValuesParseError),
 	
 	#[allow(missing_docs)]
-	UnrecognizedTagParse(UnrecognizedTagParseError),
+	OffsetsArrayParse(OffsetsArrayParseError),
 	
 	#[allow(missing_docs)]
-	StripByteCountsWithoutStripOffsets,
+	UnrecognizedTagParse(UnrecognizedTagParseError),
 }
 
 impl Display for PublicTagParseError
@@ -41,9 +41,9 @@ impl error::Error for PublicTagParseError
 			
 			IntegerValuesParse(cause) => Some(cause),
 			
-			UnrecognizedTagParse(cause) => Some(cause),
+			OffsetsArrayParse(cause) => Some(cause),
 			
-			_ => None,
+			UnrecognizedTagParse(cause) => Some(cause),
 		}
 	}
 }
@@ -63,6 +63,15 @@ impl From<IntegerValuesParseError> for PublicTagParseError
 	fn from(cause: IntegerValuesParseError) -> Self
 	{
 		PublicTagParseError::IntegerValuesParse(cause)
+	}
+}
+
+impl From<OffsetsArrayParseError> for PublicTagParseError
+{
+	#[inline(always)]
+	fn from(cause: OffsetsArrayParseError) -> Self
+	{
+		PublicTagParseError::OffsetsArrayParse(cause)
 	}
 }
 

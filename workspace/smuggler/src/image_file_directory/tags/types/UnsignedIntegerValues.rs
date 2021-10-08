@@ -20,6 +20,26 @@ pub enum UnsignedIntegerValues<'tiff_bytes>
 	U64(&'tiff_bytes [Unaligned<u16>]),
 }
 
+impl<'tiff_bytes> IntegerValues for UnsignedIntegerValues<'tiff_bytes>
+{
+	#[inline(always)]
+	fn len(self) -> usize
+	{
+		use UnsignedIntegerValues::*;
+		
+		match self
+		{
+			U8(slice) => slice.len(),
+			
+			U16(slice) => slice.len(),
+			
+			U32(slice) => slice.len(),
+			
+			U64(slice) => slice.len(),
+		}
+	}
+}
+
 impl<'tiff_bytes> UnsignedIntegerValues<'tiff_bytes>
 {
 	#[inline(always)]

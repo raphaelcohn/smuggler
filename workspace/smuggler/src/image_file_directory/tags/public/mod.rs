@@ -2,10 +2,14 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
+use crate::collections::ByteOrUnaligned;
+use crate::collections::OverflowError;
 use crate::collections::TiffBytes;
+use crate::collections::VecExt;
 use likely::unlikely;
 use std::alloc::Allocator;
 use std::cmp::Ordering;
+use std::collections::TryReserveError;
 use std::mem::transmute;
 use super::EnumRepresentationU16;
 use super::RawTagKey;
@@ -265,6 +269,8 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
+use std::slice::from_raw_parts;
+use crate::image_file_directory::tags::types::{IntegerValues, UnsignedIntegerValues};
 use super::types::IntegerValueParseError;
 use super::types::IntegerValuesParseError;
 use super::unrecognized::UnrecognizedTag;
@@ -273,6 +279,7 @@ use super::unrecognized::UnrecognizedTagParseError;
 
 include!("NewSubfileTypeBitField.rs");
 include!("NewSubfileTypeBitFieldBit.rs");
+include!("OffsetsArrayParseError.rs");
 include!("PublicTag.rs");
 include!("PublicTagFinishParseError.rs");
 include!("PublicTagParseError.rs");

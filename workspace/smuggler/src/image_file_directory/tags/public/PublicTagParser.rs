@@ -49,7 +49,7 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 	type TagParseError = PublicTagParseError;
 	
 	#[inline(always)]
-	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>
+	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, _common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, _tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>
 	{
 		use PublicTagFinishParseError::*;
 		
@@ -78,8 +78,6 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 	#[inline(always)]
 	fn parse<TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>
 	{
-		use PublicTagParseError::*;
-		
 		// <https://www.awaresystems.be/imaging/tiff/tifftags.html>
 		let tag = match tag_identifier
 		{
@@ -140,7 +138,6 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			//
 			// ),
 			//
-			// TODO: Needs special handling.
 			StripOffsets =>
 			{
 				self.strip_offsets = Some(raw_tag_value.unsigned_integers(common, tag_type)?);
@@ -162,19 +159,7 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			//
 			// ),
 			//
-			// TODO: Needs special handling - related to StripOffsets but does not occur immediately after StripOffsets!
-			// StripByteCounts => PublicTag::StripByteCounts
-			// (
-			// 	match self.strip_offsets
-			// 	{
-			// 		None => return Err(StripByteCountsWithoutStripOffsets),
-			//
-			// 		Some(strip_offsets) =>
-			// 		{
-			//
-			// 		}
-			// 	}
-			// ),
+			StripByteCounts => PublicTag::Strips(Self::parse_offsets_array(common, &mut self.strip_offsets, tag_type, raw_tag_value)?),
 			//
 			// MinSampleValue => PublicTag::MinSampleValue
 			// (
@@ -287,4 +272,98 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 		tag_event_handler.handle_tag_event(tag);
 		Ok(())
 	}
+}
+
+impl<'tiff_bytes, A: Allocator + Clone> PublicTagParser<'tiff_bytes, A>
+{
+	fn parse_offsets_array<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, offsets: &mut Option<UnsignedIntegers<'tiff_bytes, u32>>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Vec<&'tiff_bytes [u8], A>, OffsetsArrayParseError>
+	{
+		use OffsetsArrayParseError::*;
+		
+		let offsets = match offsets.take()
+		{
+			None => return Err(ByteCountsWithoutOffsets),
+	
+			Some(offsets) => offsets.into(),
+		};
+		
+		let number_of_offsets = Self::verify_array_lengths_match(&raw_tag_value, offsets)?;
+		
+		let byte_counts =
+		{
+			let byte_counts: UnsignedIntegers<u32> = raw_tag_value.unsigned_integers(common, tag_type).map_err(IntegerValuesParse)?;
+			byte_counts.into()
+		};
+		
+		let mut array = Vec::new_with_capacity(number_of_offsets, common.allocator()).map_err(CouldNotAllocateMemoryForOffsets)?;
+		
+		use UnsignedIntegerValues::*;
+		match (offsets, byte_counts)
+		{
+			(U8(offsets), U8(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U8(offsets), U16(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U8(offsets), U32(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U8(offsets), U64(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U16(offsets), U8(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U16(offsets), U16(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U16(offsets), U32(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U16(offsets), U64(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U32(offsets), U8(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U32(offsets), U16(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U32(offsets), U32(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U32(offsets), U64(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U64(offsets), U8(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U64(offsets), U16(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U64(offsets), U32(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+			
+			(U64(offsets), U64(byte_counts)) => Self::loop_over(array, common, offsets, byte_counts),
+		}
+	}
+	
+	#[inline(always)]
+	fn verify_array_lengths_match(raw_tag_value: &RawTagValue, offsets: UnsignedIntegerValues<'tiff_bytes>) -> Result<usize, OffsetsArrayParseError>
+	{
+		let byte_counts_length = raw_tag_value.count;
+		let offsets_length = offsets.len() as u64;
+		if unlikely!(offsets_length != byte_counts_length)
+		{
+			return Err(OffsetsArrayParseError::MismatchedArrayLengths { offsets_length, byte_counts_length })
+		}
+		Ok(byte_counts_length as usize)
+	}
+	
+	#[inline(always)]
+	fn loop_over<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit, Offset: ByteOrUnaligned, ByteCount: ByteOrUnaligned>(mut array: Vec<&'tiff_bytes [u8], A>, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, offsets: &[Offset], byte_counts: &[ByteCount]) -> Result<Vec<&'tiff_bytes [u8], A>, OffsetsArrayParseError>
+	{
+		for index in 0 .. array.capacity()
+		{
+			let offset = Offset::read_unsigned_integer_value(offsets, index);
+			let byte_count = ByteCount::read_unsigned_integer_value(byte_counts, index);
+			
+			let slice =
+			{
+				let non_null = common.non_null_to_index_checked::<u8>(offset, byte_count).map_err(OffsetsArrayParseError::Overflow)?;
+				unsafe { from_raw_parts(non_null.as_ptr() as *const u8, byte_count as usize) }
+			};
+			
+			array.push_unchecked(slice)
+		}
+		
+		Ok(array)
+	}
+		
 }

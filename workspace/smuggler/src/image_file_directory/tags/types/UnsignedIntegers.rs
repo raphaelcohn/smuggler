@@ -15,3 +15,12 @@ impl<'tiff_bytes, UINT: UnsignedIntegerNormalizedType> From<UnsignedIntegerValue
 		Self(value, PhantomData)
 	}
 }
+
+impl<'tiff_bytes, UINT: UnsignedIntegerNormalizedType> Into<UnsignedIntegerValues<'tiff_bytes>> for UnsignedIntegers<'tiff_bytes, UINT>
+{
+	#[inline(always)]
+	fn into(self) -> UnsignedIntegerValues<'tiff_bytes>
+	{
+		self.0
+	}
+}

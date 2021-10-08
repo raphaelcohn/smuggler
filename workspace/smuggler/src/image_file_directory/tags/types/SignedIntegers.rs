@@ -15,3 +15,12 @@ impl<'tiff_bytes, SINT: SignedIntegerNormalizedType> From<SignedIntegerValues<'t
 		Self(value, PhantomData)
 	}
 }
+
+impl<'tiff_bytes, SINT: SignedIntegerNormalizedType> Into<SignedIntegerValues<'tiff_bytes>> for SignedIntegers<'tiff_bytes, SINT>
+{
+	#[inline(always)]
+	fn into(self) -> SignedIntegerValues<'tiff_bytes>
+	{
+		self.0
+	}
+}

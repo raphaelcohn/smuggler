@@ -45,6 +45,7 @@ include!("EnumSignedInteger.rs");
 include!("EnumUnsignedInteger.rs");
 include!("IntegerNormalizedType.rs");
 include!("IntegerValueParseError.rs");
+include!("IntegerValues.rs");
 include!("IntegerValuesParseError.rs");
 include!("RationalFraction.rs");
 include!("RationalFractionAtor.rs");

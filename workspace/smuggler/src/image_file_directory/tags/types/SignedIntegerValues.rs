@@ -20,6 +20,26 @@ pub enum SignedIntegerValues<'tiff_bytes>
 	I64(&'tiff_bytes [Unaligned<i16>]),
 }
 
+impl<'tiff_bytes> IntegerValues for SignedIntegerValues<'tiff_bytes>
+{
+	#[inline(always)]
+	fn len(self) -> usize
+	{
+		use SignedIntegerValues::*;
+		
+		match self
+		{
+			I8(slice) => slice.len(),
+			
+			I16(slice) => slice.len(),
+			
+			I32(slice) => slice.len(),
+			
+			I64(slice) => slice.len(),
+		}
+	}
+}
+
 impl<'tiff_bytes> SignedIntegerValues<'tiff_bytes>
 {
 	#[inline(always)]

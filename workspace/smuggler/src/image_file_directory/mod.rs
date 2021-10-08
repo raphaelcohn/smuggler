@@ -32,7 +32,7 @@ use std::num::NonZeroU64;
 use std::ops::Deref;
 use swiss_army_knife::non_zero::new_non_zero_u64;
 use crate::image_file_directory::tags::parsers::FinishParseError;
-use crate::image_file_directory::tags::public::{PublicTag, PublicTagFinishParseError};
+use crate::image_file_directory::tags::public::PublicTag;
 
 
 /// Pointer.
