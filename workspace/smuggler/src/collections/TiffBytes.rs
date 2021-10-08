@@ -7,29 +7,21 @@ pub(crate) trait TiffBytes
 	fn file_length(&self) -> FileLength;
 	
 	#[inline(always)]
-	fn image_file_directory_pointer_version_6(&self, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
+	fn image_file_directory_pointer<Unit: Version6OrBigTiffUnit>(&self, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
 	{
-		ImageFileDirectoryPointer::new_unchecked(self.offset_version_6(index, byte_order))
+		ImageFileDirectoryPointer::new_unchecked(self.offset::<Unit>(index, byte_order))
 	}
 	
 	#[inline(always)]
-	fn image_file_directory_pointer_version_big_tiff(&self, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
+	fn offset<Unit: Version6OrBigTiffUnit>(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		ImageFileDirectoryPointer::new_unchecked(self.offset_version_big_tiff(index, byte_order))
-	}
-	
-	#[inline(always)]
-	fn offset_version_6(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
-	{
-		let tiff_bytes = self;
-		Offset::get_and_parse::<Self, u32>(tiff_bytes, index, byte_order)
-	}
-	
-	#[inline(always)]
-	fn offset_version_big_tiff(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
-	{
-		let tiff_bytes = self;
-		Offset::get_and_parse::<Self, u64>(tiff_bytes, index, byte_order)
+		let raw_offset = match self.unaligned_checked::<Unit>(index, byte_order)
+		{
+			Ok(raw_offset) => raw_offset.into(),
+			
+			Err(cause) => return Err(OffsetParseError::Overflow(cause))
+		};
+		Offset::parse_offset_value(self, raw_offset)
 	}
 	
 	#[inline(always)]

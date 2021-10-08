@@ -29,9 +29,9 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 	{
 		ByteOrder::target_endian
 		(
-			Self::read_unaligned_if_native_endian_is_little_endian(this, byte_order),
+			|| Self::read_unaligned_if_native_endian_is_little_endian(this, byte_order),
 			
-			Self::read_unaligned_if_native_endian_is_big_endian(this, byte_order)
+			|| Self::read_unaligned_if_native_endian_is_big_endian(this, byte_order)
 		)
 	}
 	

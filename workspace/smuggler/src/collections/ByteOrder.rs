@@ -26,15 +26,15 @@ impl Default for ByteOrder
 impl ByteOrder
 {
 	#[inline(always)]
-	pub(crate) fn byte_swap(self, slice: &mut [impl byte_swap::Unaligned])
+	pub(crate) fn byte_swap<U: byte_swap::Unaligned>(self, slice: &mut [U])
 	{
 		use ByteOrder::*;
 		
 		match self
 		{
-			LittleEndian => slice.byte_swap_from_little_endian_to_native_endian(),
+			LittleEndian => U::byte_swap_unaligned_memory_from_little_endian_to_native_endian(slice),
 			
-			BigEndian => slice.byte_swap_from_big_endian_to_native_endian(),
+			BigEndian => U::byte_swap_unaligned_memory_from_big_endian_to_native_endian(slice),
 		}
 	}
 	

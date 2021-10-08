@@ -68,6 +68,16 @@ pub trait Unaligned: Debug + Copy + Eq + Ord + Hash
 		Self::swap_remaining_using_architecture_byte_swap_instruction(unaligned_memory)
 	}
 	
+	/// Read an unaligned value and byte swap it before returning it.
+	///
+	/// May use `MOVBE`.
+	#[inline(always)]
+	fn read_unaligned_byte_swapped(aligned: NonNull<Self::Aligned>) -> Self::Aligned
+	{
+		let unaligned_reference = unsafe { & * (aligned.as_ptr() as *const Self) };
+		unaligned_reference.load_and_swap_from_any_endian_bytes()
+	}
+	
 	#[doc(hidden)]
 	#[inline(always)]
 	fn swap_remaining_using_architecture_byte_swap_instruction(unaligned_memory: &mut [Self])

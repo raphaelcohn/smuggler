@@ -106,13 +106,13 @@ impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 		let slice =
 		{
 			let slice_size_in_bytes = tag_type_size_in_bytes.checked_mul(count).ok_or(CountIsTooLargeForTargetArchitecture)?;
-			let (index, non_null) = if slice_size_in_bytes <= Unit::OffsetOrValueUnionSize
+			let (index, non_null) = if slice_size_in_bytes <= size_of_u64::<Unit>()
 			{
 				(offset_or_value_union_index, common.tiff_bytes.non_null_to_index_unchecked_mut::<u8>(offset_or_value_union_index, slice_size_in_bytes))
 			}
 			else
 			{
-				let raw_offset = Unit::offset_like_value_unchecked(&common, offset_or_value_union_index).into();
+				let raw_offset = common.unaligned_unchecked::<Unit>(offset_or_value_union_index).into();
 				let index = Offset::parse_offset_value(common.tiff_bytes, raw_offset).map_err(SliceOffsetParse)?.index();
 				(index, common.tiff_bytes.non_null_to_index_checked_mut::<u8>(index, slice_size_in_bytes).map_err(OffsetIsTooLargeForTargetArchitecture)?)
 			};

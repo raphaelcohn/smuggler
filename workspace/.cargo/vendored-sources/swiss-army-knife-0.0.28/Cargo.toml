@@ -13,7 +13,7 @@
 [package]
 edition = "2018"
 name = "swiss-army-knife"
-version = "0.0.27"
+version = "0.0.28"
 authors = ["Raphael Cohn <raphael.cohn@stormmq.com>"]
 exclude = ["*"]
 include = ["README.md", "LICENSE", "COPYRIGHT", "src/**/*.rs", "Cargo.toml", "rustfmt.toml", "clippy.toml"]

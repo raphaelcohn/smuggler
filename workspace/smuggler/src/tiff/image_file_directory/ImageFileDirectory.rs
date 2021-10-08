@@ -13,7 +13,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 		let index = image_file_directory_pointer.index();
 		
 		let number_of_directory_entries = Self::number_of_directory_entries::<_, Unit>(&common.tiff_bytes_with_order, index)?;
-		common.recursion_guard.record_used_space_slice(index, Unit::NumberOfDirectoryEntriesSize);
+		common.recursion_guard.record_used_space_slice(index, size_of_u64::<Unit::NumberOfDirectoryEntries>());
 		let number_of_directory_entry_bytes = Self::number_of_directory_entry_bytes::<Unit>(number_of_directory_entries)?;
 		let directory_entries_index = Self::directory_entries_index::<Unit>(index, number_of_directory_entries)?;
 		
@@ -68,9 +68,9 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 	fn next_image_file_directory_pointer<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(common: &TagParserCommon<TB, A>, directory_entries_index: Index, number_of_directory_entry_bytes: NonZeroU64) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryParseError>
 	{
 		let image_file_directory_pointer_index = Self::image_file_directory_pointer_index(directory_entries_index, number_of_directory_entry_bytes)?;
-		let image_file_directory_pointer = Unit::image_file_directory_pointer(&common.tiff_bytes_with_order, image_file_directory_pointer_index).map_err(ImageFileDirectoryParseError::NextImageFileDirectoryPointerParse)?;
+		let image_file_directory_pointer = common.image_file_directory_pointer::<Unit>(image_file_directory_pointer_index).map_err(ImageFileDirectoryParseError::NextImageFileDirectoryPointerParse)?;
 		
-		common.recursion_guard.record_used_space_slice(image_file_directory_pointer_index, Unit::ImageFileDirectoryPointerSize);
+		common.recursion_guard.record_used_space_slice(image_file_directory_pointer_index, size_of_u64::<Unit>());
 		
 		Ok(image_file_directory_pointer)
 	}
@@ -107,7 +107,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 	{
 		let tag_identifier = Self::tag_identifier(&common.tiff_bytes_with_order, directory_entry_index, previous_tag_identifier)?;
 		let (tag_type, tag_type_size_in_bytes) = TagType::parse(Self::value_unchecked_u16(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfTag))?;
-		let count = Self::value_unchecked(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfFixedEntry, Unit::offset_like_value_unchecked).into();
+		let count = Self::value_unchecked(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfFixedEntry, TiffBytesWithOrder::<TB>::unaligned_unchecked::<Unit>).into();
 		let offset_or_value_union_index = directory_entry_index + Self::SizeOfEntryUptoCount::<Unit>();
 		
 		tag_parser.parse_tag::<TB, Unit>(common, tag_event_handler, tag_identifier, tag_type, tag_type_size_in_bytes, count, offset_or_value_union_index).map_err(|cause| TagParseError::SpecificTagParse { cause, tag_identifier, tag_type, count, offset_or_value_union_index })

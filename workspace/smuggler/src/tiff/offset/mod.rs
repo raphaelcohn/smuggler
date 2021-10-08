@@ -2,8 +2,6 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::ByteOrder;
-use crate::collections::CanBeUnaligned;
 use crate::collections::FileLength;
 use crate::collections::Index;
 use crate::collections::OverflowError;

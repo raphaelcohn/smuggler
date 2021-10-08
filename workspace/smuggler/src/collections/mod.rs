@@ -4,6 +4,7 @@
 
 use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointer;
 use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointerParseError;
+use crate::tiff::image_file_directory::tags::parsers::Version6OrBigTiffUnit;
 use crate::tiff::image_file_directory::tags::types::Unaligned;
 use crate::tiff::offset::Offset;
 use crate::tiff::offset::OffsetParseError;
@@ -25,6 +26,7 @@ use std::ptr::NonNull;
 use std::ptr;
 use std::slice::from_raw_parts;
 use std::slice::from_raw_parts_mut;
+use swiss_army_knife::byte_swap::Unaligned as _;
 use swiss_army_knife::byte_swap::Unaligned16;
 use swiss_army_knife::byte_swap::Unaligned32;
 use swiss_army_knife::byte_swap::Unaligned64;

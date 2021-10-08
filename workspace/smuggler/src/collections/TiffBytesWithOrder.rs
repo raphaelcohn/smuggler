@@ -24,27 +24,15 @@ impl<'tiff_bytes, TB: TiffBytes> TiffBytesWithOrder<'tiff_bytes, TB>
 	}
 	
 	#[inline(always)]
-	pub(crate) fn image_file_directory_pointer_version_6(&self, index: Index) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
+	pub(crate) fn image_file_directory_pointer<Unit: Version6OrBigTiffUnit>(&self, index: Index) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
 	{
-		self.tiff_bytes.image_file_directory_pointer_version_6(index, self.byte_order)
+		self.tiff_bytes.image_file_directory_pointer::<Unit>(index, self.byte_order)
 	}
 	
 	#[inline(always)]
-	pub(crate) fn image_file_directory_pointer_version_big_tiff(&self, index: Index) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
+	pub(crate) fn offset<Unit: Version6OrBigTiffUnit>(&self, index: Index) -> Result<Offset, OffsetParseError>
 	{
-		self.tiff_bytes.image_file_directory_pointer_version_big_tiff(index, self.byte_order)
-	}
-	
-	#[inline(always)]
-	pub(crate) fn offset_version_6(&self, index: Index) -> Result<Offset, OffsetParseError>
-	{
-		self.tiff_bytes.offset_version_6(index, self.byte_order)
-	}
-	
-	#[inline(always)]
-	pub(crate) fn offset_version_big_tiff(&self, index: Index) -> Result<Offset, OffsetParseError>
-	{
-		self.tiff_bytes.offset_version_big_tiff(index, self.byte_order)
+		self.tiff_bytes.offset::<Unit>(index, self.byte_order)
 	}
 	
 	#[inline(always)]

@@ -8,26 +8,7 @@ pub(crate) struct Offset(u64);
 impl Offset
 {
 	#[inline(always)]
-	pub(crate) fn get_and_parse<CBU: CanBeUnaligned + Into<u64>>(tiff_bytes: &impl TiffBytes, index: Index, byte_order: ByteOrder) -> Result<Self, OffsetParseError>
-	{
-		let raw_offset = match tiff_bytes.unaligned_checked::<CBU>(index, byte_order)
-		{
-			Ok(raw_offset) => raw_offset,
-			
-			Err(cause) => return Err(OffsetParseError::Overflow(cause))
-		};
-		Self::parse(tiff_bytes, raw_offset)
-	}
-	
-	#[inline(always)]
-	fn parse<Unit: Into<u64>>(tiff_bytes: &impl TiffBytes, raw_offset: Unit) -> Result<Self, OffsetParseError>
-	{
-		let raw_offset = raw_offset.into();
-		Self::parse_offset_value(tiff_bytes, raw_offset)
-	}
-	
-	#[inline(always)]
-	pub(crate) fn parse_offset_value(tiff_bytes: &impl TiffBytes, raw_offset: Index) -> Result<Self, OffsetParseError>
+	pub(crate) fn parse_offset_value<TB: TiffBytes + ?Sized>(tiff_bytes: &TB, raw_offset: Index) -> Result<Self, OffsetParseError>
 	{
 		let file_length = tiff_bytes.file_length();
 		if unlikely!(raw_offset > file_length)

@@ -133,9 +133,9 @@ impl Header
 		
 		let offset = match version
 		{
-			_6 => tiff_bytes_with_order.offset_version_6(index),
+			_6 => tiff_bytes_with_order.offset::<u32>(index),
 			
-			BigTiff => tiff_bytes_with_order.offset_version_big_tiff(index),
+			BigTiff => tiff_bytes_with_order.offset::<u64>(index),
 		};
 		
 		let pointer = ImageFileDirectoryPointer::new_unchecked(offset).map_err(PointerToZerothImageFileDirectory)?;
