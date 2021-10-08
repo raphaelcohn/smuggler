@@ -18,7 +18,6 @@ use self::tags::Tags;
 use self::tags::parsers::RawTagValue;
 use self::tags::parsers::Recursion;
 use self::tags::parsers::SpecificTagParseError;
-use self::tags::parsers::TagEventHandler;
 use self::tags::parsers::TagParseError;
 use self::tags::parsers::TagParser;
 use self::tags::parsers::TagParserCommon;

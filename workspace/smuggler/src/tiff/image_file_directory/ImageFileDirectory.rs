@@ -90,7 +90,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 		let last_directory_entry_index = number_of_directory_entry_bytes.get() - Self::SizeOfEntry::<Unit>();
 		loop
 		{
-			Self::parse_directory_entry::<_, _, _, Unit>(&mut tag_parser, common, &mut tags, directory_entry_index, &mut previous_tag_identifier)?;
+			Self::parse_directory_entry::<_, _, Unit>(&mut tag_parser, common, &mut tags, directory_entry_index, &mut previous_tag_identifier)?;
 			
 			if unlikely!(directory_entry_index == last_directory_entry_index)
 			{
@@ -103,11 +103,11 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entry<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, TEH: TagEventHandler<T>, Unit: Version6OrBigTiffUnit>(tag_parser: &mut TP, common: &TagParserCommon<TB, A>, tag_event_handler: &mut TEH, directory_entry_index: Index, previous_tag_identifier: &mut Option<u16>) -> Result<(), TagParseError>
+	fn parse_directory_entry<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: &mut TP, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut Tags<A, T>, directory_entry_index: Index, previous_tag_identifier: &mut Option<u16>) -> Result<(), TagParseError>
 	{
-		let tag_identifier = Self::tag_identifier(&common.tiff_bytes_with_order, directory_entry_index, previous_tag_identifier)?;
+		let tag_identifier = Self::tag_identifier(&common, directory_entry_index, previous_tag_identifier)?;
 		let (tag_type, tag_type_size_in_bytes) = TagType::parse(Self::value_unchecked_u16(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfTag))?;
-		let count = Self::value_unchecked(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfFixedEntry, TiffBytesWithOrder::<TB>::unaligned_unchecked::<Unit>).into();
+		let count = Self::value_unchecked(&common, directory_entry_index, Self::SizeOfFixedEntry, TiffBytesWithOrder::<TB>::unaligned_unchecked::<Unit>).into();
 		let offset_or_value_union_index = directory_entry_index + Self::SizeOfEntryUptoCount::<Unit>();
 		
 		tag_parser.parse_tag::<TB, Unit>(common, tag_event_handler, tag_identifier, tag_type, tag_type_size_in_bytes, count, offset_or_value_union_index).map_err(|cause| TagParseError::SpecificTagParse { cause, tag_identifier, tag_type, count, offset_or_value_union_index })
