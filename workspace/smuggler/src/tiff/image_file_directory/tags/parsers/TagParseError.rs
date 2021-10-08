@@ -3,7 +3,7 @@
 
 
 /// A parse error.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TagParseError
 {
 	#[allow(missing_docs)]

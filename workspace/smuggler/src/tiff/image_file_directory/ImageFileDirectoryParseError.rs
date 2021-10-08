@@ -3,7 +3,7 @@
 
 
 /// A parse error.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum ImageFileDirectoryParseError
 {
 	#[allow(missing_docs)]
@@ -44,6 +44,9 @@ pub(crate) enum ImageFileDirectoryParseError
 	
 	#[allow(missing_docs)]
 	TagParse(TagParseError),
+	
+	#[allow(missing_docs)]
+	FinishTagParse(FinishTagParseError),
 }
 
 impl Display for ImageFileDirectoryParseError
@@ -72,6 +75,8 @@ impl error::Error for ImageFileDirectoryParseError
 			
 			TagParse(cause) => Some(cause),
 			
+			FinishTagParse(cause) => Some(cause),
+			
 			_ => None,
 		}
 	}
@@ -83,5 +88,14 @@ impl From<TagParseError> for ImageFileDirectoryParseError
 	fn from(cause: TagParseError) -> Self
 	{
 		ImageFileDirectoryParseError::TagParse(cause)
+	}
+}
+
+impl From<FinishTagParseError> for ImageFileDirectoryParseError
+{
+	#[inline(always)]
+	fn from(cause: FinishTagParseError) -> Self
+	{
+		ImageFileDirectoryParseError::FinishTagParse(cause)
 	}
 }

@@ -3,7 +3,7 @@
 
 
 /// An unrecognized tag.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 pub struct UnrecognizedTag<'tiff_bytes, A: Allocator>(pub TagIdentifier, pub UnrecognizedTagValue<'tiff_bytes, A>);
 
 impl<'tiff_bytes, A: Allocator> Tag for UnrecognizedTag<'tiff_bytes, A>

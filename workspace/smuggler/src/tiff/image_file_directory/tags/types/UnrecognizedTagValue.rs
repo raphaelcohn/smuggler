@@ -3,7 +3,7 @@
 
 
 /// An unrecognized tag value.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 #[repr(u16)]
 pub enum UnrecognizedTagValue<'tiff_bytes, A: Allocator>
 {
@@ -93,13 +93,13 @@ impl<'tiff_bytes, A: Allocator + Copy> UnrecognizedTagValue<'tiff_bytes, A>
 			
 			TagType::DOUBLE => DOUBLE(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::IFD => IFD(ImageFileDirectories::parse_child_image_file_directories::<_, Unit, u32>(common, raw_tag_value)?),
+			TagType::IFD => IFD(ImageFileDirectories::parse_child_image_file_directories::<UnrecognizedTagParser, _, Unit>(common, raw_tag_value)?),
 			
 			TagType::LONG8 => LONG8(raw_tag_value.unaligned_slice(common)),
 			
 			TagType::SLONG8 => SLONG8(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::IFD8 => IFD8(ImageFileDirectories::parse_child_image_file_directories::<_, Unit, u64>(common, raw_tag_value)?),
+			TagType::IFD8 => IFD8(ImageFileDirectories::parse_child_image_file_directories::<UnrecognizedTagParser, _, Unit>(common, raw_tag_value)?),
 		};
 		Ok(this)
 	}

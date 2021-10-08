@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct TagParserCommon<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>
 {
 	pub(crate) tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>,
@@ -36,6 +36,13 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes,
 		
 			allocator,
 		}
+	}
+	
+	#[inline(always)]
+	pub(crate) fn recurse(&self) -> Result<Self, SpecificTagParseError>
+	{
+		let recursion_guard = self.recursion_guard.recurse()?;
+		Ok(Self::new(self.tiff_bytes_with_order, &recursion_guard, self.allocator))
 	}
 	
 	#[inline(always)]

@@ -267,12 +267,13 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::marker::PhantomData;
+use crate::tiff::image_file_directory::tags::parsers::FinishTagParseError;
 
 
 include!("NewSubfileTypeBitField.rs");
 include!("NewSubfileTypeBitFieldBit.rs");
 include!("PublicTag.rs");
-include!("PublicTagParseError.rs");
+include!("PublicTagFinishParseError.rs");
 include!("PublicTagParser.rs");
 include!("PublicTagKey.rs");
 include!("SubfileTypeEnum.rs");

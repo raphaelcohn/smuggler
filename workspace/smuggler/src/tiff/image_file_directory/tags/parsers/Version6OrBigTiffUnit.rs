@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-pub(in crate::tiff::image_file_directory) trait Version6OrBigTiffUnit: Into<u64>
+pub(in crate::tiff::image_file_directory) trait Version6OrBigTiffUnit: CanBeUnaligned + Into<u64>
 {
 	type NumberOfDirectoryEntries: Into<u64>;
 	

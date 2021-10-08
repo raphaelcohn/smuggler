@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-#[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct ImageFileDirectory<A: Allocator, T: Tag>(Tags<A, T>);
 
 impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
@@ -82,7 +82,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entries<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, common: &TagParserCommon<TB, A>, directory_entries_index: Index, number_of_directory_entries: NonZeroU64, number_of_directory_entry_bytes: NonZeroU64) -> Result<Self, ImageFileDirectoryParseError>
+	fn parse_directory_entries<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, directory_entries_index: Index, number_of_directory_entries: NonZeroU64, number_of_directory_entry_bytes: NonZeroU64) -> Result<Self, ImageFileDirectoryParseError>
 	{
 		let mut tags = Tags::new(number_of_directory_entries, common.allocator).map_err(ImageFileDirectoryParseError::CouldNotAllocateMemoryForDirectoryEntries)?;
 		let mut directory_entry_index = directory_entries_index;
@@ -90,7 +90,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 		let last_directory_entry_index = number_of_directory_entry_bytes.get() - Self::SizeOfEntry::<Unit>();
 		loop
 		{
-			Self::parse_directory_entry::<TP, TB, Unit>(&mut tag_parser, common, &mut tags, directory_entry_index, &mut previous_tag_identifier)?;
+			Self::parse_directory_entry::<_, _, _, Unit>(&mut tag_parser, common, &mut tags, directory_entry_index, &mut previous_tag_identifier)?;
 			
 			if unlikely!(directory_entry_index == last_directory_entry_index)
 			{
@@ -98,19 +98,19 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 			}
 			directory_entry_index += Self::SizeOfEntry::<Unit>()
 		}
-		tag_parser.finish(&mut tags)?;
+		tag_parser.finish::<_, Unit>(common, &mut tags)?;
 		Ok(Self(tags))
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entry<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: &mut TP, common: &TagParserCommon<TB, A>, tag_event_handler: &mut impl TagEventHandler<T>, directory_entry_index: Index, previous_tag_identifier: &mut Option<u16>) -> Result<(), TagParseError>
+	fn parse_directory_entry<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, TEH: TagEventHandler<T>, Unit: Version6OrBigTiffUnit>(tag_parser: &mut TP, common: &TagParserCommon<TB, A>, tag_event_handler: &mut TEH, directory_entry_index: Index, previous_tag_identifier: &mut Option<u16>) -> Result<(), TagParseError>
 	{
 		let tag_identifier = Self::tag_identifier(&common.tiff_bytes_with_order, directory_entry_index, previous_tag_identifier)?;
 		let (tag_type, tag_type_size_in_bytes) = TagType::parse(Self::value_unchecked_u16(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfTag))?;
-		let count = Self::value_unchecked(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfFixedEntry, Unit::offset_like_value_unchecked);
+		let count = Self::value_unchecked(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfFixedEntry, Unit::offset_like_value_unchecked).into();
 		let offset_or_value_union_index = directory_entry_index + Self::SizeOfEntryUptoCount::<Unit>();
 		
-		tag_parser.parse_tag::<Unit, TB>(common, tag_event_handler, tag_identifier, tag_type, tag_type_size_in_bytes, count, offset_or_value_union_index).map_err(|cause| TagParseError::SpecificTagParse { cause, tag_identifier, tag_type, count, offset_or_value_union_index })
+		tag_parser.parse_tag::<TB, Unit>(common, tag_event_handler, tag_identifier, tag_type, tag_type_size_in_bytes, count, offset_or_value_union_index).map_err(|cause| TagParseError::SpecificTagParse { cause, tag_identifier, tag_type, count, offset_or_value_union_index })
 	}
 	
 	#[inline(always)]
@@ -131,11 +131,11 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 	#[inline(always)]
 	fn value_unchecked_u16<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, directory_entry_index: Index, offset: u64) -> u16
 	{
-		Self::value_unchecked::<u16, _>(tiff_bytes_with_order, directory_entry_index, offset, TiffBytesWithOrder::unaligned_unchecked::<u16>)
+		Self::value_unchecked::<u16, TB, _>(tiff_bytes_with_order, directory_entry_index, offset, TiffBytesWithOrder::<TB>::unaligned_unchecked::<u16>)
 	}
 	
 	#[inline(always)]
-	fn value_unchecked<Value, TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, directory_entry_index: Index, offset: u64, callback: impl FnOnce(&TiffBytesWithOrder<TB>, u64) -> Value) -> Value
+	fn value_unchecked<Value, TB: TiffBytes, Callback: FnOnce(&TiffBytesWithOrder<TB>, u64) -> Value>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, directory_entry_index: Index, offset: u64, callback: Callback) -> Value
 	{
 		callback(tiff_bytes_with_order, directory_entry_index + offset)
 	}

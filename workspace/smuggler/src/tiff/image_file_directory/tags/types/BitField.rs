@@ -10,11 +10,11 @@ pub trait BitField: Default + Debug + Copy + Eq + Ord + Hash + Into<u64>
 	#[inline(always)]
 	fn has_bit(self, bit: Self::Bit) -> bool
 	{
-		let bit_value = bit.into() as u64;
+		let bit_value: u8 = bit.into();
 		debug_assert!(bit_value < 64);
 		
 		let value = self.into();
-		value & (1 << bit_value) != 0
+		value & (1 << (bit_value as u64)) != 0
 	}
 	
 	/// Constructs an instance by converting bits, returning a valid bit field and (just) the bits that were unrecognized.

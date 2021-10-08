@@ -2,29 +2,29 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-#[derive(Debug)]
-struct FreeSpace
+/// A parse error.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum PublicTagFinishParseError
 {
+	#[allow(missing_docs)]
+	StripOffsetsWithoutStripByteCounts,
+
+	#[allow(missing_docs)]
+	FreeOffsetsWithoutFreeByteCounts,
+
+	#[allow(missing_docs)]
+	TileOffsetsWithoutTileByteCounts,
 }
 
-impl FreeSpace
+impl Display for PublicTagFinishParseError
 {
 	#[inline(always)]
-	fn record_header(&mut self, version: Version)
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		use Version::*;
-		
-		let size_in_bytes = match version
-		{
-			_6 => 8,
-			
-			BigTiff => 16,
-		};
-		self.record_used_space_slice(0, size_in_bytes);
+		Debug::fmt(self, f)
 	}
-	
-	#[inline(always)]
-	fn record_used_space_slice(&mut self, index: Index, size_in_bytes: u64)
-	{
-	}
+}
+
+impl error::Error for PublicTagFinishParseError
+{
 }

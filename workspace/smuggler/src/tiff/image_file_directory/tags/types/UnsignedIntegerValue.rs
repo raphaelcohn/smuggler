@@ -3,7 +3,7 @@
 
 
 /// Unsigned integer value.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[repr(u8)]
 pub enum UnsignedIntegerValue
 {

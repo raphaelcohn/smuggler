@@ -3,7 +3,7 @@
 
 
 /// A parse error.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum SpecificTagParseError
 {
 	#[allow(missing_docs)]
@@ -55,10 +55,7 @@ pub enum SpecificTagParseError
 	CouldNotAllocateMemoryForImageFileDirectoriesParseError(AllocError),
 	
 	/// Can occur when parsing a sub image file directory.
-	ImageFileDirectoriesParse(Box<ImageFileDirectoriesParseError>),
-	
-	#[allow(missing_docs)]
-	PublicTagParse(PublicTagParseError),
+	ImageFileDirectoriesParse(Box<ImageFileDirectoriesParseError, Global>),
 }
 
 impl Display for SpecificTagParseError
@@ -99,20 +96,7 @@ impl error::Error for SpecificTagParseError
 			
 			CouldNotAllocateMemoryForImageFileDirectoriesParseError(cause) => Some(cause),
 			
-			ImageFileDirectoriesParse(cause) => Some(&cause),
-			
-			PublicTagParse(cause) => Some(cause),
-			
 			_ => None,
 		}
-	}
-}
-
-impl From<PublicTagParseError> for SpecificTagParseError
-{
-	#[inline(always)]
-	fn from(cause: PublicTagParseError) -> Self
-	{
-		SpecificTagParseError::PublicTagParse(cause)
 	}
 }

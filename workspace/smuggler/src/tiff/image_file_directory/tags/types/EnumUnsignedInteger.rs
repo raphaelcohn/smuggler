@@ -24,11 +24,11 @@ impl<UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum> EnumUnsignedInteger<
 		
 		match (self.0).0
 		{
-			U8(value) => UE::try_from_u8(value).map_err(U8),
+			U8(value) => UE::try_from_u8(value).map_err(|u64| U8(u64 as u8)),
 			
-			U16(value) => UE::try_from_u16(value).map_err(U16),
+			U16(value) => UE::try_from_u16(value).map_err(|u64| U16(u64 as u16)),
 			
-			U32(value) => UE::try_from_u32(value).map_err(U32),
+			U32(value) => UE::try_from_u32(value).map_err(|u64| U32(u64 as u32)),
 			
 			U64(value) => UE::try_from_u64(value).map_err(U64),
 		}

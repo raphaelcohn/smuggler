@@ -3,7 +3,7 @@
 
 
 /// A tag key.
-pub trait TagKey: Debug + Copy + Clone + PartialEq + Eq + PartialOrd + Hash
+pub trait TagKey: Debug + Copy + Clone + PartialEq + Eq + PartialOrd + Ord + Hash
 {
 	/// Tag identifier.
 	fn tag_identifier(self) -> TagIdentifier;

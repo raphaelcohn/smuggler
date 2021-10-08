@@ -23,7 +23,7 @@ impl ImageFileDirectoryPointer
 	#[inline(always)]
 	fn new_from_offset(offset: Offset) -> Result<Option<Self>, ImageFileDirectoryPointerParseError>
 	{
-		Self::new_from_raw_offset(offset.get())
+		Self::new_from_raw_offset(offset.index())
 	}
 	
 	#[inline(always)]

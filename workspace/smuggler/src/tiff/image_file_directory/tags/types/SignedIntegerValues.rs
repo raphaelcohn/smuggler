@@ -3,7 +3,7 @@
 
 
 /// Signed integer values (a slice).
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[repr(u8)]
 pub enum SignedIntegerValues<'tiff_bytes>
 {
@@ -23,7 +23,7 @@ pub enum SignedIntegerValues<'tiff_bytes>
 impl<'tiff_bytes> SignedIntegerValues<'tiff_bytes>
 {
 	#[inline(always)]
-	pub(in crate::tiff::image_file_directory::tags) fn parse<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
+	pub(in crate::tiff::image_file_directory::tags) fn parse<'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, SpecificTagParseError>
 	{
 		use TagType::*;
 		use SignedIntegerValues::*;

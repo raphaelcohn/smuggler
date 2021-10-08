@@ -3,7 +3,7 @@
 
 
 /// Tags; always sorted in ascending key (tag identifier) order except for unrecognized tags, which are sorted last.
-#[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct Tags<A: Allocator, T: Tag>
 {
 	sorted_tags: Vec<T, A>,

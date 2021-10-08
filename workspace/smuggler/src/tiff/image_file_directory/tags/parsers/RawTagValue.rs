@@ -112,7 +112,7 @@ impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 			}
 			else
 			{
-				let raw_offset = Unit::offset_like_value_unchecked(&common, offset_or_value_union_index);
+				let raw_offset = Unit::offset_like_value_unchecked(&common, offset_or_value_union_index).into();
 				let index = Offset::parse_offset_value(common.tiff_bytes, raw_offset).map_err(SliceOffsetParse)?.index();
 				(index, common.tiff_bytes.non_null_to_index_checked_mut::<u8>(index, slice_size_in_bytes).map_err(OffsetIsTooLargeForTargetArchitecture)?)
 			};

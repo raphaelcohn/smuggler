@@ -2,7 +2,6 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::Byte;
 use crate::collections::ByteOrder;
 use crate::collections::CanBeUnaligned;
 use crate::collections::NonNullExt;
@@ -36,6 +35,7 @@ use super::super::ImageFileDirectories;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::non_zero::new_non_zero_usize;
+use crate::tiff::image_file_directory::tags::parsers::UnrecognizedTagParser;
 
 
 include!("AsciiStrings.rs");

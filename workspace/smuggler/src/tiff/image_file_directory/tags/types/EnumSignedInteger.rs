@@ -25,11 +25,11 @@ impl<SINT: SignedIntegerNormalizedType, SE: SignedEnum> EnumSignedInteger<SINT, 
 		let signed_integer = self.0;
 		match signed_integer.0
 		{
-			I8(value) => SE::try_from_i8(value).map_err(I8),
+			I8(value) => SE::try_from_i8(value).map_err(|i64| I8(i64 as i8)),
 			
-			I16(value) => SE::try_from_i16(value).map_err(I16),
+			I16(value) => SE::try_from_i16(value).map_err(|i64| I16(i64 as i16)),
 			
-			I32(value) => SE::try_from_i32(value).map_err(I32),
+			I32(value) => SE::try_from_i32(value).map_err(|i64| I32(i64 as i32)),
 			
 			I64(value) => SE::try_from_i64(value).map_err(I64),
 		}

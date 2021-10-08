@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(in crate::tiff::image_file_directory) struct RecursionGuard<'recursion>(&'recursion Recursion);
 
 impl<'recursion> Drop for RecursionGuard<'recursion>

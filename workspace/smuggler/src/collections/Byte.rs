@@ -8,8 +8,7 @@ pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
 	#[inline(always)]
 	fn byte_slice<'tiff_bytes>(slice: NonNull<[u8]>) -> &'tiff_bytes [Self]
 	{
-		let slice: NonNull<Self> = slice.cast();
-		unsafe { from_raw_parts(slice.as_mut_ptr(), slice.len()) }
+		unsafe { from_raw_parts(slice.as_mut_ptr() as *const Self, slice.len()) }
 	}
 }
 

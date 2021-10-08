@@ -21,19 +21,21 @@ pub(crate) trait TiffBytes
 	#[inline(always)]
 	fn offset_version_6(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		Offset::version_6(self, index, byte_order)
+		let tiff_bytes = self;
+		Offset::get_and_parse::<Self, u32>(tiff_bytes, index, byte_order)
 	}
 	
 	#[inline(always)]
 	fn offset_version_big_tiff(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		Offset::version_big_tiff(self, index, byte_order)
+		let tiff_bytes = self;
+		Offset::get_and_parse::<Self, u64>(tiff_bytes, index, byte_order)
 	}
 	
 	#[inline(always)]
 	fn unaligned_u16_checked_native_endian_byte_order(&self, index: Index) -> Result<u16, OverflowError>
 	{
-		let this = self.non_null_to_index_checked(index)?;
+		let this = self.non_null_to_index_checked(index, size_of_u64::<u16>())?;
 		Ok(this.read_unaligned())
 	}
 	
@@ -47,21 +49,21 @@ pub(crate) trait TiffBytes
 	#[inline(always)]
 	fn byte_unchecked<B: Byte>(&self, index: Index) -> B
 	{
-		let this = self.non_null_to_index_unchecked(index);
+		let this = self.non_null_to_index_unchecked(index, size_of_u64::<B>());
 		this.read()
 	}
 	
 	#[inline(always)]
 	fn unaligned_checked<CBU: CanBeUnaligned>(&self, index: Index, byte_order: ByteOrder) -> Result<CBU, OverflowError>
 	{
-		let this = self.non_null_to_index_checked(index)?;
+		let this = self.non_null_to_index_checked(index, size_of_u64::<CBU>())?;
 		Ok(CBU::read_unaligned_and_byte_swap_as_appropriate(this, byte_order))
 	}
 	
 	#[inline(always)]
 	fn unaligned_unchecked<CBU: CanBeUnaligned>(&self, index: Index, byte_order: ByteOrder) -> CBU
 	{
-		let this = self.non_null_to_index_unchecked(index);
+		let this = self.non_null_to_index_unchecked(index, size_of_u64::<CBU>());
 		CBU::read_unaligned_and_byte_swap_as_appropriate(this, byte_order)
 	}
 	

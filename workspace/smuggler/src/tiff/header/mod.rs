@@ -14,7 +14,7 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use crate::collections::Index;
-use crate::tiff::FreeSpace;
+use crate::tiff::image_file_directory::tags::parsers::FreeSpace;
 
 
 include!("BigTiffHeaderParseError.rs");

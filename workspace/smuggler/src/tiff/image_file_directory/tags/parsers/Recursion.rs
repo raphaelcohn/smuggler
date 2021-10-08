@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-#[derive(Default, Debug)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(in crate::tiff::image_file_directory) struct Recursion
 {
 	descent_depth: Cell<u8>,
@@ -16,6 +16,19 @@ impl Recursion
 {
 	/// This allows for 4 levels of Image File Directory (IFD).
 	const MaximumDescents: NonZeroU8 = new_non_zero_u8(3);
+	
+	#[inline(always)]
+	pub(in crate::tiff::image_file_directory) fn new() -> Self
+	{
+		Self
+		{
+			descent_depth: Cell::new(0),
+		
+			seen_image_file_directory_pointers: RefCell::new(HashSet::new()),
+		
+			free_space: RefCell::new(FreeSpace::new())
+		}
+	}
 	
 	#[inline(always)]
 	pub(in crate::tiff::image_file_directory) fn top_level(&self) -> RecursionGuard

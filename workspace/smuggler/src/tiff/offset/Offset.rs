@@ -8,40 +8,28 @@ pub(crate) struct Offset(u64);
 impl Offset
 {
 	#[inline(always)]
-	pub(crate) fn version_6<TB: TiffBytes>(bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
+	pub(crate) fn get_and_parse<CBU: CanBeUnaligned + Into<u64>>(tiff_bytes: &impl TiffBytes, index: Index, byte_order: ByteOrder) -> Result<Self, OffsetParseError>
 	{
-		Self::get_and_parse::<TB, u32>(bytes, index, byte_order)
-	}
-	
-	#[inline(always)]
-	pub(crate) fn version_big_tiff<TB: TiffBytes>(bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
-	{
-		Self::get_and_parse::<TB, u64>(bytes, index, byte_order)
-	}
-	
-	#[inline(always)]
-	fn get_and_parse<TB: TiffBytes, CBU: CanBeUnaligned + Into<u64>>(bytes: &TB, index: Index, byte_order: ByteOrder) -> Result<Self, OffsetParseError>
-	{
-		let raw_offset = match TB::unaligned_checked::<CBU>(bytes, index, byte_order)
+		let raw_offset = match tiff_bytes.unaligned_checked::<CBU>(index, byte_order)
 		{
 			Ok(raw_offset) => raw_offset,
 			
 			Err(cause) => return Err(OffsetParseError::Overflow(cause))
 		};
-		Self::parse(bytes, raw_offset)
+		Self::parse(tiff_bytes, raw_offset)
 	}
 	
 	#[inline(always)]
-	fn parse<Unit: Into<u64>>(bytes: &impl TiffBytes, raw_offset: Unit) -> Result<Self, OffsetParseError>
+	fn parse<Unit: Into<u64>>(tiff_bytes: &impl TiffBytes, raw_offset: Unit) -> Result<Self, OffsetParseError>
 	{
 		let raw_offset = raw_offset.into();
-		Self::parse_offset_value(bytes, raw_offset)
+		Self::parse_offset_value(tiff_bytes, raw_offset)
 	}
 	
 	#[inline(always)]
-	pub(crate) fn parse_offset_value(bytes: &impl TiffBytes, raw_offset: Index) -> Result<Self, OffsetParseError>
+	pub(crate) fn parse_offset_value(tiff_bytes: &impl TiffBytes, raw_offset: Index) -> Result<Self, OffsetParseError>
 	{
-		let file_length = bytes.file_length();
+		let file_length = tiff_bytes.file_length();
 		if unlikely!(raw_offset > file_length)
 		{
 			return Err(OffsetParseError::TooLarge { offset: raw_offset, file_length })

@@ -3,7 +3,6 @@
 
 
 #[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[repr(transparent)]
 pub(super) struct CheckedPointerToIndexLength;
 
 impl PointerToIndexLength for CheckedPointerToIndexLength

@@ -4,7 +4,6 @@
 
 /// A set of one or more ASCII strings.
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[repr(transparent)]
 pub struct AsciiStrings<'tiff_bytes, A: Allocator>
 {
 	strings: Vec<&'tiff_bytes [NonZeroU8], A>,
@@ -24,12 +23,12 @@ impl<'tiff_bytes, A: Allocator + Copy> AsciiStrings<'tiff_bytes, A>
 		}
 		
 		#[inline(always)]
-		fn try_push_string<'tiff_bytes>(strings: &mut Vec<&'tiff_bytes [NonZeroU8]>, string: &'tiff_bytes [u8]) -> Result<(), SpecificTagParseError>
+		fn try_push_string<'tiff_bytes, A: Allocator + Copy>(strings: &mut Vec<&'tiff_bytes [NonZeroU8], A>, string: &'tiff_bytes [u8]) -> Result<(), SpecificTagParseError>
 		{
 			strings.try_push(u8_to_ascii(string)).map_err(SpecificTagParseError::CouldNotAllocateMemoryForAsciiStringReference)
 		}
 		
-		let mut strings: Vec<&'tiff_bytes [NonZeroU8]> = Vec::new_in(allocator);
+		let mut strings = Vec::new_in(allocator);
 		let mut remaining_bytes = byte_slice;
 		loop
 		{

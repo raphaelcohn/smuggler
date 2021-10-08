@@ -7,6 +7,7 @@ trait EnumRepresentationU16
 	#[inline(always)]
 	fn raw_tag_key(&self) -> RawTagKey
 	{
+		RawTagKey
 		(
 			self.representation_value(),
 			

@@ -3,7 +3,7 @@
 
 
 /// A public tag.
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialOrd, PartialEq)]
 #[repr(u16)]
 pub enum PublicTag<'tiff_bytes, A: Allocator>
 {

@@ -45,9 +45,9 @@ impl<'tiff_bytes, A: Allocator + Copy> Default for PublicTagParser<'tiff_bytes, 
 impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator + Copy, TEH: TagEventHandler<PublicTag<'tiff_bytes, A>>> TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, TEH, PublicTag<'tiff_bytes, A>> for PublicTagParser<'tiff_bytes, A>
 {
 	#[inline(always)]
-	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH) -> Result<(), SpecificTagParseError>
+	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH) -> Result<(), FinishTagParseError>
 	{
-		use PublicTagParseError::*;
+		use PublicTagFinishParseError::*;
 		
 		if unlikely!(self.strip_offsets.is_some())
 		{
@@ -137,10 +137,10 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator +
 			// ),
 			//
 			// // TODO: Needs special handling.
-			StripOffsets => PublicTag::StripOffsets
-			(
-			
-			),
+			// StripOffsets => PublicTag::StripOffsets
+			// (
+			//
+			// ),
 			//
 			// Orientation => PublicTag::Orientation
 			// (

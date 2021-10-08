@@ -4,21 +4,13 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) enum TiffParseError
+pub enum FinishTagParseError
 {
 	#[allow(missing_docs)]
-	HeaderParse(HeaderParseError),
-	
-	#[allow(missing_docs)]
-	ImageFileDirectoriesParse
-	{
-		cause: ImageFileDirectoriesParseError,
-	
-		header: Header,
-	}
+	PublicTagFinishParse(PublicTagFinishParseError),
 }
 
-impl Display for TiffParseError
+impl Display for FinishTagParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -27,27 +19,25 @@ impl Display for TiffParseError
 	}
 }
 
-impl error::Error for TiffParseError
+impl error::Error for FinishTagParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use TiffParseError::*;
+		use FinishTagParseError::*;
 		
 		match self
 		{
-			HeaderParse(cause) => Some(cause),
-			
-			_ => None,
+			PublicTagFinishParse(cause) => Some(cause),
 		}
 	}
 }
 
-impl From<HeaderParseError> for TiffParseError
+impl From<PublicTagFinishParseError> for FinishTagParseError
 {
 	#[inline(always)]
-	fn from(cause: HeaderParseError) -> Self
+	fn from(cause: PublicTagFinishParseError) -> Self
 	{
-		TiffParseError::HeaderParse(cause)
+		FinishTagParseError::PublicTagFinishParse(cause)
 	}
 }
