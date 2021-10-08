@@ -3,7 +3,7 @@
 
 
 /// An unrecognized tag value.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[repr(u16)]
 pub enum UnrecognizedTagValue<'tiff_bytes, A: Allocator>
 {

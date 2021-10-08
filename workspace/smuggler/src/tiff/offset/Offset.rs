@@ -44,7 +44,7 @@ impl Offset
 		let file_length = bytes.file_length();
 		if unlikely!(raw_offset > file_length)
 		{
-			return Err(OffsetParseError::TooLarge { offset, file_length })
+			return Err(OffsetParseError::TooLarge { offset: raw_offset, file_length })
 		}
 		
 		Ok(Self(raw_offset))

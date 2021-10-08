@@ -3,7 +3,7 @@
 
 
 #[derive(Debug)]
-pub(in crate::tiff::tags) struct RecursionGuard<'recursion>(&'recursion Recursion);
+pub(in crate::tiff::image_file_directory) struct RecursionGuard<'recursion>(&'recursion Recursion);
 
 impl<'recursion> Drop for RecursionGuard<'recursion>
 {
@@ -19,7 +19,7 @@ impl<'recursion> Drop for RecursionGuard<'recursion>
 impl<'recursion> RecursionGuard<'recursion>
 {
 	#[inline(always)]
-	pub(in crate::tiff::tags) fn recurse(&self) -> Result<Self, SpecificTagParseError>
+	pub(in crate::tiff::image_file_directory) fn recurse(&self) -> Result<Self, SpecificTagParseError>
 	{
 		let depth = self.0.descent_depth.get();
 		
@@ -35,13 +35,13 @@ impl<'recursion> RecursionGuard<'recursion>
 	}
 	
 	#[inline(always)]
-	pub(in crate::tiff::tags) fn guard_image_file_directory_pointer(&self, image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<(), ImageFileDirectoriesParseError>
+	pub(in crate::tiff::image_file_directory) fn guard_image_file_directory_pointer(&self, image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<(), ImageFileDirectoriesParseError>
 	{
 		self.0.guard_image_file_directory_pointer(image_file_directory_pointer)
 	}
 	
 	#[inline(always)]
-	pub(in crate::tiff::tags) fn record_used_space_slice(&self, index: Index, size_in_bytes: u64)
+	pub(in crate::tiff::image_file_directory) fn record_used_space_slice(&self, index: Index, size_in_bytes: u64)
 	{
 		self.0.record_used_space_slice(index, size_in_bytes)
 	}

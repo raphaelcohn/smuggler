@@ -3,7 +3,7 @@
 
 
 /// A parse error.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) enum OverflowError
 {
 	#[allow(missing_docs)]

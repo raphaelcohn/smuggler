@@ -12,7 +12,7 @@ pub(crate) enum ImageFileDirectoryPointerParseError
 	#[allow(missing_docs)]
 	NotAlignedToA16BitWordBoundary
 	{
-		offset: Offset,
+		raw_offset: u64,
 	},
 }
 

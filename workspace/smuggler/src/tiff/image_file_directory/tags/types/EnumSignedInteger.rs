@@ -15,12 +15,10 @@ impl<SINT: SignedIntegerNormalizedType, SE: SignedEnum> From<SignedIntegerValue>
 	}
 }
 
-impl<SINT: SignedIntegerNormalizedType, SE: SignedEnum> TryInto<SE> for EnumSignedInteger<SINT, SE>
+impl<SINT: SignedIntegerNormalizedType, SE: SignedEnum> EnumSignedInteger<SINT, SE>
 {
-	type Error = SignedIntegerValue;
-	
 	#[inline(always)]
-	fn try_into(self) -> Result<SE, Self::Eror>
+	fn try_into(self) -> Result<SE, SignedIntegerValue>
 	{
 		use SignedIntegerValue::*;
 		

@@ -8,8 +8,6 @@ use crate::collections::FileLength;
 use crate::collections::Index;
 use crate::collections::OverflowError;
 use crate::collections::TiffBytes;
-use crate::tiff::FileLength;
-use crate::tiff::header::Version;
 use likely::unlikely;
 use std::error;
 use std::fmt::Debug;

@@ -5,14 +5,14 @@
 #[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) struct TagParserCommon<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy>
 {
-	tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>,
+	pub(crate) tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>,
 	
 	pub(crate) recursion_guard: &'recursion_guard RecursionGuard<'recursion>,
 	
 	pub(crate) allocator: A,
 }
 
-impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy> Deref for TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, A>
+impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy> Deref for TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>
 {
 	type Target = TiffBytesWithOrder<'tiff_bytes, TB>;
 	
@@ -23,7 +23,7 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes,
 	}
 }
 
-impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy> TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, A>
+impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, A: Allocator + Copy> TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>
 {
 	#[inline(always)]
 	pub(crate) const fn new(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, recursion_guard: &'recursion_guard RecursionGuard<'recursion>, allocator: A) -> Self

@@ -3,13 +3,13 @@
 
 
 /// Tags; always sorted in ascending key (tag identifier) order except for unrecognized tags, which are sorted last.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub struct Tags<A: Allocator, T: Tag<A>>
+#[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub struct Tags<A: Allocator, T: Tag>
 {
 	sorted_tags: Vec<T, A>,
 }
 
-impl<A: Allocator, T: Tag<A>> Deref for Tags<A, T>
+impl<A: Allocator, T: Tag> Deref for Tags<A, T>
 {
 	type Target = [T];
 	
@@ -20,7 +20,7 @@ impl<A: Allocator, T: Tag<A>> Deref for Tags<A, T>
 	}
 }
 
-impl<A: Allocator, T: Tag<A>> TagEventHandler for Tags<A, T>
+impl<A: Allocator, T: Tag> TagEventHandler<T> for Tags<A, T>
 {
 	#[inline(always)]
 	fn handle_tag_event(&mut self, tag: T)
@@ -29,7 +29,7 @@ impl<A: Allocator, T: Tag<A>> TagEventHandler for Tags<A, T>
 	}
 }
 
-impl<A: Allocator, T: Tag<A>> Tags<A, T>
+impl<A: Allocator, T: Tag> Tags<A, T>
 {
 	/// Find a tag.
 	#[inline(always)]

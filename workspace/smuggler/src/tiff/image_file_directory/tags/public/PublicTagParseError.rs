@@ -2,16 +2,29 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-/// Signed integers.
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
-#[repr(transparent)]
-pub struct SignedIntegers<'tiff_bytes, SINT: SignedIntegerNormalizedType>(SignedIntegerValues<'tiff_bytes>, PhantomData<SINT>);
+/// A parse error.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum PublicTagParseError
+{
+	#[allow(missing_docs)]
+	StripOffsetsWithoutStripByteCounts,
 
-impl<'tiff_bytes, SINT: SignedIntegerNormalizedType> From<SignedIntegerValues<'tiff_bytes>> for SignedIntegers<'tiff_bytes, SINT>
+	#[allow(missing_docs)]
+	FreeOffsetsWithoutFreeByteCounts,
+
+	#[allow(missing_docs)]
+	TileOffsetsWithoutTileByteCounts,
+}
+
+impl Display for PublicTagParseError
 {
 	#[inline(always)]
-	fn from(value: SignedIntegerValues<'tiff_bytes>) -> Self
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
 	{
-		Self(value, PhantomData)
+		Debug::fmt(self, f)
 	}
+}
+
+impl error::Error for PublicTagParseError
+{
 }

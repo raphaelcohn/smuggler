@@ -76,9 +76,9 @@ impl SignedIntegerValue
 	}
 	
 	#[inline(always)]
-	pub(in crate::tiff::image_file_directory::tags) fn parse<'tiff_bytes, TB: TiffBytes>(byte_order: ByteOrder, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
+	pub(in crate::tiff::image_file_directory::tags) fn parse(byte_order: ByteOrder, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
 	{
-		if unlikely!(count != 0)
+		if unlikely!(raw_tag_value.count != 1)
 		{
 			return Err(SpecificTagParseError::CountShouldBeOne)
 		}

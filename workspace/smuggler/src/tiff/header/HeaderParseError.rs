@@ -21,16 +21,16 @@ pub(crate) enum HeaderParseError
 	BigTiffHeaderParse
 	{
 		cause: BigTiffHeaderParseError,
-	
-		header: Header,
+		
+		version: Version,
 	},
 	
 	#[allow(missing_docs)]
 	ZerothImageFileDirectoryPointerParse
 	{
 		cause: ZerothImageFileDirectoryPointerParseError,
-	
-		header: Header,
+		
+		version: Version,
 	},
 }
 

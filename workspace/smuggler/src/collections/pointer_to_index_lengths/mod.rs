@@ -6,7 +6,6 @@ use crate::collections::OverflowError;
 use likely::unlikely;
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::marker::PhantomData;
 use super::FileLength;
 use super::Index;
 use super::TiffBytes;

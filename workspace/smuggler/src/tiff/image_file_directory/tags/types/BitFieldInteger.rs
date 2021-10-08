@@ -6,12 +6,19 @@
 #[repr(transparent)]
 pub struct BitFieldInteger<UINT: UnsignedIntegerNormalizedType, BF: BitField>(UnsignedInteger<UINT>, PhantomData<BF>);
 
-impl<UINT: UnsignedIntegerNormalizedType, BF: BitField> TryInto<BF> for BitFieldInteger<UINT, BF>
+impl<UINT: UnsignedIntegerNormalizedType, BF: BitField> From<UnsignedIntegerValue> for BitFieldInteger<UINT, BF>
 {
-	type Error = (BF, UnsignedIntegerValue);
-	
 	#[inline(always)]
-	fn try_into(self) -> Result<BF, Self::Error>
+	fn from(value: UnsignedIntegerValue) -> Self
+	{
+		Self(UnsignedInteger::from(value), PhantomData)
+	}
+}
+
+impl<UINT: UnsignedIntegerNormalizedType, BF: BitField> BitFieldInteger<UINT, BF>
+{
+	#[inline(always)]
+	fn try_into(self) -> Result<BF, (BF, UnsignedIntegerValue)>
 	{
 		use UnsignedIntegerValue::*;
 		
@@ -26,14 +33,5 @@ impl<UINT: UnsignedIntegerNormalizedType, BF: BitField> TryInto<BF> for BitField
 			
 			U64(bits) => BF::try_from_u64(bits).map_err(|(bit_field, unrecognized_bits)| (bit_field, U64(unrecognized_bits))),
 		}
-	}
-}
-
-impl<UINT: UnsignedIntegerNormalizedType, BF: BitField> From<UnsignedIntegerValue> for BitFieldInteger<UINT, BF>
-{
-	#[inline(always)]
-	fn from(value: UnsignedIntegerValue) -> Self
-	{
-		Self(UnsignedInteger::from(value), PhantomData)
 	}
 }

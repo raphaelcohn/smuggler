@@ -5,21 +5,21 @@
 #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(in crate::tiff::image_file_directory) struct PublicTagParser<'tiff_bytes, A: Allocator + Copy>
 {
-	strip_offsets: Option<()>,
+	strip_offsets: Option<UnsignedIntegers<'tiff_bytes, u32>>,
 
-	free_offsets: Option<()>,
+	free_offsets: Option<UnsignedIntegers<'tiff_bytes, u32>>,
 
-	tile_offsets: Option<()>,
+	tile_offsets: Option<UnsignedIntegers<'tiff_bytes, u32>>,
 	
 	//  The JPEGQTables, JPEGDCTables, and JPEGACTables tags can be present, but they can point to incorrect positions or even positions beyond EOF.
 	// We've seen old-style JPEG in TIFF files where some or all Table offsets, contained the JPEGQTables, JPEGDCTables, and JPEGACTables tags are incorrect values beyond EOF. However, these files do always seem to contain a useful JPEGInterchangeFormat tag. Therefore, we recommend a careful attempt to read the Tables tags only as a last resort, if no table data is found in a JPEGInterchangeFormat stream.
-	// Length was optional
-	jpeg_interchange_format: Option<()>,
+	// Length was optional.
+	jpeg_interchange_format: Option<UnsignedInteger<u32>>,
 
-	// StripRowCounts
+	// TODO: StripRowCounts
 	// For strips with more than one layer there is a maximum strip size of 256 scanlines or full page size. The 256 maximum SHOULD be used unless the capability to receive longer strips has been negotiated. This field replaces RowsPerStrip for IFDs with variable-sized strips, and, as such, only one of the two fields, StripRowCounts and RowsPerStrip, may be used in an IFD.
 	
-	marker: PhantomData<(&'tiff_bytes (), A)>,
+	marker: PhantomData<A>,
 }
 
 impl<'tiff_bytes, A: Allocator + Copy> Default for PublicTagParser<'tiff_bytes, A>
@@ -36,17 +36,41 @@ impl<'tiff_bytes, A: Allocator + Copy> Default for PublicTagParser<'tiff_bytes, 
 			tile_offsets: None,
 		
 			jpeg_interchange_format: None,
-			
+		
 			marker: PhantomData,
 		}
 	}
 }
 
-impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator + Copy, TEH: TagEventHandler<PublicTag<'tiff_bytes, A>, A>> TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, TEH> for PublicTagParser<'tiff_bytes, A>
+impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator + Copy, TEH: TagEventHandler<PublicTag<'tiff_bytes, A>>> TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, TEH, PublicTag<'tiff_bytes, A>> for PublicTagParser<'tiff_bytes, A>
 {
 	#[inline(always)]
-	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH)
+	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH) -> Result<(), SpecificTagParseError>
 	{
+		use PublicTagParseError::*;
+		
+		if unlikely!(self.strip_offsets.is_some())
+		{
+			Err(StripOffsetsWithoutStripByteCounts)?
+		}
+		if unlikely!(self.free_offsets.is_some())
+		{
+			Err(FreeOffsetsWithoutFreeByteCounts)?
+		}
+		if unlikely!(self.tile_offsets.is_some())
+		{
+			Err(TileOffsetsWithoutTileByteCounts)?
+		}
+		
+		// TODO: Length was optional.
+		if let Some(jpeg_interchange_format) = self.jpeg_interchange_format
+		{
+			todo!("JPEG interchange format");
+		}
+		
+		// TODO: StripRowCounts
+		
+		Ok(())
 	}
 	
 	#[inline(always)]
@@ -113,10 +137,10 @@ impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator +
 			// ),
 			//
 			// // TODO: Needs special handling.
-			// StripOffsets => PublicTag::StripOffsets
-			// (
-			//
-			// ),
+			StripOffsets => PublicTag::StripOffsets
+			(
+			
+			),
 			//
 			// Orientation => PublicTag::Orientation
 			// (

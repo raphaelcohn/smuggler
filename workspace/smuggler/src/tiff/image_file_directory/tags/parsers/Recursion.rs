@@ -3,7 +3,7 @@
 
 
 #[derive(Default, Debug)]
-pub(in crate::tiff::tags) struct Recursion
+pub(in crate::tiff::image_file_directory) struct Recursion
 {
 	descent_depth: Cell<u8>,
 
@@ -18,7 +18,7 @@ impl Recursion
 	const MaximumDescents: NonZeroU8 = new_non_zero_u8(3);
 	
 	#[inline(always)]
-	pub(in crate::tiff::tags) fn top_level(&self) -> RecursionGuard
+	pub(in crate::tiff::image_file_directory) fn top_level(&self) -> RecursionGuard
 	{
 		debug_assert_eq!(self.descent_depth.get(), 0, "Already descending");
 		self.descent_depth.set(1);

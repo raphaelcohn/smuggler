@@ -5,13 +5,11 @@
 #[derive(Default, Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct ImageFileDirectory<A: Allocator, T: Tag>(Tags<A, T>);
 
-impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A>
+impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A, T>
 {
 	#[inline(always)]
 	fn parse<'tiff_bytes, 'recursion, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, image_file_directory_pointer: ImageFileDirectoryPointer) -> Result<(Self, Option<ImageFileDirectoryPointer>), ImageFileDirectoryParseError>
 	{
-		use ImageFileDirectoryParseError::*;
-		
 		let index = image_file_directory_pointer.index();
 		
 		let number_of_directory_entries = Self::number_of_directory_entries::<_, Unit>(&common.tiff_bytes_with_order, index)?;
@@ -40,7 +38,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A>
 			Err(cause) => return Err(NotEnoughBytesForNumberOfDirectoryElements(cause))
 		};
 		
-		if unlikely!(number_of_directory_entries == 0)
+		if unlikely!(raw_number_of_directory_entries == 0)
 		{
 			return Err(ThereAreNoDirectoryEntries)
 		}
@@ -84,7 +82,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A>
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entries<'tiff_bytes, 'recursion, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, common: &TagParserCommon<TB, A>, directory_entries_index: Index, number_of_directory_entries: NonZeroU64, number_of_directory_entry_bytes: NonZeroU64) -> Result<Self, ImageFileDirectoryParseError>
+	fn parse_directory_entries<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: TP, common: &TagParserCommon<TB, A>, directory_entries_index: Index, number_of_directory_entries: NonZeroU64, number_of_directory_entry_bytes: NonZeroU64) -> Result<Self, ImageFileDirectoryParseError>
 	{
 		let mut tags = Tags::new(number_of_directory_entries, common.allocator).map_err(ImageFileDirectoryParseError::CouldNotAllocateMemoryForDirectoryEntries)?;
 		let mut directory_entry_index = directory_entries_index;
@@ -100,12 +98,12 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A>
 			}
 			directory_entry_index += Self::SizeOfEntry::<Unit>()
 		}
-		tag_parser.finish(&mut tags);
+		tag_parser.finish(&mut tags)?;
 		Ok(Self(tags))
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entry<'tiff_bytes, 'recursion, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: &mut TP, common: &TagParserCommon<TB, A>, tag_event_handler: &mut impl TagEventHandler<T, A>, directory_entry_index: Index, previous_tag_identifier: &mut Option<u16>) -> Result<(), TagParseError>
+	fn parse_directory_entry<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TP: TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, Tags<A, T>, T>, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tag_parser: &mut TP, common: &TagParserCommon<TB, A>, tag_event_handler: &mut impl TagEventHandler<T>, directory_entry_index: Index, previous_tag_identifier: &mut Option<u16>) -> Result<(), TagParseError>
 	{
 		let tag_identifier = Self::tag_identifier(&common.tiff_bytes_with_order, directory_entry_index, previous_tag_identifier)?;
 		let (tag_type, tag_type_size_in_bytes) = TagType::parse(Self::value_unchecked_u16(&common.tiff_bytes_with_order, directory_entry_index, Self::SizeOfTag))?;
@@ -137,9 +135,9 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectory<A>
 	}
 	
 	#[inline(always)]
-	fn value_unchecked<Value, TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, directory_entry_index: Index, offset: u64, callback: impl FnOnce(&TiffBytesWithOrder<TB>, u64, ByteOrder) -> Value) -> Value
+	fn value_unchecked<Value, TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, directory_entry_index: Index, offset: u64, callback: impl FnOnce(&TiffBytesWithOrder<TB>, u64) -> Value) -> Value
 	{
-		callback(tiff_bytes_with_order, directory_entry_index + offset, byte_order)
+		callback(tiff_bytes_with_order, directory_entry_index + offset)
 	}
 	
 	#[inline(always)]

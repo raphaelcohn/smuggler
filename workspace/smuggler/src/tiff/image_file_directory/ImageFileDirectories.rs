@@ -19,7 +19,7 @@ impl<A: Allocator, T: Tag> Deref for ImageFileDirectories<A, T>
 impl<A: Allocator + Copy, T: Tag> ImageFileDirectories<A, T>
 {
 	#[inline(always)]
-	pub(crate) fn parse_public_top_level<TB>(version: Version, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer, tiff_bytes_with_order: TiffBytesWithOrder<TB>, allocator: A) -> Result<Self, ImageFileDirectoriesParseError>
+	pub(crate) fn parse_public_top_level<'tiff_bytes, TB: TiffBytes>(version: Version, zeroth_image_file_directory_pointer: ImageFileDirectoryPointer, tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, allocator: A) -> Result<Self, ImageFileDirectoriesParseError>
 	{
 		let recursion = Recursion::default();
 		
@@ -83,11 +83,11 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectories<A, T>
 	}
 	
 	#[inline(always)]
-	fn parse_child_image_file_directory<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, vec_image_file_directories: &mut Vec<ImageFileDirectories<A, UnrecognizedTag<'tiff_bytes, A>>, A>, offset: u64) -> Result<(), SpecificTagParseError>
+	fn parse_child_image_file_directory<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, TB: TiffBytes, Unit: Version6OrBigTiffUnit>(common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, vec_image_file_directories: &mut Vec<ImageFileDirectories<A, UnrecognizedTag<'tiff_bytes, A>>, A>, raw_offset: u64) -> Result<(), SpecificTagParseError>
 	{
 		use SpecificTagParseError::*;
 		
-		let zeroth_image_file_directory_pointer = ImageFileDirectoryPointer::new_from_offset(Offset(offset)).map_err(ImageFileDirectoryPointerParse)?.ok_or(ImageFileDirectoryPointerIsNull)?;
+		let zeroth_image_file_directory_pointer = ImageFileDirectoryPointer::new_from_raw_offset(raw_offset).map_err(ImageFileDirectoryPointerParse)?.ok_or(ImageFileDirectoryPointerIsNull)?;
 		
 		let common =
 		{
@@ -101,7 +101,7 @@ impl<A: Allocator + Copy, T: Tag> ImageFileDirectories<A, T>
 			
 			Err(cause) =>
 			{
-				let cause = Box::try_new_in(cause, allocator).map_err(CouldNotAllocateMemoryForImageFileDirectoriesParseError)?;
+				let cause = Box::try_new_in(cause, common.allocator).map_err(CouldNotAllocateMemoryForImageFileDirectoriesParseError)?;
 				Err(ImageFileDirectoriesParse(cause))
 			}
 		};

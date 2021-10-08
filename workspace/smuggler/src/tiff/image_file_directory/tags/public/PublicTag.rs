@@ -3,12 +3,12 @@
 
 
 /// A public tag.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 #[repr(u16)]
 pub enum PublicTag<'tiff_bytes, A: Allocator>
 {
 	/// A general indication of the kind of data contained in this subfile.
-	NewSubfileType(BitFieldInteger<NewSubfileTypeBitField>) = NewSubfileType,
+	NewSubfileType(BitFieldInteger<u32, NewSubfileTypeBitField>) = NewSubfileType,
 	
 	/// A general indication of the kind of data contained in this subfile.
 	SubfileType(EnumUnsignedInteger<u16, SubfileTypeEnum>) = SubfileType,
@@ -31,29 +31,29 @@ pub enum PublicTag<'tiff_bytes, A: Allocator>
 	/// Compression scheme used on the image data.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum.
-	Compression(UnsignedEnum) = Compression,
+	Compression(u64) = Compression,
 	
 	/// The color space of the image data.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum.
-	PhotometricInterpretation(UnsignedEnum) = PhotometricInterpretation,
+	PhotometricInterpretation(u64) = PhotometricInterpretation,
 	
 	/// For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels.
-	Threshholding(UnsignedEnum) = Threshholding,
+	Threshholding(u64) = Threshholding,
 	
 	/// The width of the dithering or half-toning matrix used to create a dithered or half-toned bilevel file.
-	CellWidth(UnsignedInteger) = CellWidth,
+	CellWidth(u64) = CellWidth,
 	
 	/// The length of the dithering or half-toning matrix used to create a dithered or half-toned bilevel file.
-	CellLength(UnsignedInteger) = CellLength,
+	CellLength(u64) = CellLength,
 	
 	/// The logical order of bits within a byte.
-	FillOrder(UnsignedEnum) = FillOrder,
+	FillOrder(u64) = FillOrder,
 	
 	/// A string that describes the subject of the image.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum (this or the extended tag `DocumentName` or both).
-	ImageDescription(&'tiff_bytes [AsciiCharacter]) = ImageDescription,
+	ImageDescription(u64) = ImageDescription,
 	
 	/// The scanner manufacturer.
 	///
@@ -65,8 +65,8 @@ pub enum PublicTag<'tiff_bytes, A: Allocator>
 	/// US Library of Congress & Still Image Working Group Additional Recommended.
 	Model(u64) = Model,
 	
-	/// For each strip, the byte offset of that strip.
-	StripOffsets(u64) = StripOffsets,
+	/// A combination of `StripOffsets` and `StripByteCounts`.
+	Strips(Vec<&'tiff_bytes [u8], A>) = StripOffsets,
 	
 	/// The orientation of the image with respect to the rows and columns.
 	Orientation(u64) = Orientation,
@@ -79,9 +79,6 @@ pub enum PublicTag<'tiff_bytes, A: Allocator>
 	/// The number of rows per strip.
 	RowsPerStrip(u64) = RowsPerStrip,
 	
-	/// For each strip, the number of bytes in the strip after compression.
-	StripByteCounts(u64) = StripByteCounts,
-	
 	/// The minimum component value used.
 	MinSampleValue(u64) = MinSampleValue,
 	
@@ -91,12 +88,12 @@ pub enum PublicTag<'tiff_bytes, A: Allocator>
 	/// The number of pixels per ResolutionUnit in the ImageWidth direction.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum.
-	XResolution(UnsignedRational) = XResolution,
+	XResolution(u64) = XResolution,
 	
 	/// The number of pixels per ResolutionUnit in the ImageLength direction.
 	///
 	/// US Library of Congress & Still Image Working Group Suggested Minimum.
-	YResolution(UnsignedRational) = YResolution,
+	YResolution(u64) = YResolution,
 	
 	/// How the components of each pixel are stored.
 	PlanarConfiguration(u64) = PlanarConfiguration,
@@ -743,7 +740,7 @@ impl<'tiff_bytes, A: Allocator> EnumRepresentationU16 for PublicTag<'tiff_bytes,
 {
 }
 
-impl<'tiff_bytes, A: Allocator> Tag<A> for PublicTag<'tiff_bytes, A>
+impl<'tiff_bytes, A: Allocator> Tag for PublicTag<'tiff_bytes, A>
 {
 	type Key = PublicTagKey;
 	

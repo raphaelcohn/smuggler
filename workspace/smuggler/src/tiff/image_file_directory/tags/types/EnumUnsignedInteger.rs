@@ -15,12 +15,10 @@ impl<UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum> From<UnsignedInteger
 	}
 }
 
-impl<UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum> TryInto<UE> for EnumUnsignedInteger<UINT, UE>
+impl<UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum> EnumUnsignedInteger<UINT, UE>
 {
-	type Error = UnsignedIntegerValue;
-	
 	#[inline(always)]
-	fn try_into(self) -> Result<UE, Self::Eror>
+	fn try_into(self) -> Result<UE, UnsignedIntegerValue>
 	{
 		use UnsignedIntegerValue::*;
 		

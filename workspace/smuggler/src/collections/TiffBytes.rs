@@ -69,14 +69,14 @@ pub(crate) trait TiffBytes
 	fn non_null_to_index_checked<X: Sized>(&self, index: Index, count: u64) -> Result<NonNull<X>, OverflowError>
 	{
 		CheckedPointerToIndexLength::check::<X, _>(self, index, count)?;
-		Ok(new_non_null(Ok(self.pointer_to_index_length::<X>(index))?))
+		Ok(new_non_null(self.pointer_to_index_length::<X>(index) as *mut _))
 	}
 	
 	#[inline(always)]
 	fn non_null_to_index_unchecked<X: Sized>(&self, index: Index, count: u64) -> NonNull<X>
 	{
 		UncheckedPointerToIndexLength::check::<X, _>(self, index, count);
-		new_non_null(self.pointer_to_index_length::<X>(index))
+		new_non_null(self.pointer_to_index_length::<X>(index) as *mut _)
 	}
 	
 	#[inline(always)]

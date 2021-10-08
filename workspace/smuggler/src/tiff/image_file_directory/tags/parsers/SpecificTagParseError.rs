@@ -3,7 +3,7 @@
 
 
 /// A parse error.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub enum SpecificTagParseError
 {
 	#[allow(missing_docs)]
@@ -56,6 +56,9 @@ pub enum SpecificTagParseError
 	
 	/// Can occur when parsing a sub image file directory.
 	ImageFileDirectoriesParse(Box<ImageFileDirectoriesParseError>),
+	
+	#[allow(missing_docs)]
+	PublicTagParse(PublicTagParseError),
 }
 
 impl Display for SpecificTagParseError
@@ -98,7 +101,18 @@ impl error::Error for SpecificTagParseError
 			
 			ImageFileDirectoriesParse(cause) => Some(&cause),
 			
+			PublicTagParse(cause) => Some(cause),
+			
 			_ => None,
 		}
+	}
+}
+
+impl From<PublicTagParseError> for SpecificTagParseError
+{
+	#[inline(always)]
+	fn from(cause: PublicTagParseError) -> Self
+	{
+		SpecificTagParseError::PublicTagParse(cause)
 	}
 }

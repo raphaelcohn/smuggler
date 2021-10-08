@@ -6,9 +6,9 @@
 pub trait Byte: Default + Debug + Copy + Ord + Eq + Hash
 {
 	#[inline(always)]
-	fn byte_slice(slice: NonNull<[u8]>) -> &[Self]
+	fn byte_slice<'tiff_bytes>(slice: NonNull<[u8]>) -> &'tiff_bytes [Self]
 	{
-		let slice: NonNull<B> = slice.cast();
+		let slice: NonNull<Self> = slice.cast();
 		unsafe { from_raw_parts(slice.as_mut_ptr(), slice.len()) }
 	}
 }

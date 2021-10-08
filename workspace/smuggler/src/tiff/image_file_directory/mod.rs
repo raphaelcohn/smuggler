@@ -2,16 +2,14 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::{ByteOrder, TiffBytesWithOrder};
 use crate::collections::CanBeUnaligned;
 use crate::collections::Index;
 use crate::collections::OverflowError;
 use crate::collections::TiffBytes;
+use crate::collections::TiffBytesWithOrder;
 use crate::collections::VecExt;
 use crate::collections::size_of_u64;
-use crate::tiff::header::Header;
 use crate::tiff::header::Version;
-use crate::tiff::offset::Offset;
 use likely::unlikely;
 use self::pointer::ImageFileDirectoryPointer;
 use self::pointer::ImageFileDirectoryPointerParseError;
@@ -19,12 +17,14 @@ use self::tags::Tag;
 use self::tags::TagIdentifier;
 use self::tags::Tags;
 use self::tags::UnrecognizedTag;
+use self::tags::parsers::RawTagValue;
 use self::tags::parsers::Recursion;
-use self::tags::parsers::RecursionGuard;
 use self::tags::parsers::SpecificTagParseError;
 use self::tags::parsers::TagEventHandler;
 use self::tags::parsers::TagParseError;
 use self::tags::parsers::TagParser;
+use self::tags::parsers::TagParserCommon;
+use self::tags::parsers::UnrecognizedTagParser;
 use self::tags::parsers::Version6OrBigTiffUnit;
 use self::tags::public::PublicTagParser;
 use self::tags::types::TagType;
@@ -35,12 +35,9 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
-use std::mem::size_of;
 use std::num::NonZeroU64;
 use std::ops::Deref;
-use std::ptr::NonNull;
 use swiss_army_knife::non_zero::new_non_zero_u64;
-use crate::tiff::image_file_directory::tags::parsers::{TagParserCommon, RawTagValue};
 
 
 /// Pointer.

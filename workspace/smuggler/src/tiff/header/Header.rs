@@ -92,12 +92,12 @@ impl Header
 			
 			BigTiff =>
 			{
-				Self::parse_version_big_tiff_constants(tiff_bytes_with_order).map_err(|cause| BigTiffHeaderParse { cause, header: self })?;
+				Self::parse_version_big_tiff_constants(tiff_bytes_with_order).map_err(|cause| BigTiffHeaderParse { cause, version })?;
 				8
 			}
 		};
 		
-		Self::parse_zeroth_image_file_directory_pointer(version, tiff_bytes_with_order, index).map_err(|cause| ZerothImageFileDirectoryPointerParse { cause, header: self })
+		Self::parse_zeroth_image_file_directory_pointer(version, tiff_bytes_with_order, index).map_err(|cause| ZerothImageFileDirectoryPointerParse { cause, version })
 	}
 	
 	#[inline(always)]
@@ -125,7 +125,7 @@ impl Header
 	}
 	
 	#[inline(always)]
-	fn parse_zeroth_image_file_directory_pointer<TB: TiffBytes>(version: Version, tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<x, ZerothImageFileDirectoryPointerParseError>
+	fn parse_zeroth_image_file_directory_pointer<TB: TiffBytes>(version: Version, tiff_bytes_with_order: &TiffBytesWithOrder<TB>, index: Index) -> Result<ImageFileDirectoryPointer, ZerothImageFileDirectoryPointerParseError>
 	{
 		use ZerothImageFileDirectoryPointerParseError::*;
 		

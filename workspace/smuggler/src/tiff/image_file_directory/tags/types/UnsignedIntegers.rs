@@ -7,7 +7,7 @@
 #[repr(transparent)]
 pub struct UnsignedIntegers<'tiff_bytes, UINT: UnsignedIntegerNormalizedType>(UnsignedIntegerValues<'tiff_bytes>, PhantomData<UINT>);
 
-impl<'tiff_bytes, UINT: UnsignedIntegerNormalizedType> From<UnsignedIntegerValues> for UnsignedIntegers<UINT>
+impl<'tiff_bytes, UINT: UnsignedIntegerNormalizedType> From<UnsignedIntegerValues<'tiff_bytes>> for UnsignedIntegers<'tiff_bytes, UINT>
 {
 	#[inline(always)]
 	fn from(value: UnsignedIntegerValues<'tiff_bytes>) -> Self

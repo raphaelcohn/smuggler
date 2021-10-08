@@ -7,14 +7,12 @@ use crate::collections::OverflowError;
 use crate::collections::TiffBytes;
 use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointer;
 use crate::tiff::image_file_directory::pointer::ImageFileDirectoryPointerParseError;
-use crate::tiff::offset::OffsetParseError;
 use likely::unlikely;
 use std::error;
 use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use strum::EnumDiscriminants;
 use crate::collections::Index;
 use crate::tiff::FreeSpace;
 

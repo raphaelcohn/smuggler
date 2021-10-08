@@ -27,8 +27,6 @@ pub trait CanBeUnaligned: Default + Debug + Copy + PartialEq + PartialOrd
 	#[inline(always)]
 	fn read_unaligned_and_byte_swap_as_appropriate(this: NonNull<Self>, byte_order: ByteOrder) -> Self
 	{
-		use ByteOrder::*;
-		
 		ByteOrder::target_endian
 		(
 			Self::read_unaligned_if_native_endian_is_little_endian(this, byte_order),

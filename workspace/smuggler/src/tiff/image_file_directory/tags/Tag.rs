@@ -3,7 +3,7 @@
 
 
 /// A tag.
-pub trait Tag<A: Allocator>
+pub trait Tag
 {
 	/// Key type.
 	type Key: TagKey;

@@ -3,10 +3,10 @@
 
 
 /// An unrecognized tag.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct UnrecognizedTag<'tiff_bytes, A: Allocator>(pub TagIdentifier, pub UnrecognizedTagValue<'tiff_bytes, A>);
 
-impl<'tiff_bytes, A: Allocator> Tag<A> for UnrecognizedTag<'tiff_bytes, A>
+impl<'tiff_bytes, A: Allocator> Tag for UnrecognizedTag<'tiff_bytes, A>
 {
 	/// Key type.
 	type Key = TagIdentifier;

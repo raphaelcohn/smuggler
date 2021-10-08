@@ -10,8 +10,6 @@ impl ImageFileDirectoryPointer
 	#[inline(always)]
 	pub(crate) fn new_unchecked(offset: Result<Offset, OffsetParseError>) -> Result<Option<Self>, ImageFileDirectoryPointerParseError>
 	{
-		use ImageFileDirectoryPointerParseError::*;
-		
 		let offset = match offset
 		{
 			Ok(offset) => offset,
@@ -19,18 +17,23 @@ impl ImageFileDirectoryPointer
 			Err(cause) => return Err(ImageFileDirectoryPointerParseError::OffsetParse(cause)),
 		};
 		
-		Self::new_from_offset(offset.get())
+		Self::new_from_offset(offset)
 	}
 	
 	#[inline(always)]
-	pub(crate) fn new_from_offset(offset: Offset) -> Result<Option<Self>, ImageFileDirectoryPointerParseError>
+	fn new_from_offset(offset: Offset) -> Result<Option<Self>, ImageFileDirectoryPointerParseError>
+	{
+		Self::new_from_raw_offset(offset.get())
+	}
+	
+	#[inline(always)]
+	pub(crate) fn new_from_raw_offset(raw_offset: u64) -> Result<Option<Self>, ImageFileDirectoryPointerParseError>
 	{
 		use ImageFileDirectoryPointerParseError::*;
 	
-		let raw_offset = offset.get();
 		if unlikely!(raw_offset % 2 == 1)
 		{
-			return Err(NotAlignedToA16BitWordBoundary { offset })
+			return Err(NotAlignedToA16BitWordBoundary { raw_offset })
 		}
 		
 		let outcome = if unlikely!(raw_offset == 0)

@@ -3,15 +3,20 @@
 
 
 #[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub(in crate::tiff::image_file_directory::tags) struct UnrecognizedTagParser;
+pub(in crate::tiff::image_file_directory) struct UnrecognizedTagParser;
 
-impl TagParser for UnrecognizedTagParser
+impl<'tiff_bytes, 'recursion: 'recursion_guard, 'recursion_guard, A: Allocator + Copy, TEH: TagEventHandler<UnrecognizedTag<'tiff_bytes, A>>> TagParser<'tiff_bytes, 'recursion, 'recursion_guard, A, TEH, UnrecognizedTag<'tiff_bytes, A>> for UnrecognizedTagParser
 {
-	type Tag<'a, A: Allocator> = UnrecognizedTag<'a, A>;
+	#[inline(always)]
+	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, _common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, _tag_event_handler: &mut TEH) -> Result<(), SpecificTagParseError>
+	{
+		Ok(())
+	}
 	
 	#[inline(always)]
-	fn parse<'a, A, Unit: Version6OrBigTiffUnit, TB: TiffBytes>(&self, recursion_guard: &RecursionGuard, allocator: A, tiff_bytes: &'a mut TB, tag_identifier: TagIdentifier, tag_type: TagType, count: u64, byte_order: ByteOrder, slice: NonNull<[u8]>) -> Result<Self::Tag<'a, A>, SpecificTagParseError>
+	fn parse<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(&mut self, common: &TagParserCommon<'tiff_bytes, 'recursion, 'recursion_guard, TB, A>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), SpecificTagParseError>
 	{
-		UnrecognizedTag::parse(recursion_guard, allocator, tiff_bytes, tag_identifier, tag_type, count, byte_order, slice)
+		tag_event_handler.handle_tag_event(UnrecognizedTag::parse(common, tag_identifier, tag_type, raw_tag_value)?);
+		Ok(())
 	}
 }

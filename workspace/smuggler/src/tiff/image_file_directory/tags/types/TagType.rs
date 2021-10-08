@@ -104,56 +104,61 @@ impl TagType
 	pub(in crate::tiff::image_file_directory) fn parse(tag_type: u16) -> Result<(Self, u64), TagParseError>
 	{
 		#[inline(always)]
-		const fn unrecognized(tag_type: u16) -> Result<(Self, u64), TagParseError>
+		const fn recognized(tag_type: TagType, size_in_bytes: u64) -> Result<(TagType, u64), TagParseError>
+		{
+			Ok((tag_type, size_in_bytes))
+		}
+		
+		#[inline(always)]
+		const fn unrecognized(tag_type: u16) -> Result<(TagType, u64), TagParseError>
 		{
 			Err(TagParseError::UnrecognizedTagType { tag_type })
 		}
 		
 		use TagType::*;
 		
-		let ok = match tag_type
+		match tag_type
 		{
-			TagType::Unrecognized0 => return unrecognized(TagType::Unrecognized0),
+			TagType::Unrecognized0 => unrecognized(TagType::Unrecognized0),
 			
-			TagType::Byte => (BYTE, 1),
+			TagType::Byte => recognized(BYTE, 1),
 			
-			TagType::Ascii => (ASCII, 1),
+			TagType::Ascii => recognized(ASCII, 1),
 			
-			TagType::Short => (SHORT, 2),
+			TagType::Short => recognized(SHORT, 2),
 			
-			TagType::Long => (LONG, 4),
+			TagType::Long => recognized(LONG, 4),
 			
-			TagType::Rational => (RATIONAL, 8),
+			TagType::Rational => recognized(RATIONAL, 8),
 			
-			TagType::Sbyte => (SBYTE, 1),
+			TagType::Sbyte => recognized(SBYTE, 1),
 			
-			TagType::Undefined => (UNDEFINED, 1),
+			TagType::Undefined => recognized(UNDEFINED, 1),
 			
-			TagType::Sshort => (SSHORT, 1),
+			TagType::Sshort => recognized(SSHORT, 1),
 			
-			TagType::Slong => (SLONG, 4),
+			TagType::Slong => recognized(SLONG, 4),
 			
-			TagType::Srational => (SRATIONAL, 8),
+			TagType::Srational => recognized(SRATIONAL, 8),
 			
-			TagType::Float => (FLOAT, 4),
+			TagType::Float => recognized(FLOAT, 4),
 			
-			TagType::Double => (DOUBLE, 8),
+			TagType::Double => recognized(DOUBLE, 8),
 			
-			TagType::Ifd => (IFD, 4),
+			TagType::Ifd => recognized(IFD, 4),
 			
-			TagType::Unrecognized14 => return unrecognized(TagType::Unrecognized14),
+			TagType::Unrecognized14 => unrecognized(TagType::Unrecognized14),
 			
-			TagType::Unrecognized15 => return unrecognized(TagType::Unrecognized15),
+			TagType::Unrecognized15 => unrecognized(TagType::Unrecognized15),
 			
-			TagType::Long8 => (LONG8, 8),
+			TagType::Long8 => recognized(LONG8, 8),
 			
-			TagType::Slong8 => (SLONG8, 8),
+			TagType::Slong8 => recognized(SLONG8, 8),
 			
-			TagType::Ifd8 => (IFD8, 8),
+			TagType::Ifd8 => recognized(IFD8, 8),
 			
-			_ => return unrecognized(tag_type),
-		};
-		Ok(ok)
+			_ => unrecognized(tag_type),
+		}
 	}
 	
 	#[inline(always)]

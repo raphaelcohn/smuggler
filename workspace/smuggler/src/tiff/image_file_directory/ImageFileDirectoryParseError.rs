@@ -3,7 +3,7 @@
 
 
 /// A parse error.
-#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub(crate) enum ImageFileDirectoryParseError
 {
 	#[allow(missing_docs)]
