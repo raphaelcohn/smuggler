@@ -63,7 +63,7 @@ pub enum UnrecognizedTagValue<'tiff_bytes, A: Allocator>
 impl<'tiff_bytes, A: Allocator + Clone> UnrecognizedTagValue<'tiff_bytes, A>
 {
 	#[inline(always)]
-	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, SpecificTagParseError>
+	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, UnrecognizedTagParseError>
 	{
 		use UnrecognizedTagValue::*;
 		

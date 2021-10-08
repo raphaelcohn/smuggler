@@ -23,44 +23,50 @@ pub enum UnsignedIntegerValues<'tiff_bytes>
 impl<'tiff_bytes> UnsignedIntegerValues<'tiff_bytes>
 {
 	#[inline(always)]
-	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, SpecificTagParseError>
+	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, IntegerValuesParseError>
 	{
 		use TagType::*;
 		use UnsignedIntegerValues::*;
+		
+		#[inline(always)]
+		const fn invalid<'tiff_bytes>() -> Result<UnsignedIntegerValues<'tiff_bytes>, IntegerValuesParseError>
+		{
+			Err(IntegerValuesParseError::TagTypeInvalid)
+		}
 		
 		match tag_type
 		{
 			BYTE => Ok(U8(raw_tag_value.byte_slice())),
 			
-			ASCII => TagType::invalid(),
+			ASCII => invalid(),
 			
 			SHORT => Ok(U16(raw_tag_value.unaligned_slice(common))),
 			
 			LONG => Ok(U32(raw_tag_value.unaligned_slice(common))),
 			
-			RATIONAL => TagType::invalid(),
+			RATIONAL => invalid(),
 			
-			SBYTE => TagType::invalid(),
+			SBYTE => invalid(),
 			
-			UNDEFINED => TagType::invalid(),
+			UNDEFINED => invalid(),
 			
-			SSHORT => TagType::invalid(),
+			SSHORT => invalid(),
 			
-			SLONG => TagType::invalid(),
+			SLONG => invalid(),
 			
-			SRATIONAL => TagType::invalid(),
+			SRATIONAL => invalid(),
 			
-			FLOAT => TagType::invalid(),
+			FLOAT => invalid(),
 			
-			DOUBLE => TagType::invalid(),
+			DOUBLE => invalid(),
 			
-			IFD => TagType::invalid(),
+			IFD => invalid(),
 			
 			LONG8 => Ok(U64(raw_tag_value.unaligned_slice(common))),
 			
-			SLONG8 => TagType::invalid(),
+			SLONG8 => invalid(),
 			
-			IFD8 => TagType::invalid(),
+			IFD8 => invalid(),
 		}
 	}
 }

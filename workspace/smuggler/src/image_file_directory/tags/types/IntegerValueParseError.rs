@@ -2,4 +2,26 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-const UnrecognizedRepresentationValue: u16 = 0xFFFF;
+/// A parse error.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum IntegerValueParseError
+{
+	#[allow(missing_docs)]
+	CountShouldBeOne,
+	
+	#[allow(missing_docs)]
+	TagTypeInvalid,
+}
+
+impl Display for IntegerValueParseError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	{
+		Debug::fmt(self, f)
+	}
+}
+
+impl error::Error for IntegerValueParseError
+{
+}

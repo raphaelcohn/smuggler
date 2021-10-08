@@ -76,59 +76,65 @@ impl UnsignedIntegerValue
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory::tags) fn parse(byte_order: ByteOrder, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, SpecificTagParseError>
+	pub(in crate::image_file_directory::tags) fn parse(byte_order: ByteOrder, tag_type: TagType, raw_tag_value: RawTagValue) -> Result<Self, IntegerValueParseError>
 	{
 		if unlikely!(raw_tag_value.count != 1)
 		{
-			return Err(SpecificTagParseError::CountShouldBeOne)
+			return Err(IntegerValueParseError::CountShouldBeOne)
 		}
 		Self::parse_offset_or_value(tag_type, raw_tag_value.slice, byte_order)
 	}
 	
 	#[inline(always)]
-	fn parse_offset_or_value(tag_type: TagType, slice: NonNull<[u8]>, byte_order: ByteOrder) -> Result<Self, SpecificTagParseError>
+	fn parse_offset_or_value(tag_type: TagType, slice: NonNull<[u8]>, byte_order: ByteOrder) -> Result<Self, IntegerValueParseError>
 	{
 		use TagType::*;
 		use UnsignedIntegerValue::*;
+		
+		#[inline(always)]
+		const fn invalid() -> Result<UnsignedIntegerValue, IntegerValueParseError>
+		{
+			Err(IntegerValueParseError::TagTypeInvalid)
+		}
 		
 		match tag_type
 		{
 			BYTE => Ok(U8(slice.as_non_null_ptr().read_unaligned())),
 			
-			ASCII => TagType::invalid(),
+			ASCII => invalid(),
 			
 			SHORT => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U16),
 			
 			LONG => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U32),
 			
-			RATIONAL => TagType::invalid(),
+			RATIONAL => invalid(),
 			
-			SBYTE => TagType::invalid(),
+			SBYTE => invalid(),
 			
-			UNDEFINED => TagType::invalid(),
+			UNDEFINED => invalid(),
 			
-			SSHORT => TagType::invalid(),
+			SSHORT => invalid(),
 			
-			SLONG => TagType::invalid(),
+			SLONG => invalid(),
 			
-			SRATIONAL => TagType::invalid(),
+			SRATIONAL => invalid(),
 			
-			FLOAT => TagType::invalid(),
+			FLOAT => invalid(),
 			
-			DOUBLE => TagType::invalid(),
+			DOUBLE => invalid(),
 			
-			IFD => TagType::invalid(),
+			IFD => invalid(),
 			
 			LONG8 => Self::read_unaligned_and_byte_swap_as_appropriate(slice, byte_order, U64),
 			
-			SLONG8 => TagType::invalid(),
+			SLONG8 => invalid(),
 			
-			IFD8 => TagType::invalid(),
+			IFD8 => invalid(),
 		}
 	}
 	
 	#[inline(always)]
-	fn read_unaligned_and_byte_swap_as_appropriate<CBU: CanBeUnaligned>(slice: NonNull<[u8]>, byte_order: ByteOrder, constructor: impl FnOnce(CBU) -> Self) -> Result<Self, SpecificTagParseError>
+	fn read_unaligned_and_byte_swap_as_appropriate<CBU: CanBeUnaligned>(slice: NonNull<[u8]>, byte_order: ByteOrder, constructor: impl FnOnce(CBU) -> Self) -> Result<Self, IntegerValueParseError>
 	{
 		Ok(constructor(CBU::read_unaligned_and_byte_swap_as_appropriate(slice.as_non_null_ptr().cast(), byte_order)))
 	}

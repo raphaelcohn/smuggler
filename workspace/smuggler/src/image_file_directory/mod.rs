@@ -15,14 +15,13 @@ use self::tags::Tag;
 use self::tags::TagIdentifier;
 use self::tags::Tags;
 use self::tags::parsers::RawTagValue;
-use self::tags::parsers::SpecificTagParseError;
 use self::tags::parsers::TagParseError;
 use self::tags::parsers::TagParser;
 use self::tags::parsers::TagParserCommon;
 use self::tags::parsers::Version6OrBigTiffUnit;
 use self::tags::public::PublicTagParser;
 use self::tags::types::TagType;
-use std::alloc::{Allocator, Global};
+use std::alloc::{Allocator, AllocError, Global};
 use std::collections::TryReserveError;
 use std::error;
 use std::fmt::Debug;
@@ -32,8 +31,8 @@ use std::fmt;
 use std::num::NonZeroU64;
 use std::ops::Deref;
 use swiss_army_knife::non_zero::new_non_zero_u64;
-use crate::image_file_directory::tags::parsers::FinishTagParseError;
-use crate::image_file_directory::tags::public::PublicTag;
+use crate::image_file_directory::tags::parsers::FinishParseError;
+use crate::image_file_directory::tags::public::{PublicTag, PublicTagFinishParseError};
 
 
 /// Pointer.
@@ -44,6 +43,7 @@ pub mod pointer;
 pub mod tags;
 
 
+include!("ChildImageFileDirectoriesParseError.rs");
 include!("ImageFileDirectories.rs");
 include!("ImageFileDirectoriesParseError.rs");
 include!("ImageFileDirectory.rs");

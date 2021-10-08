@@ -46,7 +46,7 @@ pub enum ImageFileDirectoryParseError
 	TagParse(TagParseError),
 	
 	#[allow(missing_docs)]
-	FinishTagParse(FinishTagParseError),
+	FinishParse(FinishParseError),
 }
 
 impl Display for ImageFileDirectoryParseError
@@ -75,7 +75,7 @@ impl error::Error for ImageFileDirectoryParseError
 			
 			TagParse(cause) => Some(cause),
 			
-			FinishTagParse(cause) => Some(cause),
+			FinishParse(cause) => Some(cause),
 			
 			_ => None,
 		}
@@ -91,11 +91,11 @@ impl From<TagParseError> for ImageFileDirectoryParseError
 	}
 }
 
-impl From<FinishTagParseError> for ImageFileDirectoryParseError
+impl From<FinishParseError> for ImageFileDirectoryParseError
 {
 	#[inline(always)]
-	fn from(cause: FinishTagParseError) -> Self
+	fn from(cause: FinishParseError) -> Self
 	{
-		ImageFileDirectoryParseError::FinishTagParse(cause)
+		ImageFileDirectoryParseError::FinishParse(cause)
 	}
 }

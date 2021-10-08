@@ -21,7 +21,7 @@ impl<'tiff_bytes, A: Allocator> Tag for UnrecognizedTag<'tiff_bytes, A>
 impl<'tiff_bytes, A: Allocator + Clone> UnrecognizedTag<'tiff_bytes, A>
 {
 	#[inline(always)]
-	fn parse<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<UnrecognizedTag<'tiff_bytes, A>, SpecificTagParseError>
+	pub(in crate::image_file_directory) fn parse<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<UnrecognizedTag<'tiff_bytes, A>, UnrecognizedTagParseError>
 	{
 		let unrecognized_tag_value = UnrecognizedTagValue::parse::<_, Unit>(common, tag_type, raw_tag_value)?;
 		Ok(UnrecognizedTag(tag_identifier, unrecognized_tag_value))

@@ -44,8 +44,12 @@ impl<'tiff_bytes, A: Allocator + Clone> Default for PublicTagParser<'tiff_bytes,
 
 impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicTag<'tiff_bytes, A>>> TagParser<'tiff_bytes, 'allocator, A, TEH, PublicTag<'tiff_bytes, A>> for PublicTagParser<'tiff_bytes, A>
 {
+	type FinishTagParseError = PublicTagFinishParseError;
+	
+	type TagParseError = PublicTagParseError;
+	
 	#[inline(always)]
-	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH) -> Result<(), FinishTagParseError>
+	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>
 	{
 		use PublicTagFinishParseError::*;
 		
@@ -68,14 +72,14 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			todo!("JPEG interchange format");
 		}
 		
-		// TODO: StripRowCounts
-		
 		Ok(())
 	}
 	
 	#[inline(always)]
-	fn parse<TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), SpecificTagParseError>
+	fn parse<TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>
 	{
+		use PublicTagParseError::*;
+		
 		// <https://www.awaresystems.be/imaging/tiff/tifftags.html>
 		let tag = match tag_identifier
 		{
@@ -136,11 +140,12 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			//
 			// ),
 			//
-			// // TODO: Needs special handling.
-			// StripOffsets => PublicTag::StripOffsets
-			// (
-			//
-			// ),
+			// TODO: Needs special handling.
+			StripOffsets =>
+			{
+				self.strip_offsets = Some(raw_tag_value.unsigned_integers(common, tag_type)?);
+				return Ok(())
+			}
 			//
 			// Orientation => PublicTag::Orientation
 			// (
@@ -157,10 +162,18 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			//
 			// ),
 			//
-			// // TODO: Needs special handling - related to StripOffsets but does not occur immediately after StripOffsets!
+			// TODO: Needs special handling - related to StripOffsets but does not occur immediately after StripOffsets!
 			// StripByteCounts => PublicTag::StripByteCounts
 			// (
+			// 	match self.strip_offsets
+			// 	{
+			// 		None => return Err(StripByteCountsWithoutStripOffsets),
 			//
+			// 		Some(strip_offsets) =>
+			// 		{
+			//
+			// 		}
+			// 	}
 			// ),
 			//
 			// MinSampleValue => PublicTag::MinSampleValue

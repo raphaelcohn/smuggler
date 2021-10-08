@@ -14,7 +14,7 @@ pub struct AsciiStrings<'tiff_bytes, A: Allocator>
 impl<'tiff_bytes, A: Allocator + Clone> AsciiStrings<'tiff_bytes, A>
 {
 	#[inline(always)]
-	pub(crate) fn parse(allocator: A, byte_slice: &'tiff_bytes [u8]) -> Result<Self, SpecificTagParseError>
+	pub(crate) fn parse(allocator: A, byte_slice: &'tiff_bytes [u8]) -> Result<Self, AsciiStringsParseError>
 	{
 		#[inline(always)]
 		fn u8_to_ascii(string: &[u8]) -> &[NonZeroU8]
@@ -23,9 +23,9 @@ impl<'tiff_bytes, A: Allocator + Clone> AsciiStrings<'tiff_bytes, A>
 		}
 		
 		#[inline(always)]
-		fn try_push_string<'tiff_bytes, A: Allocator + Clone>(strings: &mut Vec<&'tiff_bytes [NonZeroU8], A>, string: &'tiff_bytes [u8]) -> Result<(), SpecificTagParseError>
+		fn try_push_string<'tiff_bytes, A: Allocator + Clone>(strings: &mut Vec<&'tiff_bytes [NonZeroU8], A>, string: &'tiff_bytes [u8]) -> Result<(), AsciiStringsParseError>
 		{
-			strings.try_push(u8_to_ascii(string)).map_err(SpecificTagParseError::CouldNotAllocateMemoryForAsciiStringReference)
+			strings.try_push(u8_to_ascii(string)).map_err(AsciiStringsParseError::CouldNotAllocateMemoryForAsciiStringReference)
 		}
 		
 		let mut strings = Vec::new_in(allocator);

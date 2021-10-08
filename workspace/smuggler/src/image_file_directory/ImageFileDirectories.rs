@@ -51,10 +51,10 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectories<A, T>
 	}
 	
 	#[inline(always)]
-	fn parse_child_image_file_directories<'tiff_bytes, 'allocator, TP: TagParser<'tiff_bytes, 'allocator, A, Tags<A, T>, T>, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Vec<ImageFileDirectories<A, T>, A>, SpecificTagParseError>
+	fn parse_child_image_file_directories<'tiff_bytes, 'allocator, TP: TagParser<'tiff_bytes, 'allocator, A, Tags<A, T>, T>, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Vec<ImageFileDirectories<A, T>, A>, ChildImageFileDirectoriesParseError>
 	{
 		let offsets = raw_tag_value.unaligned_slice::<_, _, Unit, Unit>(common);
-		let mut vec_image_file_directories = Vec::new_with_capacity(offsets.len(), common.allocator()).map_err(SpecificTagParseError::CouldNotAllocateMemoryForImageFileDirectories)?;
+		let mut vec_image_file_directories = Vec::new_with_capacity(offsets.len(), common.allocator()).map_err(ChildImageFileDirectoriesParseError::CouldNotAllocateMemoryForImageFileDirectories)?;
 		for offset in offsets
 		{
 			let offset = offset.read_assuming_is_native_endian().into();
@@ -64,7 +64,7 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectories<A, T>
 	}
 	
 	#[inline(always)]
-	fn parse_child_image_file_directory<'tiff_bytes, 'allocator, TP: TagParser<'tiff_bytes, 'allocator, A, Tags<A, T>, T>, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, vec_image_file_directories: &mut Vec<ImageFileDirectories<A, T>, A>, raw_offset: u64) -> Result<(), SpecificTagParseError>
+	fn parse_child_image_file_directory<'tiff_bytes, 'allocator, TP: TagParser<'tiff_bytes, 'allocator, A, Tags<A, T>, T>, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, vec_image_file_directories: &mut Vec<ImageFileDirectories<A, T>, A>, raw_offset: u64) -> Result<(), ChildImageFileDirectoriesParseError>
 	{
 		let zeroth_image_file_directory_pointer = Self::zeroth_image_file_directory_pointer(raw_offset)?;
 		
@@ -83,17 +83,17 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectories<A, T>
 	}
 	
 	#[inline(always)]
-	fn zeroth_image_file_directory_pointer(raw_offset: u64) -> Result<ImageFileDirectoryPointer, SpecificTagParseError>
+	fn zeroth_image_file_directory_pointer(raw_offset: u64) -> Result<ImageFileDirectoryPointer, ChildImageFileDirectoriesParseError>
 	{
-		use SpecificTagParseError::*;
+		use ChildImageFileDirectoriesParseError::*;
 		
 		ImageFileDirectoryPointer::new_from_raw_offset(raw_offset).map_err(ImageFileDirectoryPointerParse)?.ok_or(ImageFileDirectoryPointerIsNull)
 	}
 	
 	#[inline(always)]
-	fn box_error(cause: ImageFileDirectoriesParseError) -> Result<(), SpecificTagParseError>
+	fn box_error(cause: ImageFileDirectoriesParseError) -> Result<(), ChildImageFileDirectoriesParseError>
 	{
-		use SpecificTagParseError::*;
+		use ChildImageFileDirectoriesParseError::*;
 		
 		let cause = Box::try_new_in(cause, Global).map_err(CouldNotAllocateMemoryForImageFileDirectoriesParseError)?;
 		Err(ImageFileDirectoriesParse(cause))

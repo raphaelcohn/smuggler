@@ -2,7 +2,23 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-/// An undefined binary value.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
-#[repr(transparent)]
-pub struct Undefined(u8);
+/// A parse error.
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+pub enum IntegerValuesParseError
+{
+	#[allow(missing_docs)]
+	TagTypeInvalid,
+}
+
+impl Display for IntegerValuesParseError
+{
+	#[inline(always)]
+	fn fmt(&self, f: &mut Formatter) -> fmt::Result
+	{
+		Debug::fmt(self, f)
+	}
+}
+
+impl error::Error for IntegerValuesParseError
+{
+}

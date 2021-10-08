@@ -96,7 +96,7 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn recurse<R>(&mut self, callback: impl FnOnce(&mut Self) -> R) -> Result<R, SpecificTagParseError>
+	pub(in crate::image_file_directory) fn recurse<R>(&mut self, callback: impl FnOnce(&mut Self) -> R) -> Result<R, ChildImageFileDirectoriesParseError>
 	{
 		self.descend()?;
 		let result = callback(self);
@@ -105,11 +105,11 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version
 	}
 	
 	#[inline(always)]
-	fn descend(&mut self) -> Result<(), SpecificTagParseError>
+	fn descend(&mut self) -> Result<(), ChildImageFileDirectoriesParseError>
 	{
 		if unlikely!(self.descent_depth == Self::MaximumDescents.get())
 		{
-			return Err(SpecificTagParseError::MaximumDescentReached)
+			return Err(ChildImageFileDirectoriesParseError::MaximumDescentReached)
 		}
 		self.descent_depth += 1;
 		Ok(())

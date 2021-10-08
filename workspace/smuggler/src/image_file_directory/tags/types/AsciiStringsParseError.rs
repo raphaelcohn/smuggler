@@ -4,13 +4,13 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum FinishTagParseError
+pub enum AsciiStringsParseError
 {
 	#[allow(missing_docs)]
-	PublicTagFinishParse(PublicTagFinishParseError),
+	CouldNotAllocateMemoryForAsciiStringReference(TryReserveError),
 }
 
-impl Display for FinishTagParseError
+impl Display for AsciiStringsParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -19,25 +19,16 @@ impl Display for FinishTagParseError
 	}
 }
 
-impl error::Error for FinishTagParseError
+impl error::Error for AsciiStringsParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use FinishTagParseError::*;
+		use AsciiStringsParseError::*;
 		
 		match self
 		{
-			PublicTagFinishParse(cause) => Some(cause),
+			CouldNotAllocateMemoryForAsciiStringReference(cause) => Some(cause),
 		}
-	}
-}
-
-impl From<PublicTagFinishParseError> for FinishTagParseError
-{
-	#[inline(always)]
-	fn from(cause: PublicTagFinishParseError) -> Self
-	{
-		FinishTagParseError::PublicTagFinishParse(cause)
 	}
 }

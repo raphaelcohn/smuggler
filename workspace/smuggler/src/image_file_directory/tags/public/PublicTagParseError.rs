@@ -4,28 +4,22 @@
 
 /// A parse error.
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum SpecificTagParseError
+pub enum PublicTagParseError
 {
 	#[allow(missing_docs)]
-	UnrecognizedTagType,
+	IntegerValueParse(IntegerValueParseError),
 	
 	#[allow(missing_docs)]
-	SliceOffsetParse(OffsetParseError),
-	
-	#[allow(missing_docs)]
-	CountIsTooLargeForTargetArchitecture,
-	
-	#[allow(missing_docs)]
-	OffsetIsTooLargeForTargetArchitecture(OverflowError),
-	
-	#[allow(missing_docs)]
-	PublicTagParse(PublicTagParseError),
+	IntegerValuesParse(IntegerValuesParseError),
 	
 	#[allow(missing_docs)]
 	UnrecognizedTagParse(UnrecognizedTagParseError),
+	
+	#[allow(missing_docs)]
+	StripByteCountsWithoutStripOffsets,
 }
 
-impl Display for SpecificTagParseError
+impl Display for PublicTagParseError
 {
 	#[inline(always)]
 	fn fmt(&self, f: &mut Formatter) -> fmt::Result
@@ -34,20 +28,18 @@ impl Display for SpecificTagParseError
 	}
 }
 
-impl error::Error for SpecificTagParseError
+impl error::Error for PublicTagParseError
 {
 	#[inline(always)]
 	fn source(&self) -> Option<&(dyn error::Error + 'static)>
 	{
-		use SpecificTagParseError::*;
+		use PublicTagParseError::*;
 		
 		match self
 		{
-			SliceOffsetParse(cause) => Some(cause),
+			IntegerValueParse(cause) => Some(cause),
 			
-			OffsetIsTooLargeForTargetArchitecture(cause) => Some(cause),
-			
-			PublicTagParse(cause) => Some(cause),
+			IntegerValuesParse(cause) => Some(cause),
 			
 			UnrecognizedTagParse(cause) => Some(cause),
 			
@@ -56,20 +48,29 @@ impl error::Error for SpecificTagParseError
 	}
 }
 
-impl From<PublicTagParseError> for SpecificTagParseError
+impl From<IntegerValueParseError> for PublicTagParseError
 {
 	#[inline(always)]
-	fn from(cause: PublicTagParseError) -> Self
+	fn from(cause: IntegerValueParseError) -> Self
 	{
-		SpecificTagParseError::PublicTagParse(cause)
+		PublicTagParseError::IntegerValueParse(cause)
 	}
 }
 
-impl From<UnrecognizedTagParseError> for SpecificTagParseError
+impl From<IntegerValuesParseError> for PublicTagParseError
+{
+	#[inline(always)]
+	fn from(cause: IntegerValuesParseError) -> Self
+	{
+		PublicTagParseError::IntegerValuesParse(cause)
+	}
+}
+
+impl From<UnrecognizedTagParseError> for PublicTagParseError
 {
 	#[inline(always)]
 	fn from(cause: UnrecognizedTagParseError) -> Self
 	{
-		SpecificTagParseError::UnrecognizedTagParse(cause)
+		PublicTagParseError::UnrecognizedTagParse(cause)
 	}
 }

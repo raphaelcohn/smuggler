@@ -100,7 +100,12 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 			}
 			directory_entry_index += Self::SizeOfEntry::<Unit>()
 		}
-		tag_parser.finish::<_, Unit>(common, &mut tags)?;
+		
+		if let Err(cause) = tag_parser.finish::<_, Unit>(common, &mut tags)
+		{
+			return Err(ImageFileDirectoryParseError::from(cause.into()))
+		}
+		
 		Ok(Self(tags))
 	}
 	
