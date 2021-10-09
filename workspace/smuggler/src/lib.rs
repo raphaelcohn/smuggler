@@ -24,68 +24,42 @@
 
 
 #![feature(allocator_api)]
-#![feature(arbitrary_enum_discriminant)]
-#![feature(const_fn_trait_bound)]
-#![feature(core_intrinsics)]
-#![feature(maybe_uninit_array_assume_init)]
-#![feature(maybe_uninit_uninit_array)]
-#![feature(nonnull_slice_from_raw_parts)]
-#![feature(option_result_unwrap_unchecked)]
-#![feature(slice_ptr_get)]
-#![feature(slice_ptr_len)]
-#![feature(try_reserve)]
 
 
 #![doc = include_str!("../README.md")]
 
 
-use std::alloc::Allocator;
-use std::collections::TryReserveError;
-use self::bytes::TiffBytes;
-use self::header::HeaderParseError;
-use self::image_file_directory::ImageFileDirectoriesParseError;
+use crypto_box::ChaChaBox;
+use crypto_box::PublicKey;
+use crypto_box::SalsaBox;
+use crypto_box::SecretKey;
+use crypto_box::generate_nonce;
+use crypto_box::aead;
+use crypto_box::aead::Aead;
+use crypto_box::aead::Payload;
+use crypto_box::aead::consts::U24;
+use crypto_box::aead::generic_array::GenericArray;
+use crypto_box::rand_core::CryptoRng;
+use crypto_box::rand_core::RngCore;
+use crypto_box::rand_core::SeedableRng;
+use std::alloc::Global;
+use std::borrow::Cow;
 use std::error;
 use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use crate::bytes::ByteOrder;
-use crate::bytes::TiffBytesWithOrder;
-use crate::bytes::versions::Version6;
-use crate::bytes::versions::Version6OrBigTiffVersion;
-use crate::bytes::versions::VersionBigTiff;
-use crate::free_space::FreeSpace;
-use crate::header::parse_header_zeroth_image_file_directory_pointer;
-use crate::header::Version;
-use crate::header::parse_header_byte_order;
-use crate::header::VersionParseError;
-use crate::image_file_directory::ImageFileDirectories;
-use crate::image_file_directory::pointer::ImageFileDirectoryPointer;
-use crate::image_file_directory::tags::parsers::TagParserCommon;
-use crate::image_file_directory::tags::public::PublicTag;
 
 
-/// Bytes.
-pub mod bytes;
-
-
-pub(crate) mod collections;
-
-
-mod free_space;
-
-
-/// Header.
-pub mod header;
-
-
-/// Image File Directory (IFD).
-pub mod image_file_directory;
-
-
-/// Offset.
-pub mod offset;
-
-
-include!("Tiff.rs");
-include!("TiffParseError.rs");
+include!("CipherText.rs");
+include!("CipherTextMessageReceived.rs");
+include!("CryptoBox.rs");
+include!("CryptoBoxAlgorithm.rs");
+include!("MessageDecryptionFailedError.rs");
+include!("MessageEncryptionFailedError.rs");
+include!("MessageReceiver.rs");
+include!("MessageSender.rs");
+include!("NoAdditionalAuthenticatedData.rs");
+include!("Nonce.rs");
+include!("PlainText.rs");
+include!("PlainTextMessageToSend.rs");

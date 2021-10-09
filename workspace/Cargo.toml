@@ -4,5 +4,6 @@
 
 [workspace]
 members = [
+	"rtiff",
 	"smuggler",
 ]

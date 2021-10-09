@@ -7,7 +7,7 @@ name = "smuggler"
 description = "smuggler"
 keywords = ["smuggler"]
 categories = []
-license = "MIT"
+license = "AGPL3"
 authors = ["Raphael Cohn <raphael.cohn@stormmq.com>"]
 homepage = "https://github.com/lemonrock/smuggler"
 repository = "https://github.com/lemonrock/smuggler.git"
@@ -21,6 +21,5 @@ version = "0.0.0"
 
 [dependencies]
 likely = "^0.2.0"
-memchr = "^2.4.1"
-strum = { version = "^0.21.0", features = ["derive"] }
-swiss-army-knife = "^0.0.28"
+rtiff = { version = "^0.0.0", path = "../rtiff" }
+crypto_box = { version = "^0.7.0", features = ["alloc", "std", "u64_backend"] }
