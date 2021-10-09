@@ -71,7 +71,7 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 		let image_file_directory_pointer_index = Self::image_file_directory_pointer_index(directory_entries_index, number_of_directory_entry_bytes)?;
 		let image_file_directory_pointer = common.image_file_directory_pointer::<Version>(image_file_directory_pointer_index).map_err(ImageFileDirectoryParseError::NextImageFileDirectoryPointerParse)?;
 		
-		common.record_used_space_slice(image_file_directory_pointer_index, size_of_u64::<Version>());
+		common.record_used_space_slice(image_file_directory_pointer_index, Version::Size);
 		
 		Ok(image_file_directory_pointer)
 	}
@@ -150,34 +150,16 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 	#[inline(always)]
 	const fn SizeOfEntry<Version: Version6OrBigTiffVersion>() -> u64
 	{
-		Self::SizeOfEntryUptoCount::<Version>() + Self::SizeOfOffsetOrValueUnion::<Version>()
+		Self::SizeOfEntryUptoCount::<Version>() + Version::PointerSize
 	}
 	
 	#[inline(always)]
 	const fn SizeOfEntryUptoCount<Version: Version6OrBigTiffVersion>() -> u64
 	{
-		Self::SizeOfFixedEntry + Self::SizeOfCount::<Version>()
+		Self::SizeOfFixedEntry + Version::DirectoryEntryCountSize
 	}
 	
 	const SizeOfFixedEntry: u64 = Self::SizeOfTag + Self::SizeOfType;
-	
-	#[inline(always)]
-	const fn SizeOfCount<Version: Version6OrBigTiffVersion>() -> u64
-	{
-		Self::SizeOfUnit::<Version>()
-	}
-	
-	#[inline(always)]
-	const fn SizeOfOffsetOrValueUnion<Version: Version6OrBigTiffVersion>() -> u64
-	{
-		Self::SizeOfUnit::<Version>()
-	}
-	
-	#[inline(always)]
-	const fn SizeOfUnit<Version: Version6OrBigTiffVersion>() -> u64
-	{
-		size_of_u64::<Version>()
-	}
 	
 	const SizeOfTag: u64 = size_of_u64::<u16>();
 	

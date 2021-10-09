@@ -2,18 +2,15 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use likely::unlikely;
-use crate::header::BigTiffHeaderParseError;
-use crate::header::Version;
-use super::CanBeUnaligned;
-use super::Index;
-use super::OverflowError;
-use super::size_of_u64;
-use super::TiffBytes;
-use super::TiffBytesWithOrder;
+#[doc(hidden)]
+pub trait DirectoryEntries: CanBeUnaligned + Into<u64>
+{
+}
 
+impl DirectoryEntries for u16
+{
+}
 
-include!("DirectoryEntries.rs");
-include!("Version6.rs");
-include!("Version6OrBigTiffUnit.rs");
-include!("VersionBigTiff.rs");
+impl DirectoryEntries for u64
+{
+}

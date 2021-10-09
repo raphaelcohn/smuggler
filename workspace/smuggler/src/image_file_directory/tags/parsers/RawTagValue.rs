@@ -106,7 +106,7 @@ impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 		let slice =
 		{
 			let slice_size_in_bytes = tag_type_size_in_bytes.checked_mul(count).ok_or(CountIsTooLargeForTargetArchitecture)?;
-			let (index, non_null) = if slice_size_in_bytes <= size_of_u64::<Version>()
+			let (index, non_null) = if slice_size_in_bytes <= Version::Size
 			{
 				(offset_or_value_union_index, common.non_null_to_index_unchecked_mut::<u8>(offset_or_value_union_index, slice_size_in_bytes))
 			}
