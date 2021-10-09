@@ -13,7 +13,7 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use crate::image_file_directory::tags::parsers::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffUnit;
 
 
 include!("BigTiffHeaderParseError.rs");

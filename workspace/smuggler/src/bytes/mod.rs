@@ -4,7 +4,7 @@
 
 use crate::image_file_directory::pointer::ImageFileDirectoryPointer;
 use crate::image_file_directory::pointer::ImageFileDirectoryPointerParseError;
-use crate::image_file_directory::tags::parsers::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffUnit;
 use crate::image_file_directory::tags::types::Unaligned;
 use crate::offset::Offset;
 use crate::offset::OffsetParseError;
@@ -39,6 +39,10 @@ use swiss_army_knife::non_zero::new_non_zero_usize;
 
 
 mod pointer_to_index_lengths;
+
+
+/// Contains version variants of logic.
+pub mod versions;
 
 
 include!("Byte.rs");
