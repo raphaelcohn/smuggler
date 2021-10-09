@@ -16,7 +16,7 @@ pub struct Tiff<'tiff_bytes, A: Allocator>
 	pub image_file_directories: ImageFileDirectories<A, PublicTag<'tiff_bytes, A>>,
 	
 	#[allow(missing_docs)]
-	pub free_space: FreeSpace,
+	pub free_space: FreeSpace<A>,
 }
 
 impl<'tiff_bytes, A: Allocator + Clone> Tiff<'tiff_bytes, A>
@@ -35,11 +35,17 @@ impl<'tiff_bytes, A: Allocator + Clone> Tiff<'tiff_bytes, A>
 		use HeaderParseError::VersionParse;
 		use VersionParseError::*;
 		
+		#[inline(always)]
+		fn new_tag_parser_common<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, allocator: &'allocator A) -> Result<TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, TiffParseError>
+		{
+			TagParserCommon::new(tiff_bytes_with_order, allocator).map_err(TiffParseError::OutOfMemoryCreatingTagParserCommon)
+		}
+		
 		match tiff_bytes_with_order.unaligned_checked(2).map_err(|cause| VersionParse(TooFewBytesForVersion(cause)))?
 		{
-			Version6::U16 => Self::parse_remainder_of_file::<_, Version6>(TagParserCommon::new(tiff_bytes_with_order, allocator)),
+			Version6::U16 => Self::parse_remainder_of_file::<_, Version6>(new_tag_parser_common(tiff_bytes_with_order, allocator)?),
 			
-			VersionBigTiff::U16 => Self::parse_remainder_of_file::<_, VersionBigTiff>(TagParserCommon::new(tiff_bytes_with_order, allocator)),
+			VersionBigTiff::U16 => Self::parse_remainder_of_file::<_, VersionBigTiff>(new_tag_parser_common(tiff_bytes_with_order, allocator)?),
 			
 			version @ _ => Err(VersionParse(UnknownVersion { version }))?
 		}

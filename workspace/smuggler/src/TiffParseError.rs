@@ -10,6 +10,9 @@ pub enum TiffParseError
 	HeaderParse(HeaderParseError),
 	
 	#[allow(missing_docs)]
+	OutOfMemoryCreatingTagParserCommon(TryReserveError),
+	
+	#[allow(missing_docs)]
 	ImageFileDirectoriesParse(ImageFileDirectoriesParseError),
 }
 
@@ -32,6 +35,8 @@ impl error::Error for TiffParseError
 		match self
 		{
 			HeaderParse(cause) => Some(cause),
+			
+			OutOfMemoryCreatingTagParserCommon(cause) => Some(cause),
 			
 			ImageFileDirectoriesParse(cause) => Some(cause),
 		}

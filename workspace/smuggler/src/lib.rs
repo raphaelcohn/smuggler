@@ -40,6 +40,7 @@
 
 
 use std::alloc::Allocator;
+use std::collections::TryReserveError;
 use self::bytes::TiffBytes;
 use self::header::HeaderParseError;
 use self::image_file_directory::ImageFileDirectoriesParseError;
@@ -53,13 +54,13 @@ use crate::bytes::TiffBytesWithOrder;
 use crate::bytes::versions::Version6;
 use crate::bytes::versions::Version6OrBigTiffVersion;
 use crate::bytes::versions::VersionBigTiff;
+use crate::free_space::FreeSpace;
 use crate::header::parse_header_zeroth_image_file_directory_pointer;
 use crate::header::Version;
 use crate::header::parse_header_byte_order;
 use crate::header::VersionParseError;
 use crate::image_file_directory::ImageFileDirectories;
 use crate::image_file_directory::pointer::ImageFileDirectoryPointer;
-use crate::image_file_directory::tags::parsers::FreeSpace;
 use crate::image_file_directory::tags::parsers::TagParserCommon;
 use crate::image_file_directory::tags::public::PublicTag;
 
@@ -69,6 +70,9 @@ pub mod bytes;
 
 
 pub(crate) mod collections;
+
+
+mod free_space;
 
 
 /// Header.

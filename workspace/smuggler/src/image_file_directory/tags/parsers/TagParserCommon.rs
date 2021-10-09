@@ -13,7 +13,7 @@ pub(crate) struct TagParserCommon<'tiff_bytes, 'allocator, TB: TiffBytes, A: All
 	
 	seen_image_file_directory_pointers: HashSet<ImageFileDirectoryPointer>,
 	
-	free_space: FreeSpace,
+	free_space: FreeSpace<A>,
 
 	marker: PhantomData<Version>,
 }
@@ -44,22 +44,25 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Vers
 	const MaximumDescents: NonZeroU8 = new_non_zero_u8(3);
 	
 	#[inline(always)]
-	pub(crate) fn new(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, allocator: &'allocator A) -> Self
+	pub(crate) fn new(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, allocator: &'allocator A) -> Result<Self, TryReserveError>
 	{
-		Self
-		{
-			tiff_bytes_with_order,
-		
-			allocator,
-		
-			descent_depth: 0,
-		
-			seen_image_file_directory_pointers: HashSet::new(),
-		
-			free_space: FreeSpace::new(),
-		
-			marker: PhantomData,
-		}
+		Ok
+		(
+			Self
+			{
+				free_space: FreeSpace::new(allocator.clone(), &tiff_bytes_with_order)?,
+				
+				tiff_bytes_with_order,
+			
+				allocator,
+			
+				descent_depth: 0,
+			
+				seen_image_file_directory_pointers: HashSet::new(),
+			
+				marker: PhantomData,
+			}
+		)
 	}
 	
 	#[inline(always)]
@@ -123,7 +126,7 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Vers
 	}
 	
 	#[inline(always)]
-	pub(crate) fn finish(self) -> (ByteOrder, FreeSpace)
+	pub(crate) fn finish(self) -> (ByteOrder, FreeSpace<A>)
 	{
 		(self.byte_order, self.free_space)
 	}

@@ -14,7 +14,7 @@ use crate::offset::Offset;
 use crate::offset::OffsetParseError;
 use likely::unlikely;
 use std::alloc::Allocator;
-use std::collections::HashSet;
+use std::collections::{HashSet, TryReserveError};
 use std::error;
 use std::fmt::Debug;
 use std::fmt::Display;
@@ -57,10 +57,10 @@ use super::values::UnsignedIntegers;
 use super::unrecognized::UnrecognizedTagFinishParseError;
 use super::unrecognized::UnrecognizedTagParseError;
 use swiss_army_knife::non_zero::new_non_zero_u8;
+use crate::free_space::FreeSpace;
 
 
 include!("FinishParseError.rs");
-include!("FreeSpace.rs");
 include!("RawTagValue.rs");
 include!("SpecificTagParseError.rs");
 include!("TagParserCommon.rs");

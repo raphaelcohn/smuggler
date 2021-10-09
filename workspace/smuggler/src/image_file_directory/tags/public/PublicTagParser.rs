@@ -300,7 +300,7 @@ impl<'tiff_bytes, A: Allocator + Clone> PublicTagParser<'tiff_bytes, A>
 			byte_counts.into()
 		};
 		
-		let mut array = Vec::new_with_capacity(number_of_offsets, common.allocator()).map_err(CouldNotAllocateMemoryForOffsets)?;
+		let array = Vec::new_with_capacity(number_of_offsets, common.allocator()).map_err(CouldNotAllocateMemoryForOffsets)?;
 		
 		use UnsignedIntegerValues::*;
 		match (offsets, byte_counts)
