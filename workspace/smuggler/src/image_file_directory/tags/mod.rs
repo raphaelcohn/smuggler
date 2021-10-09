@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::bytes::VecExt;
+use crate::collections::VecExt;
 use likely::unlikely;
 use self::parsers::TagEventHandler;
 use self::parsers::TagParseError;

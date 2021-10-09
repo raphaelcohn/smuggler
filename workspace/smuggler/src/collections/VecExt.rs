@@ -3,7 +3,7 @@
 
 
 /// A vector extension trait.
-pub trait VecExt<T, A: Allocator>: Sized
+pub(crate) trait VecExt<T, A: Allocator>: Sized
 {
 	/// New with capacity.
 	fn new_with_capacity<AUI: AsUsizeIndex>(length: AUI, allocator: A) -> Result<Self, TryReserveError>;

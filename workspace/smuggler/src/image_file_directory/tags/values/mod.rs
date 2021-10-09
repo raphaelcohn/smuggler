@@ -6,7 +6,7 @@ use crate::bytes::ByteOrder;
 use crate::bytes::CanBeUnaligned;
 use crate::bytes::NonNullExt;
 use crate::bytes::TiffBytes;
-use crate::bytes::VecExt;
+use crate::collections::VecExt;
 use likely::unlikely;
 use memchr::memchr;
 use std::alloc::Allocator;

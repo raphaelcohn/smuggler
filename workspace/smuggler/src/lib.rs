@@ -64,8 +64,11 @@ use crate::image_file_directory::tags::parsers::TagParserCommon;
 use crate::image_file_directory::tags::public::PublicTag;
 
 
-/// Collections.
+/// Bytes.
 pub mod bytes;
+
+
+pub(crate) mod collections;
 
 
 /// Header.

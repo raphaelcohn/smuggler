@@ -5,7 +5,7 @@
 use crate::bytes::ByteOrUnaligned;
 use crate::bytes::OverflowError;
 use crate::bytes::TiffBytes;
-use crate::bytes::VecExt;
+use crate::collections::VecExt;
 use likely::unlikely;
 use std::alloc::Allocator;
 use std::cmp::Ordering;
