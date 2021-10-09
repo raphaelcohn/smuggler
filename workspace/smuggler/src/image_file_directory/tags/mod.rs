@@ -31,8 +31,8 @@ pub mod public;
 pub mod tag_identifiers;
 
 
-/// Tag types.
-pub mod types;
+/// Tag values.
+pub mod values;
 
 
 /// Unrecognized.
