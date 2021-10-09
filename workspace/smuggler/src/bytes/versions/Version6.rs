@@ -4,7 +4,7 @@
 
 pub(crate) type Version6 = u32;
 
-impl Version6OrBigTiffUnit for Version6
+impl Version6OrBigTiffVersion for Version6
 {
 	type NumberOfDirectoryEntries = u16;
 	

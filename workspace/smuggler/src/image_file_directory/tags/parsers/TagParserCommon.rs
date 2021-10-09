@@ -3,7 +3,7 @@
 
 
 #[derive(Debug, Eq, PartialEq)]
-pub(crate) struct TagParserCommon<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>
+pub(crate) struct TagParserCommon<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>
 {
 	tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>,
 	
@@ -15,10 +15,10 @@ pub(crate) struct TagParserCommon<'tiff_bytes, 'allocator, TB: TiffBytes, A: All
 	
 	free_space: FreeSpace,
 
-	marker: PhantomData<Unit>,
+	marker: PhantomData<Version>,
 }
 
-impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit> Deref for TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>
+impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion> Deref for TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>
 {
 	type Target = TiffBytesWithOrder<'tiff_bytes, TB>;
 	
@@ -29,7 +29,7 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version
 	}
 }
 
-impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit> DerefMut for TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>
+impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion> DerefMut for TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>
 {
 	#[inline(always)]
 	fn deref_mut(&mut self) -> &mut Self::Target
@@ -38,7 +38,7 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version
 	}
 }
 
-impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit> TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>
+impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion> TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>
 {
 	/// This allows for 4 levels of Image File Directory (IFD).
 	const MaximumDescents: NonZeroU8 = new_non_zero_u8(3);

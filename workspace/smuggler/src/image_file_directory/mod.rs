@@ -18,7 +18,7 @@ use self::tags::parsers::RawTagValue;
 use self::tags::parsers::TagParseError;
 use self::tags::parsers::TagParser;
 use self::tags::parsers::TagParserCommon;
-use crate::bytes::versions::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffVersion;
 use self::tags::public::PublicTagParser;
 use self::tags::TagType;
 use std::alloc::Allocator;

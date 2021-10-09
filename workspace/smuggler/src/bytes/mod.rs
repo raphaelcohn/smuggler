@@ -4,7 +4,7 @@
 
 use crate::image_file_directory::pointer::ImageFileDirectoryPointer;
 use crate::image_file_directory::pointer::ImageFileDirectoryPointerParseError;
-use crate::bytes::versions::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffVersion;
 use crate::image_file_directory::tags::values::Unaligned;
 use crate::offset::Offset;
 use crate::offset::OffsetParseError;

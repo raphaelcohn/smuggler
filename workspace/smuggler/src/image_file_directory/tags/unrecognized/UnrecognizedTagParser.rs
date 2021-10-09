@@ -12,15 +12,15 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<Unrecog
 	type TagParseError = UnrecognizedTagParseError;
 	
 	#[inline(always)]
-	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, _common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, _tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>
+	fn finish<TB: TiffBytes, Version: Version6OrBigTiffVersion>(self, _common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, _tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>
 	{
 		Ok(())
 	}
 	
 	#[inline(always)]
-	fn parse<TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>
+	fn parse<TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>
 	{
-		tag_event_handler.handle_tag_event(UnrecognizedTag::parse::<_, Unit>(common, tag_identifier, tag_type, raw_tag_value)?);
+		tag_event_handler.handle_tag_event(UnrecognizedTag::parse::<_, Version>(common, tag_identifier, tag_type, raw_tag_value)?);
 		Ok(())
 	}
 }

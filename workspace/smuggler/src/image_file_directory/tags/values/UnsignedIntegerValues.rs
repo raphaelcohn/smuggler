@@ -43,7 +43,7 @@ impl<'tiff_bytes> IntegerValues for UnsignedIntegerValues<'tiff_bytes>
 impl<'tiff_bytes> UnsignedIntegerValues<'tiff_bytes>
 {
 	#[inline(always)]
-	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, IntegerValuesParseError>
+	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, IntegerValuesParseError>
 	{
 		use TagType::*;
 		use UnsignedIntegerValues::*;

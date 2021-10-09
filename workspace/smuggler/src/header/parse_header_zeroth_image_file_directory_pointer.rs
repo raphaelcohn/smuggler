@@ -3,15 +3,15 @@
 
 
 #[inline(always)]
-pub(super) fn parse_header_zeroth_image_file_directory_pointer<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>) -> Result<ImageFileDirectoryPointer, HeaderParseError>
+pub(super) fn parse_header_zeroth_image_file_directory_pointer<TB: TiffBytes, Version: Version6OrBigTiffVersion>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>) -> Result<ImageFileDirectoryPointer, HeaderParseError>
 {
-	Unit::parse_header_constants(tiff_bytes_with_order)?;
+	Version::parse_header_constants(tiff_bytes_with_order)?;
 	
 	let zeroth_image_file_directory_pointer =
 	{
 		use ZerothImageFileDirectoryPointerParseError::*;
 		
-		let offset = tiff_bytes_with_order.offset::<Unit>(Unit::IndexOfZerothImageFileDirectory);
+		let offset = tiff_bytes_with_order.offset::<Version>(Version::IndexOfZerothImageFileDirectory);
 		let pointer = ImageFileDirectoryPointer::new_unchecked(offset).map_err(PointerToZerothImageFileDirectory)?;
 		pointer.ok_or(ThereMustBeAtLeastOneImageFileDirectory)?
 	};

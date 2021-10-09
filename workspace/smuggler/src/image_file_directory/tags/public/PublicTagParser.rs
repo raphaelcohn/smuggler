@@ -49,7 +49,7 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 	type TagParseError = PublicTagParseError;
 	
 	#[inline(always)]
-	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, _common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, _tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>
+	fn finish<TB: TiffBytes, Version: Version6OrBigTiffVersion>(self, _common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, _tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>
 	{
 		use PublicTagFinishParseError::*;
 		
@@ -76,7 +76,7 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 	}
 	
 	#[inline(always)]
-	fn parse<TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>
+	fn parse<TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>
 	{
 		// <https://www.awaresystems.be/imaging/tiff/tifftags.html>
 		let tag = match tag_identifier
@@ -271,7 +271,7 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			
 			// TODO: FreeSpace implementation!!!
 			
-			_ => PublicTag::Unrecognized(UnrecognizedTag::parse::<_, Unit>(common, tag_identifier, tag_type, raw_tag_value)?),
+			_ => PublicTag::Unrecognized(UnrecognizedTag::parse::<_, Version>(common, tag_identifier, tag_type, raw_tag_value)?),
 		};
 		
 		tag_event_handler.handle_tag_event(tag);
@@ -281,7 +281,7 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 
 impl<'tiff_bytes, A: Allocator + Clone> PublicTagParser<'tiff_bytes, A>
 {
-	fn parse_offsets_array<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, offsets: &mut Option<UnsignedIntegers<'tiff_bytes, u32>>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Vec<&'tiff_bytes [u8], A>, OffsetsArrayParseError>
+	fn parse_offsets_array<'allocator, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, offsets: &mut Option<UnsignedIntegers<'tiff_bytes, u32>>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Vec<&'tiff_bytes [u8], A>, OffsetsArrayParseError>
 	{
 		use OffsetsArrayParseError::*;
 		
@@ -352,7 +352,7 @@ impl<'tiff_bytes, A: Allocator + Clone> PublicTagParser<'tiff_bytes, A>
 	}
 	
 	#[inline(always)]
-	fn loop_over<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit, Offset: ByteOrUnaligned, ByteCount: ByteOrUnaligned>(mut array: Vec<&'tiff_bytes [u8], A>, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, offsets: &[Offset], byte_counts: &[ByteCount]) -> Result<Vec<&'tiff_bytes [u8], A>, OffsetsArrayParseError>
+	fn loop_over<'allocator, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion, Offset: ByteOrUnaligned, ByteCount: ByteOrUnaligned>(mut array: Vec<&'tiff_bytes [u8], A>, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, offsets: &[Offset], byte_counts: &[ByteCount]) -> Result<Vec<&'tiff_bytes [u8], A>, OffsetsArrayParseError>
 	{
 		for index in 0 .. array.capacity()
 		{

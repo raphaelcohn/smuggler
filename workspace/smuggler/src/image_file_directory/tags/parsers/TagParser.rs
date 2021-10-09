@@ -8,15 +8,15 @@ pub(in crate::image_file_directory) trait TagParser<'tiff_bytes, 'allocator, A: 
 	
 	type TagParseError: error::Error + Into<SpecificTagParseError>;
 	
-	fn finish<TB: TiffBytes, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>;
+	fn finish<TB: TiffBytes, Version: Version6OrBigTiffVersion>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_event_handler: &mut TEH) -> Result<(), Self::FinishTagParseError>;
 	
 	#[inline(always)]
-	fn parse_tag<TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, tag_type_size_in_bytes: u64, count: u64, offset_or_value_union_index: Index) -> Result<(), SpecificTagParseError>
+	fn parse_tag<TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, tag_type_size_in_bytes: u64, count: u64, offset_or_value_union_index: Index) -> Result<(), SpecificTagParseError>
 	{
-		let raw_tag_value = RawTagValue::parse::<_, _, Unit>(common, tag_type_size_in_bytes, count, offset_or_value_union_index)?;
+		let raw_tag_value = RawTagValue::parse::<_, _, Version>(common, tag_type_size_in_bytes, count, offset_or_value_union_index)?;
 		
-		self.parse::<TB, Unit>(common, tag_event_handler, tag_identifier, tag_type, raw_tag_value).map_err(Self::TagParseError::into)
+		self.parse::<TB, Version>(common, tag_event_handler, tag_identifier, tag_type, raw_tag_value).map_err(Self::TagParseError::into)
 	}
 	
-	fn parse<TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>;
+	fn parse<TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(&mut self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_event_handler: &mut TEH, tag_identifier: TagIdentifier, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<(), Self::TagParseError>;
 }

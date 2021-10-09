@@ -17,7 +17,7 @@ use super::parsers::RawTagValue;
 use super::parsers::TagEventHandler;
 use super::parsers::TagParser;
 use super::parsers::TagParserCommon;
-use crate::bytes::versions::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffVersion;
 use super::values::AsciiStrings;
 use super::values::AsciiStringsParseError;
 use super::values::RationalFraction;

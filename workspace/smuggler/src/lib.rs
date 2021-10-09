@@ -51,7 +51,7 @@ use std::fmt::Formatter;
 use crate::bytes::ByteOrder;
 use crate::bytes::TiffBytesWithOrder;
 use crate::bytes::versions::Version6;
-use crate::bytes::versions::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffVersion;
 use crate::bytes::versions::VersionBigTiff;
 use crate::header::parse_header_zeroth_image_file_directory_pointer;
 use crate::header::Version;

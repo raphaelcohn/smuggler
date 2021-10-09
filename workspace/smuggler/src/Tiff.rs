@@ -46,7 +46,7 @@ impl<'tiff_bytes, A: Allocator + Clone> Tiff<'tiff_bytes, A>
 	}
 	
 	#[inline(always)]
-	fn parse_remainder_of_file<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(mut common: TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>) -> Result<Self, TiffParseError>
+	fn parse_remainder_of_file<'allocator, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(mut common: TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>) -> Result<Self, TiffParseError>
 	{
 		let zeroth_image_file_directory_pointer = Self::parse_remainder_of_header(&mut common)?;
 		
@@ -59,7 +59,7 @@ impl<'tiff_bytes, A: Allocator + Clone> Tiff<'tiff_bytes, A>
 			{
 				byte_order,
 				
-				version: Unit::Version,
+				version: Version::Version,
 				
 				image_file_directories,
 			
@@ -69,10 +69,10 @@ impl<'tiff_bytes, A: Allocator + Clone> Tiff<'tiff_bytes, A>
 	}
 	
 	#[inline(always)]
-	fn parse_remainder_of_header<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>) -> Result<ImageFileDirectoryPointer, TiffParseError>
+	fn parse_remainder_of_header<'allocator, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>) -> Result<ImageFileDirectoryPointer, TiffParseError>
 	{
-		common.record_used_space_slice(0, Unit::HeaderSizeInBytes);
-		let zeroth_image_file_directory_pointer = parse_header_zeroth_image_file_directory_pointer::<TB, Unit>(&common)?;
+		common.record_used_space_slice(0, Version::HeaderSizeInBytes);
+		let zeroth_image_file_directory_pointer = parse_header_zeroth_image_file_directory_pointer::<TB, Version>(&common)?;
 		Ok(zeroth_image_file_directory_pointer)
 	}
 }

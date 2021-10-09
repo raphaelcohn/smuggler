@@ -10,16 +10,16 @@ pub trait TiffBytes
 	
 	#[doc(hidden)]
 	#[inline(always)]
-	fn image_file_directory_pointer<Unit: Version6OrBigTiffUnit>(&self, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
+	fn image_file_directory_pointer<Version: Version6OrBigTiffVersion>(&self, index: Index, byte_order: ByteOrder) -> Result<Option<ImageFileDirectoryPointer>, ImageFileDirectoryPointerParseError>
 	{
-		ImageFileDirectoryPointer::new_unchecked(self.offset::<Unit>(index, byte_order))
+		ImageFileDirectoryPointer::new_unchecked(self.offset::<Version>(index, byte_order))
 	}
 	
 	#[doc(hidden)]
 	#[inline(always)]
-	fn offset<Unit: Version6OrBigTiffUnit>(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
+	fn offset<Version: Version6OrBigTiffVersion>(&self, index: Index, byte_order: ByteOrder) -> Result<Offset, OffsetParseError>
 	{
-		let raw_offset = match self.unaligned_checked::<Unit>(index, byte_order)
+		let raw_offset = match self.unaligned_checked::<Version>(index, byte_order)
 		{
 			Ok(raw_offset) => raw_offset.into(),
 			

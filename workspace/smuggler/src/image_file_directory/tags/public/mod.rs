@@ -19,7 +19,7 @@ use super::TagKey;
 use super::unrecognized::UnrecognizedRepresentationValue;
 use super::parsers::TagParserCommon;
 use super::parsers::TagParser;
-use crate::bytes::versions::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffVersion;
 use super::tag_identifiers::public::baseline::Artist;
 use super::tag_identifiers::public::baseline::BitsPerSample;
 use super::tag_identifiers::public::baseline::CellLength;

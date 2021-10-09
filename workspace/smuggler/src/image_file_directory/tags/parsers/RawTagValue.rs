@@ -21,98 +21,98 @@ impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn unaligned_slice<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, CBU: CanBeUnaligned>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>) -> &'tiff_bytes [Unaligned<CBU>]
+	pub(in crate::image_file_directory) fn unaligned_slice<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, CBU: CanBeUnaligned>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>) -> &'tiff_bytes [Unaligned<CBU>]
 	{
 		CBU::slice_unaligned_and_byte_swap_as_appropriate(self.count, common.byte_order(), self.slice)
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn ascii_strings<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>) -> Result<AsciiStrings<'tiff_bytes, A>, AsciiStringsParseError>
+	pub(in crate::image_file_directory) fn ascii_strings<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>) -> Result<AsciiStrings<'tiff_bytes, A>, AsciiStringsParseError>
 	{
 		AsciiStrings::parse(common.allocator(), self.byte_slice())
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn bitfield_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, UINT: UnsignedIntegerNormalizedType, BF: BitField>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<BitFieldInteger<UINT, BF>, IntegerValueParseError>
+	pub(in crate::image_file_directory) fn bitfield_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, UINT: UnsignedIntegerNormalizedType, BF: BitField>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<BitFieldInteger<UINT, BF>, IntegerValueParseError>
 	{
 		self.unsigned_integer_value(common, tag_type).map(BitFieldInteger::from)
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn enum_unsigned_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<EnumUnsignedInteger<UINT, UE>, IntegerValueParseError>
+	pub(in crate::image_file_directory) fn enum_unsigned_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, UINT: UnsignedIntegerNormalizedType, UE: UnsignedEnum>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<EnumUnsignedInteger<UINT, UE>, IntegerValueParseError>
 	{
 		self.unsigned_integer_value(common, tag_type).map(EnumUnsignedInteger::from)
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn enum_signed_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, SINT: SignedIntegerNormalizedType, SE: SignedEnum>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<EnumSignedInteger<SINT, SE>, IntegerValueParseError>
+	pub(in crate::image_file_directory) fn enum_signed_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, SINT: SignedIntegerNormalizedType, SE: SignedEnum>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<EnumSignedInteger<SINT, SE>, IntegerValueParseError>
 	{
 		self.signed_integer_value(common, tag_type).map(EnumSignedInteger::from)
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn unsigned_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, UINT: UnsignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<UnsignedInteger<UINT>, IntegerValueParseError>
+	pub(in crate::image_file_directory) fn unsigned_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, UINT: UnsignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<UnsignedInteger<UINT>, IntegerValueParseError>
 	{
 		self.unsigned_integer_value(common, tag_type).map(UnsignedInteger::from)
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn signed_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, SINT: SignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<SignedInteger<SINT>, IntegerValueParseError>
+	pub(in crate::image_file_directory) fn signed_integer<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, SINT: SignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<SignedInteger<SINT>, IntegerValueParseError>
 	{
 		self.signed_integer_value(common, tag_type).map(SignedInteger::from)
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn unsigned_integers<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, UINT: UnsignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<UnsignedIntegers<'tiff_bytes, UINT>, IntegerValuesParseError>
+	pub(in crate::image_file_directory) fn unsigned_integers<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, UINT: UnsignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<UnsignedIntegers<'tiff_bytes, UINT>, IntegerValuesParseError>
 	{
 		self.unsigned_integer_values(common, tag_type).map(UnsignedIntegers::from)
 	}
 	
 	#[inline(always)]
-	pub(in crate::image_file_directory) fn signed_integers<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit, SINT: SignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<SignedIntegers<'tiff_bytes, SINT>, IntegerValuesParseError>
+	pub(in crate::image_file_directory) fn signed_integers<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion, SINT: SignedIntegerNormalizedType>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<SignedIntegers<'tiff_bytes, SINT>, IntegerValuesParseError>
 	{
 		self.signed_integer_values(common, tag_type).map(SignedIntegers::from)
 	}
 	
 	#[inline(always)]
-	fn unsigned_integer_value<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<UnsignedIntegerValue, IntegerValueParseError>
+	fn unsigned_integer_value<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<UnsignedIntegerValue, IntegerValueParseError>
 	{
 		UnsignedIntegerValue::parse(common.byte_order(), tag_type, self)
 	}
 	
 	#[inline(always)]
-	fn signed_integer_value<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<SignedIntegerValue, IntegerValueParseError>
+	fn signed_integer_value<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<SignedIntegerValue, IntegerValueParseError>
 	{
 		SignedIntegerValue::parse(common.byte_order(), tag_type, self)
 	}
 	
 	#[inline(always)]
-	fn unsigned_integer_values<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<UnsignedIntegerValues<'tiff_bytes>, IntegerValuesParseError>
+	fn unsigned_integer_values<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<UnsignedIntegerValues<'tiff_bytes>, IntegerValuesParseError>
 	{
 		UnsignedIntegerValues::parse(common, tag_type, self)
 	}
 	
 	#[inline(always)]
-	fn signed_integer_values<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType) -> Result<SignedIntegerValues<'tiff_bytes>, IntegerValuesParseError>
+	fn signed_integer_values<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(self, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType) -> Result<SignedIntegerValues<'tiff_bytes>, IntegerValuesParseError>
 	{
 		SignedIntegerValues::parse(common, tag_type, self)
 	}
 	
 	#[inline(always)]
-	fn parse<'allocator, TB: TiffBytes, A: Allocator + Clone, Unit: Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type_size_in_bytes: u64, count: u64, offset_or_value_union_index: u64) -> Result<Self, SpecificTagParseError>
+	fn parse<'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type_size_in_bytes: u64, count: u64, offset_or_value_union_index: u64) -> Result<Self, SpecificTagParseError>
 	{
 		use SpecificTagParseError::*;
 		
 		let slice =
 		{
 			let slice_size_in_bytes = tag_type_size_in_bytes.checked_mul(count).ok_or(CountIsTooLargeForTargetArchitecture)?;
-			let (index, non_null) = if slice_size_in_bytes <= size_of_u64::<Unit>()
+			let (index, non_null) = if slice_size_in_bytes <= size_of_u64::<Version>()
 			{
 				(offset_or_value_union_index, common.non_null_to_index_unchecked_mut::<u8>(offset_or_value_union_index, slice_size_in_bytes))
 			}
 			else
 			{
-				let raw_offset = common.unaligned_unchecked::<Unit>(offset_or_value_union_index).into();
+				let raw_offset = common.unaligned_unchecked::<Version>(offset_or_value_union_index).into();
 				let index = Offset::parse_offset_value(common.tiff_bytes, raw_offset).map_err(SliceOffsetParse)?.index();
 				(index, common.non_null_to_index_checked_mut::<u8>(index, slice_size_in_bytes).map_err(OffsetIsTooLargeForTargetArchitecture)?)
 			};

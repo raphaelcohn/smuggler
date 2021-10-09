@@ -63,7 +63,7 @@ pub enum UnrecognizedTagValue<'tiff_bytes, A: Allocator>
 impl<'tiff_bytes, A: Allocator + Clone> UnrecognizedTagValue<'tiff_bytes, A>
 {
 	#[inline(always)]
-	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, Unit: 'tiff_bytes + Version6OrBigTiffUnit>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Unit>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, UnrecognizedTagParseError>
+	pub(in crate::image_file_directory::tags) fn parse<'allocator, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_type: TagType, raw_tag_value: RawTagValue<'tiff_bytes>) -> Result<Self, UnrecognizedTagParseError>
 	{
 		use UnrecognizedTagValue::*;
 		
@@ -93,13 +93,13 @@ impl<'tiff_bytes, A: Allocator + Clone> UnrecognizedTagValue<'tiff_bytes, A>
 			
 			TagType::DOUBLE => DOUBLE(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::IFD => IFD(ImageFileDirectories::parse_child_image_file_directories::<UnrecognizedTagParser, _, Unit>(common, raw_tag_value)?),
+			TagType::IFD => IFD(ImageFileDirectories::parse_child_image_file_directories::<UnrecognizedTagParser, _, Version>(common, raw_tag_value)?),
 			
 			TagType::LONG8 => LONG8(raw_tag_value.unaligned_slice(common)),
 			
 			TagType::SLONG8 => SLONG8(raw_tag_value.unaligned_slice(common)),
 			
-			TagType::IFD8 => IFD8(ImageFileDirectories::parse_child_image_file_directories::<UnrecognizedTagParser, _, Unit>(common, raw_tag_value)?),
+			TagType::IFD8 => IFD8(ImageFileDirectories::parse_child_image_file_directories::<UnrecognizedTagParser, _, Version>(common, raw_tag_value)?),
 		};
 		Ok(this)
 	}

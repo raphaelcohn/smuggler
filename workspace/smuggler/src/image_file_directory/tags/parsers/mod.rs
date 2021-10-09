@@ -10,7 +10,7 @@ use crate::bytes::OverflowError;
 use crate::bytes::TiffBytes;
 use crate::bytes::TiffBytesWithOrder;
 use crate::bytes::size_of_u64;
-use crate::bytes::versions::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffVersion;
 use crate::offset::Offset;
 use crate::offset::OffsetParseError;
 use likely::unlikely;

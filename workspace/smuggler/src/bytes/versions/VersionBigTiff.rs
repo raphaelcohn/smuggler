@@ -4,7 +4,7 @@
 
 pub(crate) type VersionBigTiff = u64;
 
-impl Version6OrBigTiffUnit for VersionBigTiff
+impl Version6OrBigTiffVersion for VersionBigTiff
 {
 	type NumberOfDirectoryEntries = u64;
 	

@@ -3,7 +3,7 @@
 
 
 #[doc(hidden)]
-pub trait Version6OrBigTiffUnit: CanBeUnaligned + Into<u64>
+pub trait Version6OrBigTiffVersion: CanBeUnaligned + Into<u64>
 {
 	type NumberOfDirectoryEntries: CanBeUnaligned + Into<u64>;
 	

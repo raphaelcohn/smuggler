@@ -31,7 +31,7 @@ use strum::IntoEnumIterator;
 use super::TagType;
 use super::parsers::RawTagValue;
 use super::parsers::TagParserCommon;
-use crate::bytes::versions::Version6OrBigTiffUnit;
+use crate::bytes::versions::Version6OrBigTiffVersion;
 use swiss_army_knife::get_unchecked::GetUnchecked;
 use swiss_army_knife::non_zero::new_non_null;
 use swiss_army_knife::non_zero::new_non_zero_usize;
