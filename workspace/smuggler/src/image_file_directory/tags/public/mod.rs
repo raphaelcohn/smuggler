@@ -14,7 +14,7 @@ use std::mem::transmute;
 use super::EnumRepresentationU16;
 use super::RawTagKey;
 use super::Tag;
-use super::TagIdentifier;
+use super::tag_identifiers::TagIdentifier;
 use super::TagKey;
 use super::unrecognized::UnrecognizedRepresentationValue;
 use super::parsers::TagParserCommon;

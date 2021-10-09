@@ -27,7 +27,7 @@ use std::ops::Deref;
 use std::ops::DerefMut;
 use std::ptr::NonNull;
 use super::Tag;
-use super::TagIdentifier;
+use super::tag_identifiers::TagIdentifier;
 use super::public::PublicTagFinishParseError;
 use super::super::ImageFileDirectoriesParseError;
 use super::super::pointer::ImageFileDirectoryPointer;

@@ -5,6 +5,7 @@
 use crate::bytes::VecExt;
 use likely::unlikely;
 use self::parsers::TagEventHandler;
+use self::tag_identifiers::TagIdentifier;
 use std::alloc::Allocator;
 use std::cmp::Ordering;
 use std::collections::TryReserveError;
@@ -25,7 +26,8 @@ pub mod parsers;
 pub mod public;
 
 
-pub(in crate::image_file_directory::tags) mod tag_identifiers;
+/// Tag identifiers.
+pub mod tag_identifiers;
 
 
 /// Tag types.
@@ -39,6 +41,5 @@ pub mod unrecognized;
 include!("EnumRepresentationU16.rs");
 include!("RawTagKey.rs");
 include!("Tag.rs");
-include!("TagIdentifier.rs");
 include!("TagKey.rs");
 include!("Tags.rs");

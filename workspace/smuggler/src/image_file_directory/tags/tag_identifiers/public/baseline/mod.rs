@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use super::super::super::TagIdentifier;
+use super::super::TagIdentifier;
 
 
 /// A general indication of the kind of data contained in this subfile.

@@ -12,7 +12,7 @@ use likely::unlikely;
 use self::pointer::ImageFileDirectoryPointer;
 use self::pointer::ImageFileDirectoryPointerParseError;
 use self::tags::Tag;
-use self::tags::TagIdentifier;
+use self::tags::tag_identifiers::TagIdentifier;
 use self::tags::Tags;
 use self::tags::parsers::RawTagValue;
 use self::tags::parsers::TagParseError;

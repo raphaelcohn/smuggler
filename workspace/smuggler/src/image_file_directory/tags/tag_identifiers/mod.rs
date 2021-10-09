@@ -6,3 +6,6 @@ pub(in crate::image_file_directory::tags) mod exif;
 
 
 pub(in crate::image_file_directory::tags) mod public;
+
+
+include!("TagIdentifier.rs");

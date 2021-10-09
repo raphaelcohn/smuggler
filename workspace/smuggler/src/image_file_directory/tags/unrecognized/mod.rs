@@ -12,7 +12,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt;
 use super::Tag;
-use super::TagIdentifier;
+use super::tag_identifiers::TagIdentifier;
 use super::parsers::RawTagValue;
 use super::parsers::TagEventHandler;
 use super::parsers::TagParser;
