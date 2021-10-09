@@ -97,152 +97,153 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			// (
 			//
 			// ),
-			//
+			
 			// PhotometricInterpretation => PublicTag::PhotometricInterpretation
 			// (
 			//
 			// ),
-			//
+			
 			// Threshholding => PublicTag::Threshholding
 			// (
 			//
 			// ),
-			//
+			
 			// CellWidth => PublicTag::CellWidth
 			// (
 			//
 			// ),
-			//
+			
 			// CellLength => PublicTag::CellLength
 			// (
 			//
 			// ),
-			//
+			
 			// FillOrder => PublicTag::FillOrder
 			// (
 			//
 			// ),
-			//
+			
 			// ImageDescription => PublicTag::ImageDescription
 			// (
 			//
 			// ),
-			//
+			
 			// Make => PublicTag::Make
 			// (
 			//
 			// ),
-			//
+			
 			// Model => PublicTag::Model
 			// (
 			//
 			// ),
-			//
+			
 			StripOffsets =>
 			{
 				self.strip_offsets = Some(raw_tag_value.unsigned_integers(common, tag_type)?);
 				return Ok(())
 			}
-			//
+			
 			// Orientation => PublicTag::Orientation
 			// (
 			//
 			// ),
-			//
+			
 			// SamplesPerPixel => PublicTag::SamplesPerPixel
 			// (
 			//
 			// ),
-			//
+			
 			// RowsPerStrip => PublicTag::RowsPerStrip
 			// (
 			//
 			// ),
-			//
+			
 			StripByteCounts => PublicTag::Strips(Self::parse_offsets_array(common, &mut self.strip_offsets, tag_type, raw_tag_value)?),
-			//
+			
 			// MinSampleValue => PublicTag::MinSampleValue
 			// (
 			//
 			// ),
-			//
+			
 			// MaxSampleValue => PublicTag::MaxSampleValue
 			// (
 			//
 			// ),
-			//
+			
 			// XResolution => PublicTag::XResolution
 			// (
 			//
 			// ),
-			//
+			
 			// YResolution => PublicTag::YResolution
 			// (
 			//
 			// ),
-			//
+			
 			// PlanarConfiguration => PublicTag::PlanarConfiguration
 			// (
 			//
 			// ),
-			//
+			
 			FreeOffsets =>
 			{
 				self.free_offsets = Some(raw_tag_value.unsigned_integers(common, tag_type)?);
 				return Ok(())
 			}
+			
 			FreeByteCounts => PublicTag::Frees(Self::parse_offsets_array(common, &mut self.free_offsets, tag_type, raw_tag_value)?),
-			//
+			
 			// GrayResponseUnit => PublicTag::GrayResponseUnit
 			// (
 			//
 			// ),
-			//
+			
 			// GrayResponseCurve => PublicTag::GrayResponseCurve
 			// (
 			//
 			// ),
-			//
+			
 			// ResolutionUnit => PublicTag::ResolutionUnit
 			// (
 			//
 			// ),
-			//
+			
 			// Software => PublicTag::Software
 			// (
 			//
 			// ),
-			//
+			
 			// DateTime => PublicTag::DateTime
 			// (
 			//
 			// ),
-			//
+			
 			// Artist => PublicTag::Artist
 			// (
 			//
 			// ),
-			//
+			
 			// HostComputer => PublicTag::HostComputer
 			// (
 			//
 			// ),
-			//
+			
 			// ColorMap => PublicTag::ColorMap
 			// (
 			//
 			// ),
-			//
+			
 			// ExtraSamples => PublicTag::ExtraSamples
 			// (
 			//
 			// ),
-			//
+			
 			// Copyright => PublicTag::Copyright
 			// (
 			//
 			// ),
-			//
+			
 			// // Extension tags.
 			TileOffsets =>
 			{
@@ -261,10 +262,14 @@ impl<'tiff_bytes, 'allocator, A: Allocator + Clone, TEH: TagEventHandler<PublicT
 			//
 			// TODO: JPEGInterchangeFormat,
 			// TODO: JPEGInterchangeFormatLength,
+			// TODO: Legacy JPOEG tables
+			// TODO: XMP profiles (Extensible Metadata Platform)
 			//
 			// // TODO: Also EXIF, GPS, Interoperability;
 			// // TODO: ICC Profile has its own weird format.
 			// // TODO: Maker note sub IFDs with the Microsoft hack.
+			
+			// TODO: FreeSpace implementation!!!
 			
 			_ => PublicTag::Unrecognized(UnrecognizedTag::parse::<_, Unit>(common, tag_identifier, tag_type, raw_tag_value)?),
 		};

@@ -2,10 +2,10 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::FileLength;
-use crate::collections::Index;
-use crate::collections::OverflowError;
-use crate::collections::TiffBytes;
+use crate::bytes::FileLength;
+use crate::bytes::Index;
+use crate::bytes::OverflowError;
+use crate::bytes::TiffBytes;
 use likely::unlikely;
 use std::error;
 use std::fmt::Debug;

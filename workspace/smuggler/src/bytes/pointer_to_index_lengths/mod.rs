@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::OverflowError;
+use crate::bytes::OverflowError;
 use likely::unlikely;
 use std::fmt::Debug;
 use std::hash::Hash;

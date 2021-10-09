@@ -40,7 +40,7 @@
 
 
 use std::alloc::Allocator;
-use self::collections::TiffBytes;
+use self::bytes::TiffBytes;
 use self::header::HeaderParseError;
 use self::image_file_directory::ImageFileDirectoriesParseError;
 use std::error;
@@ -48,8 +48,8 @@ use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use crate::collections::ByteOrder;
-use crate::collections::TiffBytesWithOrder;
+use crate::bytes::ByteOrder;
+use crate::bytes::TiffBytesWithOrder;
 use crate::header::parse_header_zeroth_image_file_directory_pointer;
 use crate::header::Version;
 use crate::header::parse_header_byte_order;
@@ -64,7 +64,7 @@ use crate::image_file_directory::tags::public::PublicTag;
 
 
 /// Collections.
-pub mod collections;
+pub mod bytes;
 
 
 /// Header.

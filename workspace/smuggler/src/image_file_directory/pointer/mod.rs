@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::Index;
+use crate::bytes::Index;
 use crate::offset::Offset;
 use crate::offset::OffsetParseError;
 use likely::unlikely;

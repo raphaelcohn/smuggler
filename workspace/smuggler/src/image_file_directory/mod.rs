@@ -2,12 +2,12 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::Index;
-use crate::collections::OverflowError;
-use crate::collections::TiffBytes;
-use crate::collections::TiffBytesWithOrder;
-use crate::collections::VecExt;
-use crate::collections::size_of_u64;
+use crate::bytes::Index;
+use crate::bytes::OverflowError;
+use crate::bytes::TiffBytes;
+use crate::bytes::TiffBytesWithOrder;
+use crate::bytes::VecExt;
+use crate::bytes::size_of_u64;
 use likely::unlikely;
 use self::pointer::ImageFileDirectoryPointer;
 use self::pointer::ImageFileDirectoryPointerParseError;

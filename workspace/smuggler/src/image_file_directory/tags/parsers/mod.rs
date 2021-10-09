@@ -2,14 +2,14 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::Byte;
-use crate::collections::ByteOrder;
-use crate::collections::CanBeUnaligned;
-use crate::collections::Index;
-use crate::collections::OverflowError;
-use crate::collections::TiffBytes;
-use crate::collections::TiffBytesWithOrder;
-use crate::collections::size_of_u64;
+use crate::bytes::Byte;
+use crate::bytes::ByteOrder;
+use crate::bytes::CanBeUnaligned;
+use crate::bytes::Index;
+use crate::bytes::OverflowError;
+use crate::bytes::TiffBytes;
+use crate::bytes::TiffBytesWithOrder;
+use crate::bytes::size_of_u64;
 use crate::header::{BigTiffHeaderParseError, Version};
 use crate::offset::Offset;
 use crate::offset::OffsetParseError;

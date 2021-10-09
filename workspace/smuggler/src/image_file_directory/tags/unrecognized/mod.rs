@@ -2,7 +2,7 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::TiffBytes;
+use crate::bytes::TiffBytes;
 use crate::image_file_directory::ChildImageFileDirectoriesParseError;
 use crate::image_file_directory::ImageFileDirectories;
 use std::alloc::Allocator;

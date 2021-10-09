@@ -2,10 +2,10 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
-use crate::collections::ByteOrUnaligned;
-use crate::collections::OverflowError;
-use crate::collections::TiffBytes;
-use crate::collections::VecExt;
+use crate::bytes::ByteOrUnaligned;
+use crate::bytes::OverflowError;
+use crate::bytes::TiffBytes;
+use crate::bytes::VecExt;
 use likely::unlikely;
 use std::alloc::Allocator;
 use std::cmp::Ordering;
