@@ -62,43 +62,43 @@ pub enum TagType
 
 impl TagType
 {
-	pub(super) const Unrecognized0: u16 = 0;
+	const Unrecognized0: u16 = 0;
 	
-	pub(super) const Byte: u16 = 1;
+	const Byte: u16 = 1;
 	
-	pub(super) const Ascii: u16 = 2;
+	const Ascii: u16 = 2;
 	
-	pub(super) const Short: u16 = 3;
+	const Short: u16 = 3;
 	
-	pub(super) const Long: u16 = 4;
+	const Long: u16 = 4;
 	
-	pub(super) const Rational: u16 = 5;
+	const Rational: u16 = 5;
 	
-	pub(super) const Sbyte: u16 = 6;
+	const Sbyte: u16 = 6;
 	
-	pub(super) const Undefined: u16 = 7;
+	const Undefined: u16 = 7;
 	
-	pub(super) const Sshort: u16 = 8;
+	const Sshort: u16 = 8;
 	
-	pub(super) const Slong: u16 = 9;
+	const Slong: u16 = 9;
 	
-	pub(super) const Srational: u16 = 10;
+	const Srational: u16 = 10;
 	
-	pub(super) const Float: u16 = 11;
+	const Float: u16 = 11;
 	
-	pub(super) const Double: u16 = 12;
+	const Double: u16 = 12;
 	
-	pub(super) const Ifd: u16 = 13;
+	const Ifd: u16 = 13;
 	
-	pub(super) const Unrecognized14: u16 = 14;
+	const Unrecognized14: u16 = 14;
 	
-	pub(super) const Unrecognized15: u16 = 15;
+	const Unrecognized15: u16 = 15;
 	
-	pub(super) const Long8: u16 = 16;
+	const Long8: u16 = 16;
 	
-	pub(super) const Slong8: u16 = 17;
+	const Slong8: u16 = 17;
 	
-	pub(super) const Ifd8: u16 = 18;
+	const Ifd8: u16 = 18;
 	
 	#[inline(always)]
 	pub(in crate::image_file_directory) fn parse(tag_type: u16) -> Result<(Self, u64), TagParseError>

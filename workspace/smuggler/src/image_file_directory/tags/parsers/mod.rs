@@ -42,7 +42,7 @@ use super::types::SignedIntegerNormalizedType;
 use super::types::SignedIntegerValue;
 use super::types::SignedIntegerValues;
 use super::types::SignedIntegers;
-use super::types::TagType;
+use super::TagType;
 use super::types::Unaligned;
 use super::types::UnsignedEnum;
 use super::types::UnsignedInteger;

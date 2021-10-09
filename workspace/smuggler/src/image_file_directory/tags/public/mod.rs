@@ -256,7 +256,7 @@ use strum::EnumIter;
 use strum::EnumString;
 use strum::IntoStaticStr;
 use strum::ToString;
-use super::types::TagType;
+use super::TagType;
 use super::types::UnsignedInteger;
 use super::types::EnumUnsignedInteger;
 use super::types::UnsignedEnum;

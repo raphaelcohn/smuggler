@@ -21,7 +21,7 @@ use super::parsers::Version6OrBigTiffUnit;
 use super::types::AsciiStrings;
 use super::types::AsciiStringsParseError;
 use super::types::RationalFraction;
-use super::types::TagType;
+use super::TagType;
 use super::types::Unaligned;
 
 

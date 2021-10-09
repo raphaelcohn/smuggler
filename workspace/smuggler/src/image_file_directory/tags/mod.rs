@@ -5,7 +5,9 @@
 use crate::bytes::VecExt;
 use likely::unlikely;
 use self::parsers::TagEventHandler;
+use self::parsers::TagParseError;
 use self::tag_identifiers::TagIdentifier;
+use self::unrecognized::UnrecognizedRepresentationValue;
 use std::alloc::Allocator;
 use std::cmp::Ordering;
 use std::collections::TryReserveError;
@@ -15,7 +17,6 @@ use std::hash::Hash;
 use std::num::NonZeroU64;
 use std::ops::Deref;
 use swiss_army_knife::get_unchecked::GetUnchecked;
-use crate::image_file_directory::tags::unrecognized::UnrecognizedRepresentationValue;
 
 
 /// Parsers.
@@ -43,3 +44,4 @@ include!("RawTagKey.rs");
 include!("Tag.rs");
 include!("TagKey.rs");
 include!("Tags.rs");
+include!("TagType.rs");
