@@ -21,7 +21,7 @@ pub(crate) trait VecExt<T, A: Allocator>: Sized
 	fn push_unchecked(&mut self, value: T);
 	
 	/// Try to insert.
-	fn try_insert<AUI: AsUsizeIndex>(&mut self, index: AUI, value: T) -> Result<(), TryReserveError>;
+	fn try_insert_with_optimization_bias_to_push<AUI: AsUsizeIndex>(&mut self, index: AUI, value: T) -> Result<(), TryReserveError>;
 }
 
 impl<T, A: Allocator> VecExt<T, A> for Vec<T, A>
@@ -73,19 +73,31 @@ impl<T, A: Allocator> VecExt<T, A> for Vec<T, A>
 	}
 	
 	#[inline(always)]
-	fn try_insert<AUI: AsUsizeIndex>(&mut self, index: AUI, value: T) -> Result<(), TryReserveError>
+	fn try_insert_with_optimization_bias_to_push<AUI: AsUsizeIndex>(&mut self, index: AUI, value: T) -> Result<(), TryReserveError>
 	{
 		self.try_reserve(1)?;
 		
 		let index = index.as_usize();
 		let length = self.len();
 		debug_assert!(index <= length);
-		let tail_length = length - index;
+		
 		let pointer = self.as_mut_ptr();
+		let insert_at_pointer = unsafe { pointer.add(index) };
+		
+		// Whilst `ptr::copy()` handles a `tail_length` of `0` perfectly, it still involves, in assembly, a function call.
+		// The majority of the time, especially for free space handling, insertions will always occur at the end of the `Vec`.
+		if unlikely!(index != length)
+		{
+			let tail_length = length - index;
+			unsafe
+			{
+				let move_tail_to_pointer = insert_at_pointer.add(1);
+				ptr::copy(insert_at_pointer, move_tail_to_pointer, tail_length);
+			}
+		}
+		
 		unsafe
 		{
-			let insert_at_pointer = pointer.add(index);
-			ptr::copy(pointer, pointer.add(1), tail_length);
 			ptr::write(insert_at_pointer, value);
 			self.set_len(length + 1)
 		}

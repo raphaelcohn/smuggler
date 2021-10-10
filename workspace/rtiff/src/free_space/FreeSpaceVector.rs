@@ -232,12 +232,6 @@ impl<A: Allocator> FreeSpaceVector<A>
 	}
 	
 	#[inline(always)]
-	fn try_insert(&mut self, free_space_index: usize, free_space_range: SpaceRange) -> Result<(), TryReserveError>
-	{
-		self.free_space_ranges.try_insert(free_space_index, free_space_range)
-	}
-	
-	#[inline(always)]
 	fn scenario_2a(&mut self, mid: usize, used_space_range: SpaceRange)
 	{
 		{
@@ -437,11 +431,16 @@ impl<A: Allocator> FreeSpaceVector<A>
 		}
 	}
 	
-	
 	#[inline(always)]
 	fn remove(&mut self, mid: usize)
 	{
 		let _ = self.free_space_ranges.remove(mid);
+	}
+	
+	#[inline(always)]
+	fn try_insert(&mut self, free_space_index: usize, free_space_range: SpaceRange) -> Result<(), TryReserveError>
+	{
+		self.free_space_ranges.try_insert_with_optimization_bias_to_push(free_space_index, free_space_range)
 	}
 	
 	#[inline(always)]
