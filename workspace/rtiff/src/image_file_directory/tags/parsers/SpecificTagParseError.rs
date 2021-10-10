@@ -19,6 +19,9 @@ pub enum SpecificTagParseError
 	OffsetIsTooLargeForTargetArchitecture(OverflowError),
 	
 	#[allow(missing_docs)]
+	FreeSpaceOutOfMemory(FreeSpaceOutOfMemoryError),
+	
+	#[allow(missing_docs)]
 	PublicTagParse(PublicTagParseError),
 	
 	#[allow(missing_docs)]
@@ -47,12 +50,23 @@ impl error::Error for SpecificTagParseError
 			
 			OffsetIsTooLargeForTargetArchitecture(cause) => Some(cause),
 			
+			FreeSpaceOutOfMemory(cause) => Some(cause),
+			
 			PublicTagParse(cause) => Some(cause),
 			
 			UnrecognizedTagParse(cause) => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<FreeSpaceOutOfMemoryError> for SpecificTagParseError
+{
+	#[inline(always)]
+	fn from(cause: FreeSpaceOutOfMemoryError) -> Self
+	{
+		SpecificTagParseError::FreeSpaceOutOfMemory(cause)
 	}
 }
 

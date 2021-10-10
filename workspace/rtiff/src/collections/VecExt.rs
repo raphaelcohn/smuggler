@@ -19,6 +19,9 @@ pub(crate) trait VecExt<T, A: Allocator>: Sized
 	
 	/// Push without checking capacity.
 	fn push_unchecked(&mut self, value: T);
+	
+	/// Try to insert.
+	fn try_insert<AUI: AsUsizeIndex>(&mut self, index: AUI, value: T) -> Result<(), TryReserveError>;
 }
 
 impl<T, A: Allocator> VecExt<T, A> for Vec<T, A>
@@ -67,5 +70,26 @@ impl<T, A: Allocator> VecExt<T, A> for Vec<T, A>
 			ptr::write(end, value);
 			self.set_len(length + 1);
 		}
+	}
+	
+	#[inline(always)]
+	fn try_insert<AUI: AsUsizeIndex>(&mut self, index: AUI, value: T) -> Result<(), TryReserveError>
+	{
+		self.try_reserve(1)?;
+		
+		let index = index.as_usize();
+		let length = self.len();
+		debug_assert!(index <= length);
+		let tail_length = length - index;
+		let pointer = self.as_mut_ptr();
+		unsafe
+		{
+			let insert_at_pointer = pointer.add(index);
+			ptr::copy(pointer, pointer.add(1), tail_length);
+			ptr::write(insert_at_pointer, value);
+			self.set_len(length + 1)
+		}
+		
+		Ok(())
 	}
 }

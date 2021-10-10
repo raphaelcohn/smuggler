@@ -117,7 +117,7 @@ impl<'tiff_bytes> RawTagValue<'tiff_bytes>
 				(index, common.non_null_to_index_checked_mut::<u8>(index, slice_size_in_bytes).map_err(OffsetIsTooLargeForTargetArchitecture)?)
 			};
 			
-			common.record_used_space_slice(index, slice_size_in_bytes);
+			common.record_used_space_slice(index, slice_size_in_bytes, FreeSpaceOutOfMemoryError::RecordingSlice)?;
 			
 			NonNull::slice_from_raw_parts(non_null, slice_size_in_bytes as usize)
 		};

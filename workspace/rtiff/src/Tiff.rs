@@ -38,7 +38,7 @@ impl<'tiff_bytes, A: Allocator + Clone> Tiff<'tiff_bytes, A>
 		#[inline(always)]
 		fn new_tag_parser_common<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Version6OrBigTiffVersion>(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, allocator: &'allocator A) -> Result<TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, TiffParseError>
 		{
-			TagParserCommon::new(tiff_bytes_with_order, allocator).map_err(TiffParseError::OutOfMemoryCreatingTagParserCommon)
+			Ok(TagParserCommon::new(tiff_bytes_with_order, allocator)?)
 		}
 		
 		match tiff_bytes_with_order.unaligned_checked(2).map_err(|cause| VersionParse(TooFewBytesForVersion(cause)))?
@@ -77,7 +77,7 @@ impl<'tiff_bytes, A: Allocator + Clone> Tiff<'tiff_bytes, A>
 	#[inline(always)]
 	fn parse_remainder_of_header<'allocator, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>) -> Result<ImageFileDirectoryPointer, TiffParseError>
 	{
-		common.record_used_space_slice(0, Version::HeaderSizeInBytes);
+		common.record_used_space_slice(0, Version::HeaderSizeInBytes, FreeSpaceOutOfMemoryError::RecordingHeaderSize)?;
 		let zeroth_image_file_directory_pointer = parse_header_zeroth_image_file_directory_pointer::<TB, Version>(&common)?;
 		Ok(zeroth_image_file_directory_pointer)
 	}

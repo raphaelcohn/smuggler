@@ -44,7 +44,7 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Vers
 	const MaximumDescents: NonZeroU8 = new_non_zero_u8(3);
 	
 	#[inline(always)]
-	pub(crate) fn new(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, allocator: &'allocator A) -> Result<Self, TryReserveError>
+	pub(crate) fn new(tiff_bytes_with_order: TiffBytesWithOrder<'tiff_bytes, TB>, allocator: &'allocator A) -> Result<Self, FreeSpaceOutOfMemoryError>
 	{
 		Ok
 		(
@@ -81,9 +81,9 @@ impl<'tiff_bytes, 'allocator, TB: TiffBytes, A: Allocator + Clone, Version: Vers
 	}
 	
 	#[inline(always)]
-	pub(crate) fn record_used_space_slice(&mut self, index: Index, size_in_bytes: u64)
+	pub(crate) fn record_used_space_slice(&mut self, index: Index, size_in_bytes: u64, error: impl FnOnce(TryReserveError) -> FreeSpaceOutOfMemoryError) -> Result<(), FreeSpaceOutOfMemoryError>
 	{
-		self.free_space.record_used_space_slice(index, size_in_bytes)
+		self.free_space.record_used_space_slice(index, size_in_bytes, error)
 	}
 	
 	#[inline(always)]

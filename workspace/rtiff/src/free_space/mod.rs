@@ -10,6 +10,11 @@ use likely::unlikely;
 use std::alloc::Allocator;
 use std::cmp::Ordering;
 use std::collections::TryReserveError;
+use std::error;
+use std::fmt;
+use std::fmt::Debug;
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::num::NonZeroUsize;
 use std::ops::Deref;
 use std::slice::from_raw_parts;
@@ -18,5 +23,6 @@ use swiss_army_knife::non_zero::new_non_zero_usize;
 
 
 include!("FreeSpace.rs");
+include!("FreeSpaceOutOfMemoryError.rs");
 include!("FreeSpaceVector.rs");
 include!("SpaceRange.rs");

@@ -14,7 +14,7 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 		let index = image_file_directory_pointer.index();
 		
 		let number_of_directory_entries = Self::number_of_directory_entries::<_, Version>(&common, index)?;
-		common.record_used_space_slice(index, size_of_u64::<Version::NumberOfDirectoryEntries>());
+		common.record_used_space_slice(index, size_of_u64::<Version::NumberOfDirectoryEntries>(), FreeSpaceOutOfMemoryError::RecordingImageFileDirectoryNumberOfDirectoryEntries)?;
 		let number_of_directory_entry_bytes = Self::number_of_directory_entry_bytes::<Version>(number_of_directory_entries)?;
 		let directory_entries_index = Self::directory_entries_index::<Version>(index, number_of_directory_entries)?;
 		
@@ -50,7 +50,7 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 	#[inline(always)]
 	fn number_of_directory_entry_bytes<Version: Version6OrBigTiffVersion>(number_of_directory_entries: NonZeroU64) -> Result<NonZeroU64, ImageFileDirectoryParseError>
 	{
-		match number_of_directory_entries.get().checked_mul(Self::SizeOfEntry::<Version>())
+		match number_of_directory_entries.get().checked_mul(Self::SizeOfDirectoryEntry::<Version>())
 		{
 			Some(raw_number_of_directory_entry_bytes) => Ok(new_non_zero_u64(raw_number_of_directory_entry_bytes)),
 			
@@ -71,7 +71,7 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 		let image_file_directory_pointer_index = Self::image_file_directory_pointer_index(directory_entries_index, number_of_directory_entry_bytes)?;
 		let image_file_directory_pointer = common.image_file_directory_pointer::<Version>(image_file_directory_pointer_index).map_err(ImageFileDirectoryParseError::NextImageFileDirectoryPointerParse)?;
 		
-		common.record_used_space_slice(image_file_directory_pointer_index, Version::Size);
+		common.record_used_space_slice(image_file_directory_pointer_index, Version::Size, FreeSpaceOutOfMemoryError::RecordingNextImageFileDirectoryPointer)?;
 		
 		Ok(image_file_directory_pointer)
 	}
@@ -88,17 +88,17 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 		let mut tag_parser = TP::default();
 		let mut tags = Tags::new(number_of_directory_entries, common.allocator()).map_err(ImageFileDirectoryParseError::CouldNotAllocateMemoryForDirectoryEntries)?;
 		let mut directory_entry_index = directory_entries_index;
-		let mut previous_tag_identifier = None;
-		let last_directory_entry_index = number_of_directory_entry_bytes.get() - Self::SizeOfEntry::<Version>();
+		let mut tag_identifier_parser = TagIdentifierParser::default();
+		let last_directory_entry_index = number_of_directory_entry_bytes.get() - Self::SizeOfDirectoryEntry::<Version>();
 		loop
 		{
-			Self::parse_directory_entry::<_, _, Version>(&mut tag_parser, common, &mut tags, directory_entry_index, &mut previous_tag_identifier)?;
+			Self::parse_directory_entry::<_, _, Version>(&mut tag_parser, common, &mut tags, directory_entry_index, &mut tag_identifier_parser)?;
 			
 			if unlikely!(directory_entry_index == last_directory_entry_index)
 			{
 				break
 			}
-			directory_entry_index += Self::SizeOfEntry::<Version>()
+			directory_entry_index += Self::SizeOfDirectoryEntry::<Version>()
 		}
 		
 		if let Err(cause) = tag_parser.finish::<_, Version>(common, &mut tags)
@@ -110,29 +110,23 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 	}
 	
 	#[inline(always)]
-	fn parse_directory_entry<'tiff_bytes, 'allocator, TP: TagParser<'tiff_bytes, 'allocator, A, Tags<A, T>, T>, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(tag_parser: &mut TP, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_event_handler: &mut Tags<A, T>, directory_entry_index: Index, previous_tag_identifier: &mut Option<u16>) -> Result<(), TagParseError>
+	fn parse_directory_entry<'tiff_bytes, 'allocator, TP: TagParser<'tiff_bytes, 'allocator, A, Tags<A, T>, T>, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(tag_parser: &mut TP, common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, tag_event_handler: &mut Tags<A, T>, directory_entry_index: Index, tag_identifier_parser: &mut TagIdentifierParser) -> Result<(), TagParseError>
 	{
-		let tag_identifier = Self::tag_identifier(&common, directory_entry_index, previous_tag_identifier)?;
-		let (tag_type, tag_type_size_in_bytes) = TagType::parse(Self::value_unchecked_u16(&common, directory_entry_index, Self::SizeOfTag))?;
-		let count = Self::value_unchecked::<Version, TB, _>(&common, directory_entry_index, Self::SizeOfFixedEntry, TiffBytesWithOrder::<TB>::unaligned_unchecked::<Version>).into();
-		let offset_or_value_union_index = directory_entry_index + Self::SizeOfEntryUptoCount::<Version>();
+		let (tag_identifier, (tag_type, tag_type_size_in_bytes), count) = Self::parse_directory_entry_upto_count::<_, Version>(common, directory_entry_index, tag_identifier_parser)?;
+		let offset_or_value_union_index = directory_entry_index + Self::SizeOfDirectoryEntryIncludingCount::<Version>();
 		
 		tag_parser.parse_tag::<TB, Version>(common, tag_event_handler, tag_identifier, tag_type, tag_type_size_in_bytes, count, offset_or_value_union_index).map_err(|cause| TagParseError::SpecificTagParse { cause, tag_identifier, tag_type, count, offset_or_value_union_index })
 	}
 	
 	#[inline(always)]
-	fn tag_identifier<TB: TiffBytes>(tiff_bytes_with_order: &TiffBytesWithOrder<TB>, directory_entry_index: Index, previous_tag_identifier: &mut Option<TagIdentifier>) -> Result<TagIdentifier, TagParseError>
+	fn parse_directory_entry_upto_count<'tiff_bytes, 'allocator, TB: TiffBytes, Version: 'tiff_bytes + Version6OrBigTiffVersion>(common: &mut TagParserCommon<'tiff_bytes, 'allocator, TB, A, Version>, directory_entry_index: Index, tag_identifier_parser: &mut TagIdentifierParser) -> Result<(TagIdentifier, (TagType, u64), u64), TagParseError>
 	{
-		let tag_identifier = Self::value_unchecked_u16(tiff_bytes_with_order, directory_entry_index, 0);
-		let previous_tag_identifier = previous_tag_identifier.replace(tag_identifier);
-		if let Some(previous_tag_identifier) = previous_tag_identifier
-		{
-			if unlikely!(previous_tag_identifier >= tag_identifier)
-			{
-				return Err(TagParseError::OutOfSequenceTagIdentifier { tag_identifier, previous_tag_identifier })
-			}
-		}
-		Ok(tag_identifier)
+		let tag_identifier = tag_identifier_parser.parse(Self::value_unchecked_u16(&common, directory_entry_index, 0))?;
+		let tag_type_information = TagType::parse(Self::value_unchecked_u16(&common, directory_entry_index, Self::SizeOfTag))?;
+		let count = Self::value_unchecked::<Version, TB, _>(&common, directory_entry_index, Self::SizeOfDirectoryEntryIncludingType, TiffBytesWithOrder::<TB>::unaligned_unchecked::<Version>).into();
+		
+		common.record_used_space_slice(directory_entry_index, Self::SizeOfDirectoryEntryIncludingCount::<Version>(), FreeSpaceOutOfMemoryError::RecordingDirectoryEntryIncludingCount)?;
+		Ok((tag_identifier, tag_type_information, count))
 	}
 	
 	#[inline(always)]
@@ -148,18 +142,18 @@ impl<A: Allocator + Clone, T: Tag> ImageFileDirectory<A, T>
 	}
 	
 	#[inline(always)]
-	const fn SizeOfEntry<Version: Version6OrBigTiffVersion>() -> u64
+	const fn SizeOfDirectoryEntry<Version: Version6OrBigTiffVersion>() -> u64
 	{
-		Self::SizeOfEntryUptoCount::<Version>() + Version::PointerSize
+		Self::SizeOfDirectoryEntryIncludingCount::<Version>() + Version::PointerSize
 	}
 	
 	#[inline(always)]
-	const fn SizeOfEntryUptoCount<Version: Version6OrBigTiffVersion>() -> u64
+	const fn SizeOfDirectoryEntryIncludingCount<Version: Version6OrBigTiffVersion>() -> u64
 	{
-		Self::SizeOfFixedEntry + Version::DirectoryEntryCountSize
+		Self::SizeOfDirectoryEntryIncludingType + Version::DirectoryEntryCountSize
 	}
 	
-	const SizeOfFixedEntry: u64 = Self::SizeOfTag + Self::SizeOfType;
+	const SizeOfDirectoryEntryIncludingType: u64 = Self::SizeOfTag + Self::SizeOfType;
 	
 	const SizeOfTag: u64 = size_of_u64::<u16>();
 	

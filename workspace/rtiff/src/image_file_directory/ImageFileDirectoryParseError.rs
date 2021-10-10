@@ -10,6 +10,9 @@ pub enum ImageFileDirectoryParseError
 	NotEnoughBytesForNumberOfDirectoryElements(OverflowError),
 	
 	#[allow(missing_docs)]
+	FreeSpaceOutOfMemory(FreeSpaceOutOfMemoryError),
+	
+	#[allow(missing_docs)]
 	ThereAreNoDirectoryEntries,
 	
 	#[allow(missing_docs)]
@@ -69,6 +72,8 @@ impl error::Error for ImageFileDirectoryParseError
 		{
 			NotEnoughBytesForNumberOfDirectoryElements(cause) => Some(cause),
 			
+			FreeSpaceOutOfMemory(cause) => Some(cause),
+			
 			NextImageFileDirectoryPointerParse(cause) => Some(cause),
 			
 			CouldNotAllocateMemoryForDirectoryEntries(cause) => Some(cause),
@@ -79,6 +84,15 @@ impl error::Error for ImageFileDirectoryParseError
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<FreeSpaceOutOfMemoryError> for ImageFileDirectoryParseError
+{
+	#[inline(always)]
+	fn from(cause: FreeSpaceOutOfMemoryError) -> Self
+	{
+		ImageFileDirectoryParseError::FreeSpaceOutOfMemory(cause)
 	}
 }
 

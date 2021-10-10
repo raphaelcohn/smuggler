@@ -35,14 +35,14 @@ impl<A: Allocator> FreeSpace<A>
 	}
 	
 	#[inline(always)]
-	pub(crate) fn new<TB: TiffBytes>(allocator: A, tiff_bytes_with_order: &TiffBytesWithOrder<TB>) -> Result<Self, TryReserveError>
+	pub(crate) fn new<TB: TiffBytes>(allocator: A, tiff_bytes_with_order: &TiffBytesWithOrder<TB>) -> Result<Self, FreeSpaceOutOfMemoryError>
 	{
 		FreeSpaceVector::new(allocator, tiff_bytes_with_order.file_length()).map(Self)
 	}
 	
 	#[inline(always)]
-	pub(crate) fn record_used_space_slice(&mut self, index: Index, size_in_bytes: u64)
+	pub(crate) fn record_used_space_slice(&mut self, index: Index, size_in_bytes: u64, error: impl FnOnce(TryReserveError) -> FreeSpaceOutOfMemoryError) -> Result<(), FreeSpaceOutOfMemoryError>
 	{
-		self.0.record_used_space_slice(SpaceRange::from_slice(index, size_in_bytes))
+		self.0.record_used_space_slice(SpaceRange::from_slice(index, size_in_bytes)).map_err(error)
 	}
 }

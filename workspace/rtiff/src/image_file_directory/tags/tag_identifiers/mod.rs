@@ -2,6 +2,10 @@
 // Copyright © 2021 The developers of smuggler. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/lemonrock/smuggler/master/COPYRIGHT.
 
 
+use likely::unlikely;
+use super::parsers::TagParseError;
+
+
 pub(in crate::image_file_directory::tags) mod exif;
 
 
@@ -9,3 +13,4 @@ pub(in crate::image_file_directory::tags) mod public;
 
 
 include!("TagIdentifier.rs");
+include!("TagIdentifierParser.rs");

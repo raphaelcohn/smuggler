@@ -57,7 +57,7 @@ use super::values::UnsignedIntegers;
 use super::unrecognized::UnrecognizedTagFinishParseError;
 use super::unrecognized::UnrecognizedTagParseError;
 use swiss_army_knife::non_zero::new_non_zero_u8;
-use crate::free_space::FreeSpace;
+use crate::free_space::{FreeSpace, FreeSpaceOutOfMemoryError};
 
 
 include!("FinishParseError.rs");

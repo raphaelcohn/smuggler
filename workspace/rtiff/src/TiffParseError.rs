@@ -10,7 +10,7 @@ pub enum TiffParseError
 	HeaderParse(HeaderParseError),
 	
 	#[allow(missing_docs)]
-	OutOfMemoryCreatingTagParserCommon(TryReserveError),
+	FreeSpaceOutOfMemory(FreeSpaceOutOfMemoryError),
 	
 	#[allow(missing_docs)]
 	ImageFileDirectoriesParse(ImageFileDirectoriesParseError),
@@ -36,7 +36,7 @@ impl error::Error for TiffParseError
 		{
 			HeaderParse(cause) => Some(cause),
 			
-			OutOfMemoryCreatingTagParserCommon(cause) => Some(cause),
+			FreeSpaceOutOfMemory(cause) => Some(cause),
 			
 			ImageFileDirectoriesParse(cause) => Some(cause),
 		}
@@ -49,6 +49,15 @@ impl From<HeaderParseError> for TiffParseError
 	fn from(cause: HeaderParseError) -> Self
 	{
 		TiffParseError::HeaderParse(cause)
+	}
+}
+
+impl From<FreeSpaceOutOfMemoryError> for TiffParseError
+{
+	#[inline(always)]
+	fn from(cause: FreeSpaceOutOfMemoryError) -> Self
+	{
+		TiffParseError::FreeSpaceOutOfMemory(cause)
 	}
 }
 

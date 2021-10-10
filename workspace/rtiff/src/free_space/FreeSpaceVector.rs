@@ -22,14 +22,21 @@ impl<A: Allocator> Deref for FreeSpaceVector<A>
 
 impl<A: Allocator> FreeSpaceVector<A>
 {
+	const InitialVectorSizeGuess: usize = 4096;
+	
 	#[inline(always)]
-	fn new(allocator: A, file_length: FileLength) -> Result<Self, TryReserveError>
+	fn new(allocator: A, file_length: FileLength) -> Result<Self, FreeSpaceOutOfMemoryError>
 	{
 		Ok
 		(
 			Self
 			{
-				free_space_ranges: Vec::new_with_capacity(file_length, allocator)?
+				free_space_ranges:
+				{
+					let mut vec = Vec::new_with_capacity(Self::InitialVectorSizeGuess, allocator).map_err(FreeSpaceOutOfMemoryError::Creation)?;
+					vec.push_unchecked(SpaceRange::from_slice(0, file_length));
+					vec
+				}
 			}
 		)
 	}
@@ -126,7 +133,7 @@ impl<A: Allocator> FreeSpaceVector<A>
 	/// 	Start searching to the left of FSR.
 	/// ```
 	#[inline(always)]
-	fn record_used_space_slice(&mut self, used_space_range: SpaceRange)
+	fn record_used_space_slice(&mut self, used_space_range: SpaceRange) -> Result<(), TryReserveError>
 	{
 		let mut size = self.length();
         let mut left = 0;
@@ -150,6 +157,7 @@ impl<A: Allocator> FreeSpaceVector<A>
 				return self.scenarios_1_to_4(mid, free_space_range, used_space_range)
 			}
         }
+		Ok(())
     }
 	
 	/// FSR was less than USR with no overlap so search to the right.
@@ -169,14 +177,14 @@ impl<A: Allocator> FreeSpaceVector<A>
 	}
 	
 	#[inline(always)]
-	fn scenarios_1_to_4(&mut self, mid: usize, free_space_range: SpaceRange, used_space_range: SpaceRange)
+	fn scenarios_1_to_4(&mut self, mid: usize, free_space_range: SpaceRange, used_space_range: SpaceRange) -> Result<(), TryReserveError>
 	{
 		use Ordering::*;
 		match (SpaceRange::compare_inclusive_from(free_space_range, used_space_range), SpaceRange::compare_exclusive_to(free_space_range, used_space_range))
 		{
 			(Less, Less) => self.scenario_2a(mid, used_space_range),
 			(Less, Equal) => self.scenario_1c(mid, used_space_range),
-			(Less, Greater) => self.scenario_1d(mid, used_space_range),
+			(Less, Greater) => self.scenario_1d(mid, used_space_range)?,
 			
 			(Equal, Less) => self.scenario_2b(mid, used_space_range),
 			(Equal, Equal) => self.scenario_1a(mid),
@@ -185,7 +193,8 @@ impl<A: Allocator> FreeSpaceVector<A>
 			(Greater, Less) => self.scenario_4(mid, used_space_range),
 			(Greater, Equal) => self.scenario_3b(mid, used_space_range),
 			(Greater, Greater) => self.scenario_3a(mid, used_space_range),
-		}
+		};
+		Ok(())
 	}
 	
 	#[inline(always)]
@@ -209,7 +218,7 @@ impl<A: Allocator> FreeSpaceVector<A>
 	}
 	
 	#[inline(always)]
-	fn scenario_1d(&mut self, mid: usize, used_space_range: SpaceRange)
+	fn scenario_1d(&mut self, mid: usize, used_space_range: SpaceRange) -> Result<(), TryReserveError>
 	{
 		let old_exclusive_to =
 		{
@@ -219,7 +228,13 @@ impl<A: Allocator> FreeSpaceVector<A>
 			old_exclusive_to
 		};
 		
-		self.free_space_ranges.insert(mid, SpaceRange { inclusive_from: used_space_range.exclusive_to, exclusive_to: old_exclusive_to });
+		self.try_insert(mid + 1, SpaceRange { inclusive_from: used_space_range.exclusive_to, exclusive_to: old_exclusive_to })
+	}
+	
+	#[inline(always)]
+	fn try_insert(&mut self, free_space_index: usize, free_space_range: SpaceRange) -> Result<(), TryReserveError>
+	{
+		self.free_space_ranges.try_insert(free_space_index, free_space_range)
 	}
 	
 	#[inline(always)]

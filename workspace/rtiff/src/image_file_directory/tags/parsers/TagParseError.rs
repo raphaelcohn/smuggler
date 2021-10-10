@@ -21,6 +21,9 @@ pub enum TagParseError
 	},
 	
 	#[allow(missing_docs)]
+	FreeSpaceOutOfMemory(FreeSpaceOutOfMemoryError),
+	
+	#[allow(missing_docs)]
 	SpecificTagParse
 	{
 		cause: SpecificTagParseError,
@@ -53,9 +56,20 @@ impl error::Error for TagParseError
 		
 		match self
 		{
+			FreeSpaceOutOfMemory(cause) => Some(cause),
+			
 			SpecificTagParse { cause, .. } => Some(cause),
 			
 			_ => None,
 		}
+	}
+}
+
+impl From<FreeSpaceOutOfMemoryError> for TagParseError
+{
+	#[inline(always)]
+	fn from(cause: FreeSpaceOutOfMemoryError) -> Self
+	{
+		TagParseError::FreeSpaceOutOfMemory(cause)
 	}
 }
