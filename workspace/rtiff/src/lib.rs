@@ -68,7 +68,8 @@ use crate::image_file_directory::tags::public::PublicTag;
 pub mod bytes;
 
 
-pub(crate) mod collections;
+/// Collections.
+pub mod collections;
 
 
 mod free_space;
