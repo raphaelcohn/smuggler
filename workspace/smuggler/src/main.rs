@@ -26,6 +26,7 @@
 #![doc = include_str!("../README.md")]
 
 
+use crypto_box as _;
 
 fn main()
 {

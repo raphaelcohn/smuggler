@@ -20,6 +20,10 @@ version = "0.0.0"
 
 
 [dependencies]
-likely = "^0.2.0"
+arrayvec = "0.7.0"
 rtiff = { version = "^0.0.0", path = "../rtiff" }
 crypto_box = { version = "^0.7.0", features = ["alloc", "std", "u64_backend"] }
+fatfs = { version = "^0.3.5" }
+fscommon = "^0.1.1"
+swiss-army-knife = "^0.0.28"
+zeroize = "1.3.0"
